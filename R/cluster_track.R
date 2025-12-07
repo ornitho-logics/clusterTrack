@@ -98,8 +98,7 @@ cluster_track <- function(
   cluster_segments(
     ctdf,
     nmin = nmin,
-    threshold = threshold,
-    time_contiguity = time_contiguity
+    threshold = threshold
   )
   cli_progress_update()
 
