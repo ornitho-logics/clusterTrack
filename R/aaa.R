@@ -19,11 +19,36 @@ NULL
 # undocumented functions of general interest
 
 .st_area_overlap_ratio <- function(i, j) {
-  ai = st_area(i) |> as.numeric()
-  aj = st_area(j) |> as.numeric()
-  aij = st_intersection(i, j) |> st_area() |> as.numeric()
-  if (length(aij) == 0) {
-    aij = 0
+  getA = function(x) {
+    if (!inherits(x, "sfc") || length(x) == 0L || all(st_is_empty(x))) {
+      return(NA_real_)
+    }
+
+    tryCatch(
+      st_area(x) |> as.numeric(),
+      error = function(e) NA_real_
+    )
+  }
+
+  ai = getA(i)
+  aj = getA(j)
+
+  if (anyNA(c(ai, aj))) {
+    return(0)
+  }
+
+  inter = tryCatch(
+    st_intersection(i, j),
+    error = function(e) st_sfc()
+  )
+
+  if (length(inter) == 0L || all(st_is_empty(inter))) {
+    return(0)
+  }
+
+  aij = getA(inter)
+  if (is.na(aij)) {
+    return(0)
   }
 
   as.numeric(aij / pmin(ai, aj))

@@ -78,7 +78,7 @@ cluster_track <- function(
   nmin = 5,
   threshold = 2,
   time_contiguity = FALSE,
-  overlap_threshold = 0.1
+  overlap_threshold = 0
 ) {
   options(datatable.showProgress = FALSE)
   cli_progress_bar("", type = "tasks", total = 4)
@@ -86,6 +86,11 @@ cluster_track <- function(
   # slice
   cli_progress_output("Track segmentation...")
   slice_ctdf(ctdf, deltaT = deltaT)
+  cli_progress_update()
+
+  # stich
+  cli_progress_output("Cluster stitching ...")
+  cluster_stitch(ctdf, overlap_threshold = overlap_threshold)
   cli_progress_update()
 
   # tesselate
@@ -100,11 +105,6 @@ cluster_track <- function(
     nmin = nmin,
     threshold = threshold
   )
-  cli_progress_update()
-
-  # stich
-  cli_progress_output("Cluster stitching ...")
-  cluster_stitch(ctdf, overlap_threshold = overlap_threshold)
   cli_progress_update()
 
   # time contiguity

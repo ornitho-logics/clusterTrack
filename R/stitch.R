@@ -1,14 +1,17 @@
 .stitch <- function(ctdf, overlap_threshold = 0) {
   o = ctdf[
-    cluster > 0,
+    .putative_cluster > 0,
     .(hull = st_union(location) |> st_convex_hull()),
-    by = cluster
+    by = .putative_cluster
   ]
 
   if (nrow(o) > 1) {
-    # prevents error on datasets with almost no clusters.
+    # prevents error on datasets with almost no .putative_clusters.
     o[, next_hull := hull[c(2:.N, NA_integer_)]]
-    o[, overlap := .st_area_overlap_ratio(hull, next_hull), by = cluster]
+    o[,
+      overlap := .st_area_overlap_ratio(hull, next_hull),
+      by = .putative_cluster
+    ]
     o[.N, overlap := 0]
     o[, is_overlap := overlap > overlap_threshold]
 
@@ -21,13 +24,17 @@
       grp_key := fifelse(
         !is.na(stitch_id),
         paste0("s", stitch_id),
-        paste0("c", cluster)
+        paste0("c", .putative_cluster)
       )
     ]
 
-    o[, cluster_stitched := .GRP, by = grp_key]
+    o[, .putative_cluster_stitched := .GRP, by = grp_key]
 
-    ctdf[o, on = "cluster", cluster := cluster_stitched]
+    ctdf[
+      o,
+      on = ".putative_cluster",
+      .putative_cluster := .putative_cluster_stitched
+    ]
   }
 }
 
@@ -48,20 +55,25 @@
 #' data(mini_ruff)
 #' ctdf = as_ctdf(mini_ruff, s_srs = 4326, t_srs = "+proj=eqearth")
 #' slice_ctdf(ctdf)
-#' cluster_segments(ctdf)
 #' cluster_stitch(ctdf)
+#' cluster_segments(ctdf)
 
 #' data(pesa56511)
 #' ctdf  = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
 #' slice_ctdf(ctdf)
-#' cluster_segments(ctdf)
 #' cluster_stitch(ctdf)
+#' cluster_segments(ctdf)
 #'
+#' data(ruff143789)
+#' ctdf = as_ctdf(ruff143789, time = "locationDate")
+#' slice_ctdf(ctdf)
+#' cluster_stitch(ctdf)
+
 #' data(lbdo66862)
 #' ctdf = as_ctdf(lbdo66862, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
 #' slice_ctdf(ctdf)
-#' cluster_segments(ctdf)
 #' cluster_stitch(ctdf)
+#' cluster_segments(ctdf)
 
 cluster_stitch <- function(ctdf, overlap_threshold = 0.1) {
   .check_ctdf(ctdf)

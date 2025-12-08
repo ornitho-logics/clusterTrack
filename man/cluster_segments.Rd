@@ -4,7 +4,7 @@
 \alias{cluster_segments}
 \title{Cluster segments of a ctdf}
 \usage{
-cluster_segments(ctdf, nmin = 3, threshold = 1, time_contiguity = FALSE)
+cluster_segments(ctdf, nmin = 3, threshold = 1)
 }
 \arguments{
 \item{ctdf}{A `ctdf` object, must contain a `.putative_cluster` column; see [slice_ctdf()],.}

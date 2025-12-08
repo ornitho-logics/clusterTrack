@@ -1,4 +1,4 @@
-.has_clusters <- function(ctdf, verbose = TRUE) {
+.has_clusters <- function(ctdf, verbose = FALSE) {
   MIN_N = 5
   MIN_CLUSTERS = 2
   if (nrow(ctdf) <= MIN_N) {
@@ -18,7 +18,7 @@
 
   if (length(cl_ids) > 1) {
     if (verbose) {
-      message("1. multiple hdbscan clusters detected")
+      message("* multiple hdbscan clusters detected")
     }
     return(TRUE)
   }
@@ -29,7 +29,7 @@
 
   if (large_clusters <= 1) {
     if (verbose) {
-      message("2. only one meaningful cluster")
+      message("* only one meaningful cluster")
     }
     return(FALSE)
   }
