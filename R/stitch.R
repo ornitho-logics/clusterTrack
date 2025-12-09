@@ -12,7 +12,7 @@
       overlap := .st_area_overlap_ratio(hull, next_hull),
       by = .putative_cluster
     ]
-    o[.N, overlap := 0]
+
     o[, is_overlap := overlap > overlap_threshold]
 
     o[, stitch_id := rleid(is_overlap)]
@@ -36,6 +36,51 @@
       .putative_cluster := .putative_cluster_stitched
     ]
   }
+}
+
+
+.stitch__ <- function(ctdf, overlap_threshold = 0) {
+  o = ctdf[
+    .putative_cluster > 0
+  ]
+
+  o[, i := shift(.I, type = "lead"), by = .putative_cluster]
+  o[, next_loc := location[i]]
+  o[, i := NULL]
+
+  etest_is_overlap <- function(a, b) {
+    ac = st_coordinates(a)
+    bc = st_coordinates(b[b[!sf::st_is_empty(b)]])
+
+    res = eqdist.etest(rbind(ac, bc), sizes = c(nrow(ac), nrow(bc)), R = 999)
+    res$p.value > 0.01
+  }
+
+  o[,
+    is_overlap := etest_is_overlap(location, next_loc),
+    by = .putative_cluster
+  ]
+
+  o[, stitch_id := rleid(is_overlap)]
+  o[(!is_overlap), stitch_id := NA]
+
+  o[, stitch_id := fcoalesce(stitch_id, shift(stitch_id))]
+
+  o[,
+    grp_key := fifelse(
+      !is.na(stitch_id),
+      paste0("s", stitch_id),
+      paste0("c", .putative_cluster)
+    )
+  ]
+
+  o[, .putative_cluster_stitched := .GRP, by = grp_key]
+
+  ctdf[
+    o,
+    on = ".putative_cluster",
+    .putative_cluster := .putative_cluster_stitched
+  ]
 }
 
 #' Stitch clusters by spatial overlap across segments
