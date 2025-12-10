@@ -39,22 +39,43 @@
 }
 
 
-.stitch__ <- function(ctdf, overlap_threshold = 0) {
+.stitch__ <- function(ctdf) {
   o = ctdf[
     .putative_cluster > 0
   ]
 
-  o[, i := shift(.I, type = "lead"), by = .putative_cluster]
-  o[, next_loc := location[i]]
-  o[, i := NULL]
+  if (!.is_sorted_and_contiguous(o$.putative_cluster)) {
+    stop(
+      "Something went wrong! `.putative_cluster` is not sorted and contiguous anymore."
+    )
+  }
 
-  etest_is_overlap <- function(a, b) {
-    ac = st_coordinates(a)
-    bc = st_coordinates(b[b[!sf::st_is_empty(b)]])
+  o[,
+    next_puc := shift(unique(.putative_cluster), type = "lead")[
+      match(.putative_cluster, unique(.putative_cluster))
+    ]
+  ]
+  o = o[!is.na(next_puc)]
 
-    res = eqdist.etest(rbind(ac, bc), sizes = c(nrow(ac), nrow(bc)), R = 999)
+  etest_is_overlap <- function(pc) {
+    ac = st_coordinates(o[.putative_cluster == pc, location])
+    bc = st_coordinates(o[.putative_cluster == pc + 1, location])
+
+    res = energy::eqdist.etest(
+      rbind(ac, bc),
+      sizes = c(nrow(ac), nrow(bc)),
+      R = 999
+    )
     res$p.value > 0.01
   }
+
+  olap = o[, .(.putative_cluster)] |> unique()
+  olap = olap[-.N]
+
+  olap[,
+    .(is_overlap = etest_is_overlap(.putative_cluster)),
+    by = .putative_cluster
+  ]
 
   o[,
     is_overlap := etest_is_overlap(location, next_loc),

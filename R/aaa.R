@@ -60,3 +60,12 @@ NULL
   st_union(x[d <= quantile(d, p), ]) |>
     st_convex_hull()
 }
+
+
+.is_sorted_and_contiguous <- function(x) {
+  o = unique(x)
+
+  sorted = all(o == sort(o))
+  contiguous = all(diff(o) == 1L)
+  sorted && contiguous
+}
