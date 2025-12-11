@@ -90,7 +90,7 @@ cluster_track <- function(
 
   # stich
   cli_progress_output("Cluster stitching ...")
-  cluster_stitch(ctdf, overlap_threshold = overlap_threshold)
+  cluster_stitch(ctdf)
   cli_progress_update()
 
   # tesselate

@@ -1,45 +1,4 @@
-.stitch <- function(ctdf, overlap_threshold = 0) {
-  o = ctdf[
-    .putative_cluster > 0,
-    .(hull = st_union(location) |> st_convex_hull()),
-    by = .putative_cluster
-  ]
-
-  if (nrow(o) > 1) {
-    # prevents error on datasets with almost no .putative_clusters.
-    o[, next_hull := hull[c(2:.N, NA_integer_)]]
-    o[,
-      overlap := .st_area_overlap_ratio(hull, next_hull),
-      by = .putative_cluster
-    ]
-
-    o[, is_overlap := overlap > overlap_threshold]
-
-    o[, stitch_id := rleid(is_overlap)]
-    o[(!is_overlap), stitch_id := NA]
-
-    o[, stitch_id := fcoalesce(stitch_id, shift(stitch_id))]
-
-    o[,
-      grp_key := fifelse(
-        !is.na(stitch_id),
-        paste0("s", stitch_id),
-        paste0("c", .putative_cluster)
-      )
-    ]
-
-    o[, .putative_cluster_stitched := .GRP, by = grp_key]
-
-    ctdf[
-      o,
-      on = ".putative_cluster",
-      .putative_cluster := .putative_cluster_stitched
-    ]
-  }
-}
-
-
-.stitch__ <- function(ctdf) {
+.stitch <- function(ctdf) {
   o = ctdf[
     .putative_cluster > 0
   ]
@@ -66,41 +25,34 @@
       sizes = c(nrow(ac), nrow(bc)),
       R = 999
     )
-    res$p.value > 0.01
+    print(res$p.value)
+    res$p.value > 0.001
   }
 
   olap = o[, .(.putative_cluster)] |> unique()
   olap = olap[-.N]
 
-  olap[,
+  olap = olap[,
     .(is_overlap = etest_is_overlap(.putative_cluster)),
     by = .putative_cluster
   ]
 
+  o = merge(ctdf[, .(.id, .putative_cluster)], olap, by = ".putative_cluster")
+
+  o[(is_overlap), .putative_cluster := .putative_cluster + 1]
+
   o[,
-    is_overlap := etest_is_overlap(location, next_loc),
+    putative_cluster := .GRP,
     by = .putative_cluster
   ]
 
-  o[, stitch_id := rleid(is_overlap)]
-  o[(!is_overlap), stitch_id := NA]
+  setkey(o, .id)
 
-  o[, stitch_id := fcoalesce(stitch_id, shift(stitch_id))]
-
-  o[,
-    grp_key := fifelse(
-      !is.na(stitch_id),
-      paste0("s", stitch_id),
-      paste0("c", .putative_cluster)
-    )
-  ]
-
-  o[, .putative_cluster_stitched := .GRP, by = grp_key]
-
+  ctdf[o, .putative_cluster := i.putative_cluster]
   ctdf[
-    o,
-    on = ".putative_cluster",
-    .putative_cluster := .putative_cluster_stitched
+    !is.na(.putative_cluster),
+    .putative_cluster := .GRP,
+    by = .putative_cluster
   ]
 }
 
@@ -141,13 +93,13 @@
 #' cluster_stitch(ctdf)
 #' cluster_segments(ctdf)
 
-cluster_stitch <- function(ctdf, overlap_threshold = 0.1) {
+cluster_stitch <- function(ctdf) {
   .check_ctdf(ctdf)
 
   repeat {
     old = ctdf$cluster
 
-    .stitch(ctdf, overlap_threshold = overlap_threshold)
+    .stitch(ctdf)
 
     if (identical(ctdf$cluster, old)) {
       break
