@@ -5,8 +5,8 @@ reserved_ctdf_nams = c(
   ".id",
   ".move_seg",
   ".seg_id",
-  ".putative_cluster",
-  ".tesselation"
+  ".putative_cluster"
+  # ".tesselation"
 )
 
 .check_ctdf <- function(x) {
@@ -138,7 +138,7 @@ as_ctdf <- function(
   o[, .move_seg := NA_integer_]
   o[, .putative_cluster := NA_integer_]
   o[, cluster := NA_integer_]
-  o[, .tesselation := vector("list", .N)]
+  # o[, .tesselation := vector("list", .N)]
 
   o = st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
 

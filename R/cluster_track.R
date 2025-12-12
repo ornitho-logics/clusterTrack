@@ -76,8 +76,6 @@ cluster_track <- function(
   ctdf,
   deltaT = 1,
   nmin = 5,
-  threshold = 2,
-  time_contiguity = FALSE,
   overlap_threshold = 0
 ) {
   options(datatable.showProgress = FALSE)
@@ -93,33 +91,19 @@ cluster_track <- function(
   cluster_stitch(ctdf)
   cli_progress_update()
 
-  # tesselate
-  cli_progress_output("Tessellating points by putative cluster regions..")
-  tessellate_ctdf(ctdf)
-  cli_progress_update()
+  # temp
+  ctdf[, cluster := .putative_cluster]
 
-  # cluster
-  cli_progress_output("Within-segment clustering...")
-  cluster_segments(
-    ctdf,
-    nmin = nmin,
-    threshold = threshold
-  )
-  cli_progress_update()
+  ctdf[cluster %in% ctdf[, .N, cluster][N < nmin]$cluster, cluster := NA]
 
-  # time contiguity
-  if (time_contiguity) {
-    .time_contiguity(ctdf)
-  }
+  remove_outliers(ctdf)
+
   ctdf[is.na(cluster), cluster := 0]
 
   # collect parameters to save
   cluster_params = list(
     deltaT = deltaT,
-    nmin = nmin,
-    threshold = threshold,
-    time_contiguity = time_contiguity,
-    overlap_threshold = overlap_threshold
+    nmin = nmin
   )
 
   setattr(ctdf, "cluster_params", cluster_params)

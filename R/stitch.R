@@ -1,61 +1,3 @@
-.stitch <- function(ctdf) {
-  o = ctdf[
-    .putative_cluster > 0
-  ]
-
-  if (!.is_sorted_and_contiguous(o$.putative_cluster)) {
-    stop(
-      "Something went wrong! `.putative_cluster` is not sorted and contiguous anymore."
-    )
-  }
-
-  o[,
-    next_puc := shift(unique(.putative_cluster), type = "lead")[
-      match(.putative_cluster, unique(.putative_cluster))
-    ]
-  ]
-  o = o[!is.na(next_puc)]
-
-  etest_is_overlap <- function(pc) {
-    ac = st_coordinates(o[.putative_cluster == pc, location])
-    bc = st_coordinates(o[.putative_cluster == pc + 1, location])
-
-    res = energy::eqdist.etest(
-      rbind(ac, bc),
-      sizes = c(nrow(ac), nrow(bc)),
-      R = 999
-    )
-    print(res$p.value)
-    res$p.value > 0.001
-  }
-
-  olap = o[, .(.putative_cluster)] |> unique()
-  olap = olap[-.N]
-
-  olap = olap[,
-    .(is_overlap = etest_is_overlap(.putative_cluster)),
-    by = .putative_cluster
-  ]
-
-  o = merge(ctdf[, .(.id, .putative_cluster)], olap, by = ".putative_cluster")
-
-  o[(is_overlap), .putative_cluster := .putative_cluster + 1]
-
-  o[,
-    putative_cluster := .GRP,
-    by = .putative_cluster
-  ]
-
-  setkey(o, .id)
-
-  ctdf[o, .putative_cluster := i.putative_cluster]
-  ctdf[
-    !is.na(.putative_cluster),
-    .putative_cluster := .GRP,
-    by = .putative_cluster
-  ]
-}
-
 #' Stitch clusters by spatial overlap across segments
 #'
 #' Iteratively merge spatial clusters in a CTDF based on the area overlap of
@@ -96,15 +38,101 @@
 cluster_stitch <- function(ctdf) {
   .check_ctdf(ctdf)
 
-  repeat {
-    old = ctdf$cluster
-
-    .stitch(ctdf)
-
-    if (identical(ctdf$cluster, old)) {
-      break
-    }
+  if (
+    !.is_sorted_and_contiguous(ctdf[.putative_cluster > 0, .putative_cluster])
+  ) {
+    stop(
+      "Something went wrong! `.putative_cluster` is not sorted and contiguous anymore."
+    )
   }
 
-  #
+  olap_test <- function(pc, next_pc) {
+    ac = st_coordinates(ctdf[.putative_cluster == pc, location])
+    bc = st_coordinates(ctdf[.putative_cluster == next_pc, location])
+
+    res = energy::eqdist.etest(
+      rbind(ac, bc),
+      sizes = c(nrow(ac), nrow(bc)),
+      R = 999
+    )
+
+    if (inherits(res, "htest")) {
+      o = res$p.value
+    } else {
+      o = 1
+    }
+    ans = o > 0.01
+    ans
+  }
+
+  olap = ctdf[!is.na(.putative_cluster), .(pc = .putative_cluster)] |> unique()
+  olap[, next_pc := shift(pc, type = "lead")]
+
+  olap[, is_overlap := olap_test(pc, next_pc), by = .I]
+
+  olap[,
+    new_putative_cluster := cumsum(
+      !shift(is_overlap, type = "lag", fill = FALSE)
+    )
+  ]
+
+  setnames(olap, 'pc', '.putative_cluster')
+
+  ctdf[
+    olap,
+    on = ".putative_cluster",
+    .putative_cluster := i.new_putative_cluster
+  ]
+}
+
+
+# outlier test for 1 and N
+
+.lof_pvalue <- function(X, z) {
+  k = ceiling(sqrt(nrow(X) + 1))
+
+  X = as.matrix(X)
+  stopifnot(ncol(X) == 2L)
+
+  z = as.matrix(z)
+  stopifnot(nrow(z) == 1L, ncol(z) == 2L)
+
+  if (!is.null(colnames(X)) && !is.null(colnames(z))) {
+    z = z[, colnames(X), drop = FALSE]
+  }
+
+  Xz = rbind(X, z)
+
+  n = nrow(Xz)
+
+  lof_all = dbscan::lof(Xz, minPts = k)
+  lof_z = lof_all[n]
+  lof_X = lof_all[-n]
+
+  p.value = (sum(lof_X >= lof_z) + 1) / (length(lof_X) + 1)
+  p.value
+}
+
+remove_outliers <- function(ctdf) {
+  xy = ctdf[
+    !is.na(.putative_cluster),
+    .(st_coordinates(location), .id, .putative_cluster)
+  ]
+
+  fun <- function(xy) {
+    # first
+    pval = .lof_pvalue(xy[-1, .(X, Y)], xy[1, .(X, Y)])
+    fi = xy[1, .(.id, is_cluster = pval > 0.05)]
+
+    # last
+    pval = .lof_pvalue(xy[-.N, .(X, Y)], xy[.N, .(X, Y)])
+    la = xy[1, .(.id, is_cluster = pval > 0.05)]
+
+    rbind(fi, la)
+  }
+
+  o = xy[, fun(.SD), by = .putative_cluster]
+  o = o[!(is_cluster)]
+
+  ctdf[.id %in% o$.id, .putative_cluster := NA]
 }
