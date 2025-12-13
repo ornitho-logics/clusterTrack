@@ -18,23 +18,6 @@
 #' cluster_stitch(ctdf)
 #' cluster_segments(ctdf)
 
-#' data(pesa56511)
-#' ctdf  = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
-#' slice_ctdf(ctdf)
-#' cluster_stitch(ctdf)
-#' cluster_segments(ctdf)
-#'
-#' data(ruff143789)
-#' ctdf = as_ctdf(ruff143789, time = "locationDate")
-#' slice_ctdf(ctdf)
-#' cluster_stitch(ctdf)
-
-#' data(lbdo66862)
-#' ctdf = as_ctdf(lbdo66862, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
-#' slice_ctdf(ctdf)
-#' cluster_stitch(ctdf)
-#' cluster_segments(ctdf)
-
 cluster_stitch <- function(ctdf) {
   .check_ctdf(ctdf)
 
@@ -83,56 +66,4 @@ cluster_stitch <- function(ctdf) {
     on = ".putative_cluster",
     .putative_cluster := i.new_putative_cluster
   ]
-}
-
-
-# outlier test for 1 and N
-
-.lof_pvalue <- function(X, z) {
-  k = ceiling(sqrt(nrow(X) + 1))
-
-  X = as.matrix(X)
-  stopifnot(ncol(X) == 2L)
-
-  z = as.matrix(z)
-  stopifnot(nrow(z) == 1L, ncol(z) == 2L)
-
-  if (!is.null(colnames(X)) && !is.null(colnames(z))) {
-    z = z[, colnames(X), drop = FALSE]
-  }
-
-  Xz = rbind(X, z)
-
-  n = nrow(Xz)
-
-  lof_all = dbscan::lof(Xz, minPts = k)
-  lof_z = lof_all[n]
-  lof_X = lof_all[-n]
-
-  p.value = (sum(lof_X >= lof_z) + 1) / (length(lof_X) + 1)
-  p.value
-}
-
-remove_outliers <- function(ctdf) {
-  xy = ctdf[
-    !is.na(.putative_cluster),
-    .(st_coordinates(location), .id, .putative_cluster)
-  ]
-
-  fun <- function(xy) {
-    # first
-    pval = .lof_pvalue(xy[-1, .(X, Y)], xy[1, .(X, Y)])
-    fi = xy[1, .(.id, is_cluster = pval > 0.05)]
-
-    # last
-    pval = .lof_pvalue(xy[-.N, .(X, Y)], xy[.N, .(X, Y)])
-    la = xy[1, .(.id, is_cluster = pval > 0.05)]
-
-    rbind(fi, la)
-  }
-
-  o = xy[, fun(.SD), by = .putative_cluster]
-  o = o[!(is_cluster)]
-
-  ctdf[.id %in% o$.id, .putative_cluster := NA]
 }

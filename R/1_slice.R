@@ -1,12 +1,13 @@
-.has_clusters <- function(ctdf, verbose = FALSE) {
-  MIN_N = 5
-  MIN_CLUSTERS = 2
+.has_clusters <- function(ctdf) {
+  MIN_N = 10
+
   if (nrow(ctdf) <= MIN_N) {
     return(FALSE)
   }
 
   # Choose a reasonable minPts
-  minPts = max(MIN_N, ceiling(sqrt(nrow(ctdf))))
+  n = nrow(ctdf)
+  minPts = floor(sqrt(n))
 
   xy = st_coordinates(ctdf$location)
 
@@ -17,21 +18,7 @@
   cl_ids = cl_ids[cl_ids > 0]
 
   if (length(cl_ids) > 1) {
-    if (verbose) {
-      message("* multiple hdbscan clusters detected")
-    }
     return(TRUE)
-  }
-
-  # 2. If only one large cluster exists -> FALSE
-  cl_sizes = table(o$cluster[o$cluster != 0])
-  large_clusters = sum(cl_sizes >= MIN_CLUSTERS)
-
-  if (large_clusters <= 1) {
-    if (verbose) {
-      message("* only one meaningful cluster")
-    }
-    return(FALSE)
   }
 
   return(FALSE)
@@ -54,7 +41,7 @@
     j = crosses[[i]]
 
     dfs = difftime(segs$start[j], segs$stop[i], units = "days") |> abs()
-    j[dfs <= deltaT]
+    j[dfs <= deltaT] # keep only valid intersections within DT
   })
 
   segs[, n_crosses := lengths(pruned_crosses)]
@@ -92,13 +79,12 @@
 
 #' Segment and filter a CTDF by temporal continuity and spatial clustering
 #'
-#' Recursively splits a CTDF into continuous bouts. The split stops when any bout  has one
-#' cluster (via HDBSCAN).
+#' Recursively splits a CTDF into putative cluster regions. The split stops when a region is homogenous
+#'  (established via HDBSCAN).
 #'
 #' @param ctdf A CTDF object.
 #' @param deltaT Numeric; maximum allowable gap (in days) between segment
 #'   endpoints to consider them continuous.
-#' @param progress_bar Logical; whether to display a progress bar during execution. Defaults to `TRUE`.
 #' @return The input CTDF, updated (in-place) with an integer
 #'   \code{.putative_cluster} column indicating bout membership.
 #'
@@ -127,16 +113,12 @@ slice_ctdf <- function(ctdf, deltaT = 1) {
     current = queue[[i]]
 
     if (current |> .has_clusters()) {
+      print(i)
       new_chunks = .split_by_maxlen(ctdf = current, deltaT = deltaT)
       queue = c(queue, new_chunks)
     } else {
-      # We need .prepare_segs  to remove the longest residual movement bit
       if (nrow(current) > 1) {
-        .prepare_segs(ctdf = current, deltaT = deltaT)
-        current = current[.move_seg == 0]
-        if (nrow(current) > 1) {
-          result = c(result, list(current))
-        }
+        result = c(result, list(current))
       }
     }
 
