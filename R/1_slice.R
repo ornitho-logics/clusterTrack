@@ -113,7 +113,6 @@ slice_ctdf <- function(ctdf, deltaT = 1) {
     current = queue[[i]]
 
     if (current |> .has_clusters()) {
-      print(i)
       new_chunks = .split_by_maxlen(ctdf = current, deltaT = deltaT)
       queue = c(queue, new_chunks)
     } else {
