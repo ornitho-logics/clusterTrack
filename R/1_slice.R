@@ -1,4 +1,4 @@
-.has_clusters <- function(ctdf) {
+.has_clusters__ <- function(ctdf) {
   MIN_N = 10
 
   if (nrow(ctdf) <= MIN_N) {
@@ -24,6 +24,40 @@
   return(FALSE)
 }
 
+
+.has_clusters <- function(
+  ctdf,
+  min_n = 10L,
+  minPts = NULL,
+  xi = 0.15,
+  min_cluster_size = 5L
+) {
+  n = nrow(ctdf)
+  if (n <= min_n) {
+    return(FALSE)
+  }
+
+  xy = sf::st_coordinates(ctdf$location)
+
+  if (is.null(minPts)) {
+    minPts = min(ceiling(sqrt(n)), n)
+  }
+  if (minPts < 3L) {
+    return(FALSE)
+  }
+
+  opt = dbscan::optics(xy, eps = NULL, minPts = minPts)
+  ex = dbscan::extractXi(opt, xi = xi)
+
+  cl = ex$cluster
+  cl = cl[cl > 0L]
+  if (!length(cl)) {
+    return(FALSE)
+  }
+
+  sizes = tabulate(cl)
+  sum(sizes >= min_cluster_size) > 1L
+}
 
 .prepare_segs <- function(ctdf, deltaT) {
   ctdf[, let(.move_seg = NA, .seg_id = NA)]
