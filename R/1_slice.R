@@ -44,9 +44,6 @@
 
   setDT(segs)
 
-  deltaT = segs[, difftime(max(stop), min(start), units = "days")] / 2
-  print(deltaT)
-
   pruned_crosses = lapply(seq_along(crosses), function(i) {
     j = crosses[[i]]
 
