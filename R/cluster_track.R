@@ -80,14 +80,15 @@ cluster_track <- function(
   ctdf,
   deltaT = 1,
   nmin = 5,
-  Q = 0.8
+  Q = 0.8,
+  Xi = 0.15
 ) {
   options(datatable.showProgress = FALSE)
   cli_progress_bar("", type = "tasks", total = 4)
 
   # slice
   cli_progress_output("Track segmentation...")
-  slice_ctdf(ctdf, deltaT = deltaT)
+  slice_ctdf(ctdf, deltaT = deltaT, Xi = Xi)
   cli_progress_update()
 
   # stich
@@ -98,6 +99,11 @@ cluster_track <- function(
   # clean
   cli_progress_output("Cluster cleaning ...")
   clean_ctdf(ctdf, Q = Q)
+  cli_progress_update()
+
+  # stich
+  cli_progress_output("Cluster stitching ...")
+  cluster_stitch(ctdf)
   cli_progress_update()
 
   nmin = 5

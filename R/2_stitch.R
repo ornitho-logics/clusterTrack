@@ -44,7 +44,7 @@ cluster_stitch <- function(ctdf) {
     } else {
       o = 1
     }
-    ans = o > 0.01
+    ans = o > 0.001
     ans
   }
 

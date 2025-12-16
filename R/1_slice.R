@@ -1,48 +1,21 @@
-.has_clusters__ <- function(ctdf) {
-  MIN_N = 10
-
-  if (nrow(ctdf) <= MIN_N) {
-    return(FALSE)
-  }
-
-  # Choose a reasonable minPts
-  n = nrow(ctdf)
-  minPts = floor(sqrt(n))
-
-  xy = st_coordinates(ctdf$location)
-
-  o = hdbscan(xy, minPts = minPts)
-
-  # 1. If there is more than one cluster -> TRUE
-  cl_ids = unique(o$cluster)
-  cl_ids = cl_ids[cl_ids > 0]
-
-  if (length(cl_ids) > 1) {
-    return(TRUE)
-  }
-
-  return(FALSE)
-}
-
-
 .has_clusters <- function(
   ctdf,
-  min_n = 10L,
+  min_n = 10,
   minPts = NULL,
-  xi = 0.15,
-  min_cluster_size = 5L
+  xi = 0.12,
+  min_cluster_size = 5
 ) {
   n = nrow(ctdf)
   if (n <= min_n) {
     return(FALSE)
   }
 
-  xy = sf::st_coordinates(ctdf$location)
+  xy = ctdf[, st_coordinates(location)]
 
   if (is.null(minPts)) {
     minPts = min(ceiling(sqrt(n)), n)
   }
-  if (minPts < 3L) {
+  if (minPts < 3) {
     return(FALSE)
   }
 
@@ -50,7 +23,7 @@
   ex = dbscan::extractXi(opt, xi = xi)
 
   cl = ex$cluster
-  cl = cl[cl > 0L]
+  cl = cl[cl > 0]
   if (!length(cl)) {
     return(FALSE)
   }
@@ -70,6 +43,9 @@
   crosses = st_crosses(segs)
 
   setDT(segs)
+
+  deltaT = segs[, difftime(max(stop), min(start), units = "days")] / 2
+  print(deltaT)
 
   pruned_crosses = lapply(seq_along(crosses), function(i) {
     j = crosses[[i]]
@@ -132,7 +108,7 @@
 #' ctdf = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
 #' slice_ctdf(ctdf )
 
-slice_ctdf <- function(ctdf, deltaT = 1) {
+slice_ctdf <- function(ctdf, deltaT = 1, Xi = 0.1) {
   .check_ctdf(ctdf)
 
   ctdf[, .putative_cluster := NA]
@@ -146,7 +122,7 @@ slice_ctdf <- function(ctdf, deltaT = 1) {
   while (i <= length(queue)) {
     current = queue[[i]]
 
-    if (current |> .has_clusters()) {
+    if (current |> .has_clusters(xi = Xi)) {
       new_chunks = .split_by_maxlen(ctdf = current, deltaT = deltaT)
       queue = c(queue, new_chunks)
     } else {
