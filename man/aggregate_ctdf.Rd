@@ -4,12 +4,12 @@
 \alias{aggregate_ctdf}
 \title{Aggregate ctdf data}
 \usage{
-aggregate_ctdf(ctdf, timescale = "1 day")
+aggregate_ctdf(ctdf, dist)
 }
 \arguments{
 \item{ctdf}{A `ctdf` object.}
 
-\item{timescale}{Time aggregation scale, default is "1 day".}
+\item{dist}{aggregation scale}
 }
 \description{
 Aggregate ctdf data

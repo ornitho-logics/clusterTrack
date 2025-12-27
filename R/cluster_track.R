@@ -1,14 +1,3 @@
-.time_contiguity <- function(ctdf) {
-  ctdf[,
-    cluster := {
-      f = nafill(cluster, type = "locf")
-      b = nafill(cluster, type = "nocb")
-      fifelse(f == b, f, cluster)
-    }
-  ]
-}
-
-
 #' @export
 print.clusterTrack <- function(x, ...) {
   cat("<clusters:", uniqueN(x$cluster) - 1, ">\n\n")
@@ -29,7 +18,7 @@ plot.clusterTrack <- function(x) {
 #' Performs spatiotemporal clustering on a ctdf by segmenting movement, identifying stops, and applying DBSCAN-like clustering.
 #'
 #'
-#' This is a high-level wrapper function that applies a pipeline of segmentation, clustering, and stitching steps on a movement track stored in a `ctdf` object.
+#' This is a high-level wrapper function that applies a pipeline of segmentation, clustering, and repairing steps on a movement track stored in a `ctdf` object.
 #'
 #'
 #' @param ctdf   A `ctdf` data frame (see [as_ctdf()]) representing a single movement track .
@@ -46,7 +35,7 @@ plot.clusterTrack <- function(x) {
 #' @param overlap_threshold Numeric between 0 and 1; minimum area‐overlap ratio
 #'                          required to merge adjacent clusters. Default to 0.1.
 #'                          Clusters with overlap > threshold are combined.
-#'                          Passed to [cluster_stitch()]
+#'                          Passed to [cluster_repair()]
 #' @return NULL.
 #' The function modifies `ctdf` by reference, adding or updating the column \code{cluster},
 #' which assigns a cluster ID to each row (point).
@@ -78,22 +67,21 @@ plot.clusterTrack <- function(x) {
 
 cluster_track <- function(
   ctdf,
-  deltaT = 1,
+  deltaT = 30,
   nmin = 5,
-  Q = 0.8,
-  Xi = 0.15
+  Q = 0.95
 ) {
   options(datatable.showProgress = FALSE)
   cli_progress_bar("", type = "tasks", total = 4)
 
   # slice
   cli_progress_output("Track segmentation...")
-  slice_ctdf(ctdf, deltaT = deltaT, Xi = Xi)
+  slice_ctdf(ctdf, deltaT = deltaT, nmin = nmin)
   cli_progress_update()
 
-  # stich
-  cli_progress_output("Cluster stitching ...")
-  cluster_stitch(ctdf)
+  # repair
+  cli_progress_output("Cluster repairing ...")
+  cluster_repair(ctdf)
   cli_progress_update()
 
   # clean
@@ -101,25 +89,25 @@ cluster_track <- function(
   clean_ctdf(ctdf, Q = Q)
   cli_progress_update()
 
-  # stich
-  cli_progress_output("Cluster stitching ...")
-  cluster_stitch(ctdf)
-  cli_progress_update()
+  # TODO: tidy up next
 
-  nmin = 5
-  # enforce n
+  # enforce a min n
   ctdf[
     .putative_cluster %in%
       ctdf[, .N, .putative_cluster][N < nmin]$.putative_cluster,
     .putative_cluster := NA
   ]
 
-  # TEMP
+  cluster_repair(ctdf)
+
+  ctdf[,
+    .putative_cluster := .as_inorder_int(.putative_cluster)
+  ]
   ctdf[, cluster := .putative_cluster]
 
   ctdf[is.na(cluster), cluster := 0]
 
-  # collect parameters to save
+  #TODO collect parameters to save
   cluster_params = list(
     deltaT = deltaT,
     nmin = nmin

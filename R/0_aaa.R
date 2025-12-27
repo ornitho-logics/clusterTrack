@@ -18,43 +18,6 @@ NULL
 
 # undocumented functions of general interest
 
-.st_area_overlap_ratio <- function(i, j) {
-  getA = function(x) {
-    if (!inherits(x, "sfc") || length(x) == 0L || all(st_is_empty(x))) {
-      return(NA_real_)
-    }
-
-    tryCatch(
-      st_area(x) |> as.numeric(),
-      error = function(e) NA_real_
-    )
-  }
-
-  ai = getA(i)
-  aj = getA(j)
-
-  if (anyNA(c(ai, aj))) {
-    return(0)
-  }
-
-  inter = tryCatch(
-    st_intersection(i, j),
-    error = function(e) st_sfc()
-  )
-
-  if (length(inter) == 0L || all(st_is_empty(inter))) {
-    return(0)
-  }
-
-  aij = getA(inter)
-  if (is.na(aij)) {
-    return(0)
-  }
-
-  as.numeric(aij / pmin(ai, aj))
-}
-
-
 .mcp <- function(x, p = 0.95) {
   d = st_distance(x, st_union(x) |> st_centroid())
   st_union(x[d <= quantile(d, p), ]) |>
@@ -68,4 +31,10 @@ NULL
   sorted = all(o == sort(o))
   contiguous = all(diff(o) == 1L)
   sorted && contiguous
+}
+
+.as_inorder_int <- function(x) {
+  factor(x) |>
+    fct_inorder() |>
+    as.integer()
 }

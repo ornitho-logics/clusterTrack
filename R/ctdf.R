@@ -27,7 +27,14 @@ reserved_ctdf_nams = c(
   if (!all(nams_ok)) {
     stop("Some build in columns are missing", call. = FALSE)
   }
+
+  # if (!.is_sorted_and_contiguous(x[.putative_cluster > 0, .putative_cluster])) {
+  #   stop(
+  #     "Something went wrong! `.putative_cluster` is not sorted and contiguous anymore."
+  #   )
+  # }
 }
+
 
 #' @export
 as_ctdf <- function(x, ...) {

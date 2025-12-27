@@ -4,14 +4,7 @@
 \alias{cluster_track}
 \title{Cluster movement tracks}
 \usage{
-cluster_track(
-  ctdf,
-  deltaT = 1,
-  nmin = 5,
-  threshold = 2,
-  time_contiguity = FALSE,
-  overlap_threshold = 0.1
-)
+cluster_track(ctdf, deltaT = 30, nmin = 5, Q = 0.95)
 }
 \arguments{
 \item{ctdf}{A `ctdf` data frame (see [as_ctdf()]) representing a single movement track .}
@@ -33,7 +26,7 @@ Passed to [cluster_segments()].}
 \item{overlap_threshold}{Numeric between 0 and 1; minimum area‐overlap ratio
 required to merge adjacent clusters. Default to 0.1.
 Clusters with overlap > threshold are combined.
-Passed to [cluster_stitch()]}
+Passed to [cluster_repair()]}
 }
 \value{
 NULL.
@@ -45,22 +38,26 @@ Clustering parameters are stored as an attribute: `attr(ctdf, "cluster_params")`
 Performs spatiotemporal clustering on a ctdf by segmenting movement, identifying stops, and applying DBSCAN-like clustering.
 }
 \details{
-This is a high-level wrapper function that applies a pipeline of segmentation, clustering, and stitching steps on a movement track stored in a `ctdf` object.
+This is a high-level wrapper function that applies a pipeline of segmentation, clustering, and repairing steps on a movement track stored in a `ctdf` object.
 }
 \examples{
 data(mini_ruff)
 ctdf = as_ctdf(mini_ruff) |> cluster_track()
+map(ctdf)
 
 \dontrun{
 data(pesa56511)
 ctdf = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
+map(ctdf)
 
 
 data(ruff143789)
 ctdf = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
+map(ctdf)
 
 data(lbdo66862)
 ctdf = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+map(ctdf)
 
 
 }

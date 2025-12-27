@@ -1,36 +1,19 @@
 .has_clusters <- function(
   ctdf,
-  min_n = 10,
-  minPts = NULL,
-  xi = 0.12,
-  min_cluster_size = 5
+  minPts = 3
 ) {
   n = nrow(ctdf)
-  if (n <= min_n) {
+  if (n <= minPts) {
     return(FALSE)
   }
 
-  xy = ctdf[, st_coordinates(location)]
+  o = hdbscan(ctdf[, st_coordinates(location)], minPts = minPts)
 
-  if (is.null(minPts)) {
-    minPts = min(ceiling(sqrt(n)), n)
-  }
-  if (minPts < 3) {
-    return(FALSE)
-  }
+  ncl = length(o$cluster_scores)
 
-  opt = dbscan::optics(xy, eps = NULL, minPts = minPts)
-  ex = dbscan::extractXi(opt, xi = xi)
-
-  cl = ex$cluster
-  cl = cl[cl > 0]
-  if (!length(cl)) {
-    return(FALSE)
-  }
-
-  sizes = tabulate(cl)
-  sum(sizes >= min_cluster_size) > 1L
+  ncl > 1
 }
+
 
 .prepare_segs <- function(ctdf, deltaT) {
   ctdf[, let(.move_seg = NA, .seg_id = NA)]
@@ -65,9 +48,18 @@
 
   segs[!is.na(good_seg_id), good_seg_len := sum(len), by = good_seg_id]
 
-  segs[, move_seg := max(good_seg_len, na.rm = TRUE) == good_seg_len]
+  is_good_seg <- function(x) {
+    if (all(is.na(x)) || length(x) == 0) {
+      return(logical(length = length(x)))
+    }
 
-  segs[is.na(move_seg), move_seg := FALSE]
+    o = max(x, na.rm = TRUE) == x
+
+    o[is.na(o)] <- FALSE
+    o
+  }
+
+  segs[, move_seg := is_good_seg(good_seg_len)]
 
   segs[, seg_id := rleid(move_seg)]
 
@@ -83,6 +75,7 @@
 
   split(ctdf[.move_seg == 0], by = ".seg_id")
 }
+
 
 #' Segment and filter a CTDF by temporal continuity and spatial clustering
 #'
@@ -105,7 +98,7 @@
 #' ctdf = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
 #' slice_ctdf(ctdf )
 
-slice_ctdf <- function(ctdf, deltaT = 1, Xi = 0.1) {
+slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
   .check_ctdf(ctdf)
 
   ctdf[, .putative_cluster := NA]
@@ -119,7 +112,7 @@ slice_ctdf <- function(ctdf, deltaT = 1, Xi = 0.1) {
   while (i <= length(queue)) {
     current = queue[[i]]
 
-    if (current |> .has_clusters(xi = Xi)) {
+    if (current |> .has_clusters()) {
       new_chunks = .split_by_maxlen(ctdf = current, deltaT = deltaT)
       queue = c(queue, new_chunks)
     } else {
@@ -146,9 +139,7 @@ slice_ctdf <- function(ctdf, deltaT = 1, Xi = 0.1) {
 
   setorder(out, .id)
   out[,
-    putative_cluster := factor(.putative_cluster) |>
-      fct_inorder() |>
-      as.numeric()
+    putative_cluster := .as_inorder_int(.putative_cluster)
   ]
   out = out[, .(.id, putative_cluster)]
   setkey(out, .id)
