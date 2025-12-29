@@ -69,7 +69,8 @@ cluster_track <- function(
   ctdf,
   deltaT = 30,
   nmin = 5,
-  Q = 0.95
+  minCluster = 3,
+  Q = 0.90
 ) {
   options(datatable.showProgress = FALSE)
   cli_progress_bar("", type = "tasks", total = 4)
@@ -91,10 +92,10 @@ cluster_track <- function(
 
   # TODO: tidy up next
 
-  # enforce a min n
+  # enforce a min cluster size
   ctdf[
     .putative_cluster %in%
-      ctdf[, .N, .putative_cluster][N < nmin]$.putative_cluster,
+      ctdf[, .N, .putative_cluster][N < minCluster]$.putative_cluster,
     .putative_cluster := NA
   ]
 

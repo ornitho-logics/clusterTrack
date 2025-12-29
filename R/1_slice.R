@@ -36,9 +36,10 @@
 
   segs[, n_crosses := lengths(pruned_crosses)]
 
-  segs[,
-    n_crosses := pmin(n_crosses, shift(n_crosses, type = "lag"), na.rm = TRUE)
-  ]
+  #TODO
+  # segs[,
+  #   n_crosses := pmax(n_crosses, shift(n_crosses, type = "lag"), na.rm = TRUE)
+  # ]
 
   segs[, any_cross := n_crosses > 0]
 
