@@ -36,11 +36,6 @@
 
   segs[, n_crosses := lengths(pruned_crosses)]
 
-  #TODO
-  # segs[,
-  #   n_crosses := pmax(n_crosses, shift(n_crosses, type = "lag"), na.rm = TRUE)
-  # ]
-
   segs[, any_cross := n_crosses > 0]
 
   segs[, good_seg_id := rleid(any_cross)]
@@ -145,5 +140,53 @@ slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
   out = out[, .(.id, putative_cluster)]
   setkey(out, .id)
 
+  ctdf[out, .putative_cluster := i.putative_cluster]
+}
+
+#TODO
+slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
+  .check_ctdf(ctdf)
+  ctdf[, .putative_cluster := NA_integer_]
+
+  queue = list(ctdf)
+  res = vector("list", 0L)
+
+  head = 1L
+  while (head <= length(queue)) {
+    current = queue[[head]]
+    head = head + 1L
+
+    if (nrow(current) <= 1L) {
+      next
+    }
+
+    if (current |> .has_clusters()) {
+      new_chunks = .split_by_maxlen(ctdf = current, deltaT = deltaT)
+      if (length(new_chunks)) {
+        n0 = length(queue)
+        n1 = length(new_chunks)
+        length(queue) = n0 + n1
+        queue[(n0 + 1L):(n0 + n1)] = new_chunks
+      }
+    } else {
+      res[[length(res) + 1L]] = current
+    }
+  }
+
+  if (!length(res)) {
+    warning("No valid putative clusters found!")
+    set(ctdf, j = ".putative_cluster", value = NA_integer_)
+    return(invisible(ctdf))
+  }
+
+  for (k in seq_along(res)) {
+    res[[k]][, .putative_cluster := k]
+  }
+
+  out = rbindlist(res, use.names = TRUE)
+  setorder(out, .id)
+  out[, putative_cluster := .as_inorder_int(.putative_cluster)]
+  out = out[, .(.id, putative_cluster)]
+  setkey(out, .id)
   ctdf[out, .putative_cluster := i.putative_cluster]
 }
