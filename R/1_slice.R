@@ -102,9 +102,19 @@ slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
   res = list()
 
   head = 1
+
+  pb = cli::cli_progress_bar(
+    total = NA,
+    format = " {cli::pb_spin} {cli::pb_current} segments processed [{cli::pb_elapsed}] ...",
+    .envir = environment()
+  )
+  on.exit(cli::cli_progress_done(id = pb), add = TRUE)
+
   while (head <= length(queue)) {
     current = queue[[head]]
     head = head + 1
+
+    cli::cli_progress_update(id = pb, set = head - 1)
 
     if (nrow(current) <= nmin) {
       next # back to head, no need to test for clusters

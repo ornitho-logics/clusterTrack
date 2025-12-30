@@ -73,10 +73,11 @@ cluster_track <- function(
   Q = 0.90
 ) {
   options(datatable.showProgress = FALSE)
-  cli_progress_bar("", type = "tasks", total = 4)
+
+  outer_pb = cli_progress_bar("", type = "tasks", total = 5)
 
   # slice
-  cli_progress_output("Track segmentation...")
+  cli_progress_output("Track segmentation")
   slice_ctdf(ctdf, deltaT = deltaT, nmin = nmin)
   cli_progress_update()
 
@@ -103,6 +104,13 @@ cluster_track <- function(
   ctdf[,
     .putative_cluster := .as_inorder_int(.putative_cluster)
   ]
+
+  # local
+  cli_progress_output("Cluster local ...")
+  local_cluster_ctdf(ctdf)
+  cli_progress_update()
+
+  # assign to final output
   ctdf[, cluster := .putative_cluster]
 
   ctdf[is.na(cluster), cluster := 0]
@@ -115,7 +123,7 @@ cluster_track <- function(
 
   setattr(ctdf, "cluster_params", cluster_params)
 
-  cli_progress_done()
+  cli::cli_progress_done(id = outer_pb)
 
   ctdf
 }
