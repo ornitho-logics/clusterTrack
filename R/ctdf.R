@@ -241,7 +241,7 @@ summary.ctdf = function(ctdf, ...) {
         start = min(timestamp),
         stop = max(timestamp),
         geometry = st_union(location) |> st_convex_hull() |> st_centroid(),
-        putative_clusters = list(range(.putative_cluster, na.rm = TRUE)),
+        ids = paste(range(.id), collapse = "-"),
         N = .N
       ),
       by = cluster

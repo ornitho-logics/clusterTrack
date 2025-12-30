@@ -90,15 +90,14 @@ cluster_track <- function(
   clean_ctdf(ctdf, Q = Q)
   cli_progress_update()
 
-  # TODO: tidy up next
-
-  # enforce a min cluster size
+  # enforce minCluster
   ctdf[
     .putative_cluster %in%
       ctdf[, .N, .putative_cluster][N < minCluster]$.putative_cluster,
     .putative_cluster := NA
   ]
 
+  # tidy
   cluster_repair(ctdf)
 
   ctdf[,

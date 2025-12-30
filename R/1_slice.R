@@ -96,86 +96,37 @@
 
 slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
   .check_ctdf(ctdf)
-
   ctdf[, .putative_cluster := NA]
 
-  # Initialize
-  result = list()
-  queue = .split_by_maxlen(ctdf = ctdf, deltaT = deltaT)
-
-  i = 1
-
-  while (i <= length(queue)) {
-    current = queue[[i]]
-
-    if (current |> .has_clusters()) {
-      new_chunks = .split_by_maxlen(ctdf = current, deltaT = deltaT)
-      queue = c(queue, new_chunks)
-    } else {
-      if (nrow(current) > 1) {
-        result = c(result, list(current))
-      }
-    }
-
-    i = i + 1
-  }
-
-  # assign segment id
-  for (i in seq_along(result)) {
-    result[[i]][, .putative_cluster := i]
-  }
-
-  if (length(result) == 0) {
-    warning("No valid putative clusters found!")
-    set(ctdf, j = ".putative_cluster", value = NA)
-    return(invisible(ctdf))
-  }
-
-  out = rbindlist(result)
-
-  setorder(out, .id)
-  out[,
-    putative_cluster := .as_inorder_int(.putative_cluster)
-  ]
-  out = out[, .(.id, putative_cluster)]
-  setkey(out, .id)
-
-  ctdf[out, .putative_cluster := i.putative_cluster]
-}
-
-#TODO
-slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
-  .check_ctdf(ctdf)
-  ctdf[, .putative_cluster := NA_integer_]
-
   queue = list(ctdf)
-  res = vector("list", 0L)
+  res = list()
 
-  head = 1L
+  head = 1
   while (head <= length(queue)) {
     current = queue[[head]]
-    head = head + 1L
+    head = head + 1
 
-    if (nrow(current) <= 1L) {
-      next
+    if (nrow(current) <= nmin) {
+      next # back to head, no need to test for clusters
     }
 
-    if (current |> .has_clusters()) {
+    if (current |> .has_clusters(minPts = nmin)) {
       new_chunks = .split_by_maxlen(ctdf = current, deltaT = deltaT)
-      if (length(new_chunks)) {
+      if (length(new_chunks) > 0) {
         n0 = length(queue)
         n1 = length(new_chunks)
+        # add empty slots at the end of queue:
         length(queue) = n0 + n1
-        queue[(n0 + 1L):(n0 + n1)] = new_chunks
+        queue[(n0 + 1):(n0 + n1)] = new_chunks
       }
     } else {
-      res[[length(res) + 1L]] = current
+      res[[length(res) + 1]] = current
     }
   }
 
   if (!length(res)) {
     warning("No valid putative clusters found!")
-    set(ctdf, j = ".putative_cluster", value = NA_integer_)
+    set(ctdf, j = ".putative_cluster", value = NA)
     return(invisible(ctdf))
   }
 
@@ -184,9 +135,13 @@ slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
   }
 
   out = rbindlist(res, use.names = TRUE)
+
   setorder(out, .id)
+
   out[, putative_cluster := .as_inorder_int(.putative_cluster)]
+
   out = out[, .(.id, putative_cluster)]
   setkey(out, .id)
+
   ctdf[out, .putative_cluster := i.putative_cluster]
 }
