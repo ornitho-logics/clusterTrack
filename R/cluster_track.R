@@ -91,16 +91,6 @@ cluster_track <- function(
   clean_ctdf(ctdf, Q = Q)
   cli_progress_update()
 
-  # enforce minCluster
-  ctdf[
-    .putative_cluster %in%
-      ctdf[, .N, .putative_cluster][N < minCluster]$.putative_cluster,
-    .putative_cluster := NA
-  ]
-
-  # tidy
-  cluster_repair(ctdf)
-
   ctdf[,
     .putative_cluster := .as_inorder_int(.putative_cluster)
   ]
@@ -110,6 +100,17 @@ cluster_track <- function(
   local_cluster_ctdf(ctdf)
   cli_progress_update()
 
+  # enforce minCluster
+  ctdf[
+    .putative_cluster %in%
+      ctdf[, .N, .putative_cluster][N <= minCluster]$.putative_cluster,
+    .putative_cluster := NA
+  ]
+
+  # tidy
+  ctdf[,
+    .putative_cluster := .as_inorder_int(.putative_cluster)
+  ]
   # assign to final output
   ctdf[, cluster := .putative_cluster]
 
