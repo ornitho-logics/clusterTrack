@@ -145,6 +145,7 @@
   site_cluster
 }
 
+
 #'  DTSCAN: Delaunay Triangulation-Based Spatial Clustering.
 #'
 #' Runs a DTSCAN-style clustering pipeline using a Delaunay triangulation of point coordinates,
@@ -157,8 +158,8 @@
 #' If multiple input points share exactly the same coordinates, they are collapsed to one site and
 #' their multiplicity contributes to this count.
 #' @param area_z_min Threshold (in SD units) on the inverse z-score of triangle areas used for pruning.
-#' Larger thresholds  keep only progressively smaller-than-average triangles and prune more edges. Default to 0.
-#' @param length_z_min Threshold (in SD units) on the inverse z-score of Delaunay edge lengths used for pruning. Larger thresholds  keep only progressively shorter-than-average edges and prune more connections.
+#' Larger thresholds keep only progressively smaller-than-average triangles and prune more edges. Default to 0.
+#' @param length_z_min Threshold (in SD units) on the inverse z-score of Delaunay edge lengths used for pruning. Larger thresholds keep only progressively shorter-than-average edges and prune more connections.
 
 #' @param id_col Optional character scalar naming a unique identifier column in `x` used to align output.
 #'   If `NULL` or missing from `x`, output is aligned by current row order.
@@ -194,7 +195,7 @@
 
 sf_dtscan = function(
   x,
-  min_pts = 3,
+  min_pts = 5,
   area_z_min = 0,
   length_z_min = 0,
   id_col = NULL

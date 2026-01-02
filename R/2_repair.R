@@ -65,4 +65,8 @@ cluster_repair <- function(ctdf) {
     .cluster_repair(ctdf)
     if (max(ctdf$.putative_cluster, na.rm = TRUE) == n_prev) break
   }
+
+  ctdf[,
+    .putative_cluster := .as_inorder_int(.putative_cluster)
+  ]
 }

@@ -70,7 +70,8 @@ cluster_track <- function(
   deltaT = 30,
   nmin = 5,
   minCluster = 3,
-  Q = 0.90
+  area_z_min = 0,
+  length_z_min = 0
 ) {
   options(datatable.showProgress = FALSE)
 
@@ -86,40 +87,36 @@ cluster_track <- function(
   cluster_repair(ctdf)
   cli_progress_update()
 
-  # clean
-  cli_progress_output("Cluster cleaning ...")
-  clean_ctdf(ctdf, Q = Q)
-  cli_progress_update()
-
-  ctdf[,
-    .putative_cluster := .as_inorder_int(.putative_cluster)
-  ]
-
-  # local
+  # cluster
   cli_progress_output("Cluster local ...")
-  local_cluster_ctdf(ctdf)
+  local_cluster_ctdf(
+    ctdf,
+    nmin = nmin,
+    area_z_min = area_z_min,
+    length_z_min = length_z_min
+  )
   cli_progress_update()
 
-  # enforce minCluster
+  # enforce minCluster & tidy
   ctdf[
     .putative_cluster %in%
       ctdf[, .N, .putative_cluster][N <= minCluster]$.putative_cluster,
     .putative_cluster := NA
-  ]
-
-  # tidy
-  ctdf[,
+  ][,
     .putative_cluster := .as_inorder_int(.putative_cluster)
   ]
-  # assign to final output
-  ctdf[, cluster := .putative_cluster]
 
+  # assign to cluster
+  ctdf[, cluster := .putative_cluster]
   ctdf[is.na(cluster), cluster := 0]
 
-  #TODO collect parameters to save
+  #collect parameters
   cluster_params = list(
     deltaT = deltaT,
-    nmin = nmin
+    nmin = nmin,
+    minCluster = minCluster,
+    area_z_min = area_z_min,
+    length_z_min = length_z_min
   )
 
   setattr(ctdf, "cluster_params", cluster_params)

@@ -4,7 +4,7 @@
 \alias{sf_dtscan}
 \title{DTSCAN: Delaunay Triangulation-Based Spatial Clustering.}
 \usage{
-sf_dtscan(x, min_pts = 6, area_z_min = 0, length_z_min = 0, id_col = NULL)
+sf_dtscan(x, min_pts = 3, area_z_min = 0, length_z_min = 0, id_col = NULL)
 }
 \arguments{
 \item{x}{An `sf` object with POINT geometry.}
@@ -39,12 +39,13 @@ to MinPts via `effective_degree = degree + (mult - 1)`.
 pruned Delaunay edges from that seed; the cluster id is assigned to every visited site.
 }
 \examples{
+data(mini_ruff)
 x = as_ctdf(mini_ruff)[.id \%in\% 90:177]
 x[,
   cluster := sf_dtscan(
     st_as_sf(x),
     id_col = ".id",
-    min_pts = 6,
+    min_pts = 5,
     area_z_min = 0,
     length_z_min = 0
   )
