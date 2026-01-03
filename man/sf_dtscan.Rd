@@ -4,7 +4,7 @@
 \alias{sf_dtscan}
 \title{DTSCAN: Delaunay Triangulation-Based Spatial Clustering.}
 \usage{
-sf_dtscan(x, min_pts = 3, area_z_min = 0, length_z_min = 0, id_col = NULL)
+sf_dtscan(x, min_pts = 5, area_z_min = 0, length_z_min = 0, id_col = NULL)
 }
 \arguments{
 \item{x}{An `sf` object with POINT geometry.}
@@ -15,9 +15,9 @@ If multiple input points share exactly the same coordinates, they are collapsed 
 their multiplicity contributes to this count.}
 
 \item{area_z_min}{Threshold (in SD units) on the inverse z-score of triangle areas used for pruning.
-Larger thresholds  keep only progressively smaller-than-average triangles and prune more edges. Default to 0.}
+Larger thresholds keep only progressively smaller-than-average triangles and prune more edges. Default to 0.}
 
-\item{length_z_min}{Threshold (in SD units) on the inverse z-score of Delaunay edge lengths used for pruning. Larger thresholds  keep only progressively shorter-than-average edges and prune more connections.}
+\item{length_z_min}{Threshold (in SD units) on the inverse z-score of Delaunay edge lengths used for pruning. Larger thresholds keep only progressively shorter-than-average edges and prune more connections.}
 
 \item{id_col}{Optional character scalar naming a unique identifier column in `x` used to align output.
 If `NULL` or missing from `x`, output is aligned by current row order.}

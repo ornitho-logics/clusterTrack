@@ -68,14 +68,16 @@ plot.clusterTrack <- function(x) {
 cluster_track <- function(
   ctdf,
   deltaT = 30,
-  nmin = 5,
-  minCluster = 3,
-  area_z_min = 0,
-  length_z_min = 0
+  nmin = 3,
+  minCluster = 5,
+  area_z_min = 1,
+  length_z_min = 1,
+  trim = 0.05,
+  contain_min = 0.60
 ) {
   options(datatable.showProgress = FALSE)
 
-  outer_pb = cli_progress_bar("", type = "tasks", total = 5)
+  outer_pb = cli_progress_bar("", type = "tasks", total = 4)
 
   # slice
   cli_progress_output("Track segmentation")
@@ -87,15 +89,16 @@ cluster_track <- function(
   cluster_repair(ctdf)
   cli_progress_update()
 
-  # cluster
+  # cluster local
   cli_progress_output("Cluster local ...")
   local_cluster_ctdf(
     ctdf,
     nmin = nmin,
-    area_z_min = area_z_min,
-    length_z_min = length_z_min
+    area_z_min = area_z_min * -1,
+    length_z_min = length_z_min * -1,
+    trim = trim,
+    contain_min = contain_min
   )
-  cli_progress_update()
 
   # enforce minCluster & tidy
   ctdf[
@@ -105,6 +108,7 @@ cluster_track <- function(
   ][,
     .putative_cluster := .as_inorder_int(.putative_cluster)
   ]
+  cli_progress_update()
 
   # assign to cluster
   ctdf[, cluster := .putative_cluster]

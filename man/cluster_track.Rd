@@ -4,7 +4,14 @@
 \alias{cluster_track}
 \title{Cluster movement tracks}
 \usage{
-cluster_track(ctdf, deltaT = 30, nmin = 5, minCluster = 3, Q = 0.9)
+cluster_track(
+  ctdf,
+  deltaT = 30,
+  nmin = 3,
+  minCluster = 5,
+  area_z_min = 0,
+  length_z_min = 0
+)
 }
 \arguments{
 \item{ctdf}{A `ctdf` data frame (see [as_ctdf()]) representing a single movement track .}

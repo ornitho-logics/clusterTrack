@@ -17,17 +17,20 @@
   ac = ctdf[.putative_cluster == pc, location] |>
     st_union() |>
     st_convex_hull()
+
   bc = ctdf[.putative_cluster == next_pc, location] |>
     st_union() |>
     st_convex_hull()
 
   o = st_intersects(ac, bc)
+
   any(lengths(o) > 0)
 }
 
 
 .cluster_repair <- function(ctdf) {
   olap = ctdf[!is.na(.putative_cluster), .(pc = .putative_cluster)] |> unique()
+
   olap[, next_pc := shift(pc, type = "lead")]
 
   olap[, is_overlap := .is_intersection(ctdf, pc, next_pc), by = .I]
@@ -55,7 +58,6 @@
     }
   ]
 }
-
 
 cluster_repair <- function(ctdf) {
   .check_ctdf(ctdf)

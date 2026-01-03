@@ -7,6 +7,7 @@
   (m - v) / s
 }
 
+
 .unique_xy = function(
   x,
   id_col = NULL
@@ -44,6 +45,28 @@
   list(unique_sites = unique_sites, site_id_by_row = site_id_by_row)
 }
 
+.delaunay_tri = function(unique_sites) {
+  pts = as.matrix(unique_sites[, .(x, y)])
+  pts[, 1] = pts[, 1] - mean(pts[, 1])
+  pts[, 2] = pts[, 2] - mean(pts[, 2])
+
+  tri = suppressWarnings(geometry::delaunayn(pts))
+  used = unique(as.vector(tri))
+  if (length(used) < nrow(pts)) {
+    tri = suppressWarnings(geometry::delaunayn(pts, options = "Qt Qc Qz Qbb"))
+    used = unique(as.vector(tri))
+  }
+  if (length(used) < nrow(pts)) {
+    tri = suppressWarnings(geometry::delaunayn(
+      pts,
+      options = "Qt Qc Qz Qbb QJ"
+    ))
+  }
+
+  tri
+}
+
+
 .prune_delaunay_edges = function(
   tri,
   unique_sites,
@@ -64,7 +87,8 @@
   cy = y[i3]
 
   tri_area = abs(ax * (by - cy) + bx * (cy - ay) + cx * (ay - by)) / 2
-  tri_keep = .zscore_inverse(tri_area) >= area_z_min
+
+  tri_keep = .zscore_inverse(tri_area |> log()) >= area_z_min
 
   e12a = pmin.int(i1, i2)
   e12b = pmax.int(i1, i2)
@@ -87,7 +111,7 @@
   ]
 
   unique_edges = unique(tri_edges[, .(a, b, len)])
-  unique_edges[, len_z := .zscore_inverse(len)]
+  unique_edges[, len_z := .zscore_inverse(len |> log())]
 
   unique_edges[edge_incident_to_kept_triangle, on = .(a, b)][
     tri_any_keep == TRUE & len_z >= length_z_min,
@@ -204,7 +228,7 @@ sf_dtscan = function(
   unique_sites = sites$unique_sites
   site_id_by_row = sites$site_id_by_row
 
-  tri = geometry::delaunayn(as.matrix(unique_sites[, .(x, y)]))
+  tri = .delaunay_tri(unique_sites)
 
   kept_edges = .prune_delaunay_edges(
     tri,
