@@ -1,14 +1,3 @@
-.time_contiguity <- function(ctdf) {
-  ctdf[,
-    cluster := {
-      f = nafill(cluster, type = "locf")
-      b = nafill(cluster, type = "nocb")
-      fifelse(f == b, f, cluster)
-    }
-  ]
-}
-
-
 #' @export
 print.clusterTrack <- function(x, ...) {
   cat("<clusters:", uniqueN(x$cluster) - 1, ">\n\n")
@@ -29,7 +18,7 @@ plot.clusterTrack <- function(x) {
 #' Performs spatiotemporal clustering on a ctdf by segmenting movement, identifying stops, and applying DBSCAN-like clustering.
 #'
 #'
-#' This is a high-level wrapper function that applies a pipeline of segmentation, clustering, and stitching steps on a movement track stored in a `ctdf` object.
+#' This is a high-level wrapper function that applies a pipeline of segmentation, clustering, and repairing steps on a movement track stored in a `ctdf` object.
 #'
 #'
 #' @param ctdf   A `ctdf` data frame (see [as_ctdf()]) representing a single movement track .
@@ -46,7 +35,7 @@ plot.clusterTrack <- function(x) {
 #' @param overlap_threshold Numeric between 0 and 1; minimum area‐overlap ratio
 #'                          required to merge adjacent clusters. Default to 0.1.
 #'                          Clusters with overlap > threshold are combined.
-#'                          Passed to [cluster_stitch()]
+#'                          Passed to [cluster_repair()]
 #' @return NULL.
 #' The function modifies `ctdf` by reference, adding or updating the column \code{cluster},
 #' which assigns a cluster ID to each row (point).
@@ -57,74 +46,86 @@ plot.clusterTrack <- function(x) {
 #' @examples
 #' data(mini_ruff)
 #' ctdf = as_ctdf(mini_ruff) |> cluster_track()
+#' map(ctdf)
 #'
 #' \dontrun{
 #' data(pesa56511)
 #' ctdf = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
+#' map(ctdf)
 #'
 #'
 #' data(ruff143789)
 #' ctdf = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
+#' map(ctdf)
 #'
 #' data(lbdo66862)
 #' ctdf = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+#' map(ctdf)
 #'
 #'
 #' }
 
 cluster_track <- function(
   ctdf,
-  deltaT = 1,
-  nmin = 5,
-  threshold = 2,
-  time_contiguity = FALSE,
-  overlap_threshold = 0.1
+  deltaT = 30,
+  nmin = 3,
+  minCluster = 5,
+  area_z_min = 1,
+  length_z_min = 1,
+  trim = 0.05,
+  contain_min = 0.60
 ) {
   options(datatable.showProgress = FALSE)
-  cli_progress_bar("", type = "tasks", total = 4)
+
+  outer_pb = cli_progress_bar("", type = "tasks", total = 4)
 
   # slice
-  cli_progress_output("Track segmentation...")
-  slice_ctdf(ctdf, deltaT = deltaT)
+  cli_progress_output("Track segmentation")
+  slice_ctdf(ctdf, deltaT = deltaT, nmin = nmin)
   cli_progress_update()
 
-  # tesselate
-  cli_progress_output("Tessellating points by putative cluster regions..")
-  tessellate_ctdf(ctdf)
+  # repair
+  cli_progress_output("Cluster repairing ...")
+  cluster_repair(ctdf)
   cli_progress_update()
 
-  # cluster
-  cli_progress_output("Within-segment clustering...")
-  cluster_segments(
+  # cluster local
+  cli_progress_output("Cluster local ...")
+  local_cluster_ctdf(
     ctdf,
     nmin = nmin,
-    threshold = threshold
+    area_z_min = area_z_min * -1,
+    length_z_min = length_z_min * -1,
+    trim = trim,
+    contain_min = contain_min
   )
+
+  # enforce minCluster & tidy
+  ctdf[
+    .putative_cluster %in%
+      ctdf[, .N, .putative_cluster][N <= minCluster]$.putative_cluster,
+    .putative_cluster := NA
+  ][,
+    .putative_cluster := .as_inorder_int(.putative_cluster)
+  ]
   cli_progress_update()
 
-  # stich
-  cli_progress_output("Cluster stitching ...")
-  cluster_stitch(ctdf, overlap_threshold = overlap_threshold)
-  cli_progress_update()
-
-  # time contiguity
-  if (time_contiguity) {
-    .time_contiguity(ctdf)
-  }
+  # assign to cluster
+  ctdf[, cluster := .putative_cluster]
   ctdf[is.na(cluster), cluster := 0]
 
-  # collect parameters to save
+  #collect parameters
   cluster_params = list(
     deltaT = deltaT,
     nmin = nmin,
-    threshold = threshold,
-    time_contiguity = time_contiguity,
-    overlap_threshold = overlap_threshold
+    minCluster = minCluster,
+    area_z_min = area_z_min,
+    length_z_min = length_z_min
   )
 
   setattr(ctdf, "cluster_params", cluster_params)
 
-  cli_progress_done()
+  cli::cli_progress_done(id = outer_pb)
 
   ctdf
 }

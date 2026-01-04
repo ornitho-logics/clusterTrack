@@ -5,8 +5,8 @@ reserved_ctdf_nams = c(
   ".id",
   ".move_seg",
   ".seg_id",
-  ".putative_cluster",
-  ".tesselation"
+  ".putative_cluster"
+  # ".tesselation"
 )
 
 .check_ctdf <- function(x) {
@@ -27,7 +27,14 @@ reserved_ctdf_nams = c(
   if (!all(nams_ok)) {
     stop("Some build in columns are missing", call. = FALSE)
   }
+
+  # if (!.is_sorted_and_contiguous(x[.putative_cluster > 0, .putative_cluster])) {
+  #   stop(
+  #     "Something went wrong! `.putative_cluster` is not sorted and contiguous anymore."
+  #   )
+  # }
 }
+
 
 #' @export
 as_ctdf <- function(x, ...) {
@@ -138,7 +145,7 @@ as_ctdf <- function(
   o[, .move_seg := NA_integer_]
   o[, .putative_cluster := NA_integer_]
   o[, cluster := NA_integer_]
-  o[, .tesselation := vector("list", .N)]
+  # o[, .tesselation := vector("list", .N)]
 
   o = st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
 
@@ -234,7 +241,7 @@ summary.ctdf = function(ctdf, ...) {
         start = min(timestamp),
         stop = max(timestamp),
         geometry = st_union(location) |> st_convex_hull() |> st_centroid(),
-        putative_clusters = list(range(.putative_cluster, na.rm = TRUE)),
+        ids = paste(range(.id), collapse = "-"),
         N = .N
       ),
       by = cluster
