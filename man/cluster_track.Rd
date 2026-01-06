@@ -11,8 +11,7 @@ cluster_track(
   minCluster = 5,
   area_z_min = 1,
   length_z_min = 1,
-  trim = 0.05,
-  contain_min = 0.6
+  trim = 0.05
 )
 }
 \arguments{
@@ -53,20 +52,21 @@ This is a high-level wrapper function that applies a pipeline of segmentation, c
 data(mini_ruff)
 ctdf = as_ctdf(mini_ruff) |> cluster_track()
 map(ctdf)
+hist(ctdf)
 
 \dontrun{
 data(pesa56511)
 ctdf = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
 map(ctdf)
 
-
 data(ruff143789)
 ctdf = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 map(ctdf)
 
-data(lbdo66862)
+#' data(lbdo66862)
 ctdf = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
 map(ctdf)
+
 
 
 }
