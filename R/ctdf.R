@@ -125,7 +125,7 @@ as_ctdf <- function(
 
   dups = which(duplicated(o[, .(Y, X, timestamp)]))
   if (length(dups) > 0) {
-    stop(
+    warning(
       sprintf(
         "as_ctdf(): found %d duplicated point%s (latitude, longitude, timestamp) at row%s: %s",
         length(dups),

@@ -47,20 +47,21 @@ plot.clusterTrack <- function(x) {
 #' data(mini_ruff)
 #' ctdf = as_ctdf(mini_ruff) |> cluster_track()
 #' map(ctdf)
+#' hist(ctdf)
 #'
 #' \dontrun{
 #' data(pesa56511)
 #' ctdf = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
 #' map(ctdf)
 #'
-#'
 #' data(ruff143789)
 #' ctdf = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 #' map(ctdf)
 #'
-#' data(lbdo66862)
+#'#' data(lbdo66862)
 #' ctdf = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
 #' map(ctdf)
+#'
 #'
 #'
 #' }
@@ -72,8 +73,7 @@ cluster_track <- function(
   minCluster = 5,
   area_z_min = 1,
   length_z_min = 1,
-  trim = 0.05,
-  contain_min = 0.60
+  trim = 0.05
 ) {
   options(datatable.showProgress = FALSE)
 
@@ -95,10 +95,10 @@ cluster_track <- function(
     ctdf,
     nmin = nmin,
     area_z_min = area_z_min * -1,
-    length_z_min = length_z_min * -1,
-    trim = trim,
-    contain_min = contain_min
+    length_z_min = length_z_min * -1
   )
+
+  ctdf_temporal_merge(ctdf, trim = trim)
 
   # enforce minCluster & tidy
   ctdf[

@@ -148,10 +148,10 @@ slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
 
   setorder(out, .id)
 
-  out[, putative_cluster := .as_inorder_int(.putative_cluster)]
+  out[, new_putative_cluster := .as_inorder_int(.putative_cluster)]
 
-  out = out[, .(.id, putative_cluster)]
+  out = out[, .(.id, new_putative_cluster)]
   setkey(out, .id)
 
-  ctdf[out, .putative_cluster := i.putative_cluster]
+  ctdf[out, .putative_cluster := i.new_putative_cluster]
 }
