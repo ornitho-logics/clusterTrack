@@ -105,7 +105,7 @@ slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
 
   pb = cli::cli_progress_bar(
     total = NA,
-    format = " {cli::pb_spin} {cli::pb_current} segments processed [{cli::pb_elapsed}] ...",
+    format = " {cli::pb_spin} {cli::pb_current} segments processed [{cli::pb_elapsed}]",
     .envir = environment()
   )
   on.exit(cli::cli_progress_done(id = pb), add = TRUE)

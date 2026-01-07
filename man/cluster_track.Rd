@@ -8,7 +8,7 @@ cluster_track(
   ctdf,
   deltaT = 30,
   nmin = 3,
-  minCluster = 5,
+  minCluster = 3,
   area_z_min = 1,
   length_z_min = 1,
   trim = 0.05
@@ -34,7 +34,7 @@ Passed to [cluster_segments()].}
 \item{overlap_threshold}{Numeric between 0 and 1; minimum area‐overlap ratio
 required to merge adjacent clusters. Default to 0.1.
 Clusters with overlap > threshold are combined.
-Passed to [cluster_repair()]}
+Passed to [spatial_repair()]}
 }
 \value{
 NULL.
@@ -52,7 +52,6 @@ This is a high-level wrapper function that applies a pipeline of segmentation, c
 data(mini_ruff)
 ctdf = as_ctdf(mini_ruff) |> cluster_track()
 map(ctdf)
-hist(ctdf)
 
 \dontrun{
 data(pesa56511)

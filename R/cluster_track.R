@@ -35,7 +35,7 @@ plot.clusterTrack <- function(x) {
 #' @param overlap_threshold Numeric between 0 and 1; minimum area‐overlap ratio
 #'                          required to merge adjacent clusters. Default to 0.1.
 #'                          Clusters with overlap > threshold are combined.
-#'                          Passed to [cluster_repair()]
+#'                          Passed to [spatial_repair()]
 #' @return NULL.
 #' The function modifies `ctdf` by reference, adding or updating the column \code{cluster},
 #' which assigns a cluster ID to each row (point).
@@ -47,7 +47,6 @@ plot.clusterTrack <- function(x) {
 #' data(mini_ruff)
 #' ctdf = as_ctdf(mini_ruff) |> cluster_track()
 #' map(ctdf)
-#' hist(ctdf)
 #'
 #' \dontrun{
 #' data(pesa56511)
@@ -70,27 +69,22 @@ cluster_track <- function(
   ctdf,
   deltaT = 30,
   nmin = 3,
-  minCluster = 5,
+  minCluster = 3,
   area_z_min = 1,
   length_z_min = 1,
   trim = 0.05
 ) {
   options(datatable.showProgress = FALSE)
 
-  outer_pb = cli_progress_bar("", type = "tasks", total = 4)
-
   # slice
-  cli_progress_output("Track segmentation")
+  cli_alert("Finding putative cluster regions.")
   slice_ctdf(ctdf, deltaT = deltaT, nmin = nmin)
-  cli_progress_update()
 
-  # repair
-  cli_progress_output("Cluster repairing ...")
-  cluster_repair(ctdf)
-  cli_progress_update()
+  cli_alert("Preparing for local clustering.")
+  spatial_repair(ctdf, time_contiguity = TRUE)
 
+  cli_alert("Running local clustering.")
   # cluster local
-  cli_progress_output("Cluster local ...")
   local_cluster_ctdf(
     ctdf,
     nmin = nmin,
@@ -98,7 +92,9 @@ cluster_track <- function(
     length_z_min = length_z_min * -1
   )
 
-  ctdf_temporal_merge(ctdf, trim = trim)
+  temporal_repair(ctdf, trim = trim)
+
+  tail_repair(ctdf)
 
   # enforce minCluster & tidy
   ctdf[
@@ -108,13 +104,14 @@ cluster_track <- function(
   ][,
     .putative_cluster := .as_inorder_int(.putative_cluster)
   ]
-  cli_progress_update()
+
+  #TODO spatial_repair(ctdf, time_contiguity = FALSE)
 
   # assign to cluster
   ctdf[, cluster := .putative_cluster]
   ctdf[is.na(cluster), cluster := 0]
 
-  #collect parameters
+  #collect parameters (#TODO)
   cluster_params = list(
     deltaT = deltaT,
     nmin = nmin,
@@ -124,8 +121,6 @@ cluster_track <- function(
   )
 
   setattr(ctdf, "cluster_params", cluster_params)
-
-  cli::cli_progress_done(id = outer_pb)
 
   ctdf
 }

@@ -19,6 +19,6 @@ Merge spatial clusters.
 data(mini_ruff)
 ctdf = as_ctdf(mini_ruff)
 slice_ctdf(ctdf)
-cluster_repair(ctdf)
+spatial_repair(ctdf)
 
 }

@@ -10,7 +10,7 @@
 #' @importFrom forcats    fct_inorder
 #' @importFrom units      set_units
 #' @importFrom dplyr      mutate ungroup rowwise lag filter select rename
-#' @importFrom cli        cli_progress_bar cli_progress_update cli_progress_done cli_progress_output
+#' @importFrom cli        cli_progress_bar cli_progress_update cli_progress_done cli_alert
 
 utils::globalVariables(c('isCluster', 'datetime', 'tenure'))
 NULL
