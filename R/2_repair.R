@@ -63,22 +63,10 @@
 spatial_repair <- function(ctdf, time_contiguity = TRUE) {
   .check_ctdf(ctdf)
 
-  pb = cli::cli_progress_bar(
-    total = NA,
-    format = " {cli::pb_spin} {cli::pb_current} chunks processed [{cli::pb_elapsed}]",
-    .envir = environment()
-  )
-  on.exit(cli::cli_progress_done(id = pb), add = TRUE)
-  i = 0
-  cli::cli_progress_update(id = pb, set = 0, force = TRUE)
-
   repeat {
-    cli::cli_progress_update(id = pb, set = i - 1)
-
     n_prev = max(ctdf$.putative_cluster, na.rm = TRUE)
 
     .spatial_repair(ctdf, time_contiguity = time_contiguity)
-    i = i + 1
 
     if (max(ctdf$.putative_cluster, na.rm = TRUE) == n_prev) break
   }
@@ -175,10 +163,7 @@ temporal_repair <- function(
 }
 
 
-#' @export
-tail_repair <- function(ctdf) {
-  .check_ctdf(ctdf)
-
+.tail_repair <- function(ctdf) {
   x = ctdf[!is.na(.putative_cluster)]
 
   o = x[,
@@ -232,4 +217,21 @@ tail_repair <- function(ctdf) {
   ctdf[.putative_cluster %in% x$.putative_cluster, .putative_cluster := NA]
 
   ctdf[, .putative_cluster := .as_inorder_int(.putative_cluster)]
+}
+
+#' @export
+tail_repair <- function(ctdf) {
+  .check_ctdf(ctdf)
+
+  repeat {
+    n_prev = max(ctdf$.putative_cluster, na.rm = TRUE)
+
+    .tail_repair(ctdf)
+
+    if (max(ctdf$.putative_cluster, na.rm = TRUE) == n_prev) break
+  }
+
+  ctdf[,
+    .putative_cluster := .as_inorder_int(.putative_cluster)
+  ]
 }

@@ -14,7 +14,6 @@
   ncl > 1
 }
 
-
 .prepare_segs <- function(ctdf, deltaT) {
   ctdf[, let(.move_seg = NA, .seg_id = NA)]
 
@@ -65,13 +64,11 @@
   ctdf[segs, .seg_id := i.seg_id]
 }
 
-
 .split_by_maxlen <- function(ctdf, deltaT) {
   .prepare_segs(ctdf, deltaT = deltaT)
 
   split(ctdf[.move_seg == 0], by = ".seg_id")
 }
-
 
 #' Segment and filter a CTDF by temporal continuity and spatial clustering
 #'
