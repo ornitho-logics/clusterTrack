@@ -57,7 +57,7 @@ plot.clusterTrack <- function(x) {
 #' ctdf = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 #' map(ctdf)
 #'
-#'#' data(lbdo66862)
+#' data(lbdo66862)
 #' ctdf = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
 #' map(ctdf)
 #'
@@ -94,8 +94,6 @@ cluster_track <- function(
 
   temporal_repair(ctdf, trim = trim)
 
-  tail_repair(ctdf)
-
   # enforce minCluster & tidy
   ctdf[
     .putative_cluster %in%
@@ -105,7 +103,9 @@ cluster_track <- function(
     .putative_cluster := .as_inorder_int(.putative_cluster)
   ]
 
-  #TODO spatial_repair(ctdf, time_contiguity = FALSE)
+  spatial_repair(ctdf, time_contiguity = FALSE)
+
+  tail_repair(ctdf)
 
   # assign to cluster
   ctdf[, cluster := .putative_cluster]

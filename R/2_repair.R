@@ -225,7 +225,11 @@ tail_repair <- function(ctdf) {
     by = .putative_cluster
   ]
 
-  ctdf[.id %in% x$.i, .putative_cluster := NA]
+  ctdf[.id %in% o$.i, .putative_cluster := NA]
+
+  # rm n = 1
+  x = ctdf[!is.na(.putative_cluster), .N, .putative_cluster][N <= 1]
+  ctdf[.putative_cluster %in% x$.putative_cluster, .putative_cluster := NA]
 
   ctdf[, .putative_cluster := .as_inorder_int(.putative_cluster)]
 }

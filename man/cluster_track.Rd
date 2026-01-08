@@ -62,7 +62,7 @@ data(ruff143789)
 ctdf = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 map(ctdf)
 
-#' data(lbdo66862)
+data(lbdo66862)
 ctdf = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
 map(ctdf)
 
