@@ -16,20 +16,13 @@ utils::globalVariables(c('isCluster', 'datetime', 'tenure'))
 NULL
 
 
-# undocumented functions of general interest
-
-.mcp <- function(x, p = 0.95) {
-  d = st_distance(x, st_union(x) |> st_centroid())
-  st_union(x[d <= quantile(d, p), ]) |>
-    st_convex_hull()
-}
-
+# general undocumented functions
 
 .is_sorted_and_contiguous <- function(x) {
   o = unique(x)
 
   sorted = all(o == sort(o))
-  contiguous = all(diff(o) == 1L)
+  contiguous = all(diff(o) == 1)
   sorted && contiguous
 }
 
