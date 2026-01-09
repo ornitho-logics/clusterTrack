@@ -36,6 +36,7 @@ plot.clusterTrack <- function(x) {
 #'                          required to merge adjacent clusters. Default to 0.1.
 #'                          Clusters with overlap > threshold are combined.
 #'                          Passed to [spatial_repair()]
+#' @param agregate_dist distance in km. default NULL.
 #' @return NULL.
 #' The function modifies `ctdf` by reference, adding or updating the column \code{cluster},
 #' which assigns a cluster ID to each row (point).
@@ -51,6 +52,10 @@ plot.clusterTrack <- function(x) {
 #' \dontrun{
 #' data(pesa56511)
 #' ctdf = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
+#' map(ctdf)
+#'
+#' ctdf = as_ctdf(pesa56511, time = "locationDate")
+#' cluster_track(ctdf, agregate_dist = 20)
 #' map(ctdf)
 #'
 #' data(ruff143789)
@@ -72,7 +77,8 @@ cluster_track <- function(
   minCluster = 3,
   area_z_min = 1,
   length_z_min = 1,
-  trim = 0.05
+  trim = 0.05,
+  agregate_dist
 ) {
   options(datatable.showProgress = FALSE)
 
@@ -110,6 +116,10 @@ cluster_track <- function(
   # assign to cluster
   ctdf[, cluster := .putative_cluster]
   ctdf[is.na(cluster), cluster := 0]
+
+  if (!is.null(agregate_dist)) {
+    aggregate_ctdf(ctdf, dist = agregate_dist)
+  }
 
   #collect parameters (#TODO)
   cluster_params = list(
