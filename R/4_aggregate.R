@@ -36,13 +36,6 @@
   edges = dom[next_cluster_is_nb == TRUE, .(cluster, next_cluster)]
 
   if (!nrow(edges)) {
-    warning(
-      sprintf(
-        "aggregate_ctdf(): no consecutive clusters within dist = %s; returning input unchanged.",
-        format(dist_u)
-      ),
-      call. = FALSE
-    )
     return(ctdf)
   }
 
@@ -87,8 +80,4 @@ aggregate_ctdf <- function(ctdf, dist) {
 
     if (max(ctdf$cluster, na.rm = TRUE) == n_prev) break
   }
-
-  ctdf[,
-    cluster := .as_inorder_int(cluster)
-  ]
 }

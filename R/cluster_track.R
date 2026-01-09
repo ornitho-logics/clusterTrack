@@ -127,10 +127,6 @@ cluster_track <- function(
     aggregate_ctdf(ctdf, dist = aggregate_dist)
   }
 
-  if (missing(aggregate_dist)) {
-    aggregate_dist = NA
-  }
-
   #collect parameters
   cluster_params = list(
     deltaT = deltaT,
@@ -139,10 +135,12 @@ cluster_track <- function(
     area_z_min = area_z_min,
     length_z_min = length_z_min,
     trim = trim,
-    aggregate_dist = aggregate_dist
+    aggregate_dist = if (missing(aggregate_dist)) {
+      aggregate_dist = NA
+    } else {
+      aggregate_dist
+    }
   )
 
   setattr(ctdf, "cluster_params", cluster_params)
-
-  ctdf
 }
