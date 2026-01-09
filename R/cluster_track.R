@@ -13,6 +13,19 @@ plot.clusterTrack <- function(x) {
   plot(st_geometry(x$location), col = cols)
 }
 
+
+.subset_by_minCluster <- function(ctdf, minCluster) {
+  ctdf[
+    .putative_cluster %in%
+      ctdf[, .N, .putative_cluster][N <= minCluster]$.putative_cluster,
+    .putative_cluster := NA
+  ]
+  ctdf[,
+    .putative_cluster := .as_inorder_int(.putative_cluster)
+  ]
+}
+
+
 #' Cluster movement tracks
 #'
 #' Performs spatiotemporal clustering on a ctdf by segmenting movement, identifying stops, and applying DBSCAN-like clustering.
@@ -36,7 +49,7 @@ plot.clusterTrack <- function(x) {
 #'                          required to merge adjacent clusters. Default to 0.1.
 #'                          Clusters with overlap > threshold are combined.
 #'                          Passed to [spatial_repair()]
-#' @param agregate_dist distance in km. default NULL.
+#' @param aggregate_dist distance in km. default NULL.
 #' @return NULL.
 #' The function modifies `ctdf` by reference, adding or updating the column \code{cluster},
 #' which assigns a cluster ID to each row (point).
@@ -55,7 +68,7 @@ plot.clusterTrack <- function(x) {
 #' map(ctdf)
 #'
 #' ctdf = as_ctdf(pesa56511, time = "locationDate")
-#' cluster_track(ctdf, agregate_dist = 20)
+#' cluster_track(ctdf, aggregate_dist = 20)
 #' map(ctdf)
 #'
 #' data(ruff143789)
@@ -78,7 +91,7 @@ cluster_track <- function(
   area_z_min = 1,
   length_z_min = 1,
   trim = 0.05,
-  agregate_dist
+  aggregate_dist
 ) {
   options(datatable.showProgress = FALSE)
 
@@ -90,7 +103,7 @@ cluster_track <- function(
   spatial_repair(ctdf, time_contiguity = TRUE)
 
   cli_alert("Running local clustering.")
-  # cluster local
+
   local_cluster_ctdf(
     ctdf,
     nmin = nmin,
@@ -100,14 +113,7 @@ cluster_track <- function(
 
   temporal_repair(ctdf, trim = trim)
 
-  # enforce minCluster & tidy
-  ctdf[
-    .putative_cluster %in%
-      ctdf[, .N, .putative_cluster][N <= minCluster]$.putative_cluster,
-    .putative_cluster := NA
-  ][,
-    .putative_cluster := .as_inorder_int(.putative_cluster)
-  ]
+  .subset_by_minCluster(ctdf, minCluster = minCluster)
 
   spatial_repair(ctdf, time_contiguity = FALSE)
 
@@ -117,17 +123,23 @@ cluster_track <- function(
   ctdf[, cluster := .putative_cluster]
   ctdf[is.na(cluster), cluster := 0]
 
-  if (!is.null(agregate_dist)) {
-    aggregate_ctdf(ctdf, dist = agregate_dist)
+  if (!missing(aggregate_dist)) {
+    aggregate_ctdf(ctdf, dist = aggregate_dist)
   }
 
-  #collect parameters (#TODO)
+  if (missing(aggregate_dist)) {
+    aggregate_dist = NA
+  }
+
+  #collect parameters
   cluster_params = list(
     deltaT = deltaT,
     nmin = nmin,
     minCluster = minCluster,
     area_z_min = area_z_min,
-    length_z_min = length_z_min
+    length_z_min = length_z_min,
+    trim = trim,
+    aggregate_dist = aggregate_dist
   )
 
   setattr(ctdf, "cluster_params", cluster_params)

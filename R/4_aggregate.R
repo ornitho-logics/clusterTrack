@@ -1,11 +1,4 @@
-#' Aggregate ctdf data
-#'
-#' @param ctdf A `ctdf` object.
-#' @param dist aggregation scale (numeric treated as km )
-#' @export
-aggregate_ctdf <- function(ctdf, dist) {
-  .check_ctdf(ctdf)
-
+.aggregate_ctdf <- function(ctdf, dist) {
   dist_u = units::set_units(dist, "km")
 
   x = ctdf[cluster > 0]
@@ -74,5 +67,28 @@ aggregate_ctdf <- function(ctdf, dist) {
     dom,
     on = .(cluster),
     cluster := i.new_cluster
+  ]
+}
+
+
+#' Aggregate a ctdf.
+#'
+#' @param ctdf A `ctdf` object.
+#' @param dist aggregation scale (numeric treated as km )
+#' @export
+
+aggregate_ctdf <- function(ctdf, dist) {
+  .check_ctdf(ctdf)
+
+  repeat {
+    n_prev = max(ctdf$cluster, na.rm = TRUE)
+
+    .aggregate_ctdf(ctdf, dist = dist)
+
+    if (max(ctdf$cluster, na.rm = TRUE) == n_prev) break
+  }
+
+  ctdf[,
+    cluster := .as_inorder_int(cluster)
   ]
 }
