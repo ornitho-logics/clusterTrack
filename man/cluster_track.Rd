@@ -11,7 +11,8 @@ cluster_track(
   minCluster = 3,
   area_z_min = 1,
   length_z_min = 1,
-  trim = 0.05
+  trim = 0.05,
+  aggregate_dist
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ Default to 1 day. Passed to [slice()]) .}
 
 \item{nmin}{Integer. Segments or tessellations with fewer than nmin points yield no clusters.
 Default to 3. Passed to [cluster_segments()].}
+
+\item{aggregate_dist}{distance in km. default NULL.}
 
 \item{threshold}{Numeric. the multiplier of the standard deviation
 on log‐areas used in pruning. Passed to [cluster_segments()].}
@@ -56,6 +59,10 @@ map(ctdf)
 \dontrun{
 data(pesa56511)
 ctdf = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
+map(ctdf)
+
+ctdf = as_ctdf(pesa56511, time = "locationDate")
+cluster_track(ctdf, aggregate_dist = 20)
 map(ctdf)
 
 data(ruff143789)

@@ -6,7 +6,6 @@ reserved_ctdf_nams = c(
   ".move_seg",
   ".seg_id",
   ".putative_cluster"
-  # ".tesselation"
 )
 
 .check_ctdf <- function(x) {
@@ -90,8 +89,8 @@ plot.ctdf <- function(x, y = NULL, pch = 16) {
 #'
 #' @note
 #' This is currently a thin wrapper around `st_as_sf()`, but standardizes timestamp naming, ordering,
-#' and geometry column name (`"location"`). A colum `filter`, and with all values set to `FALSE` is added as well.
-#' This column will be updated by upstream methods.
+#' and geometry column name (`"location"`). Several dot columns,updated by upstream methods, are added as well.
+
 #'
 #' @examples
 #' data(mini_ruff)
@@ -145,7 +144,6 @@ as_ctdf <- function(
   o[, .move_seg := NA_integer_]
   o[, .putative_cluster := NA_integer_]
   o[, cluster := NA_integer_]
-  # o[, .tesselation := vector("list", .N)]
 
   o = st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
 

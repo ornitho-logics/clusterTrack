@@ -36,8 +36,7 @@ to a standardized `sf/data.table`-based format used internally by the clusterTra
 }
 \note{
 This is currently a thin wrapper around `st_as_sf()`, but standardizes timestamp naming, ordering,
-and geometry column name (`"location"`). A colum `filter`, and with all values set to `FALSE` is added as well.
-This column will be updated by upstream methods.
+and geometry column name (`"location"`). Several dot columns,updated by upstream methods, are added as well.
 }
 \examples{
 data(mini_ruff)

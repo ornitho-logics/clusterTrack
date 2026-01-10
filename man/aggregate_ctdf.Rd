@@ -2,15 +2,15 @@
 % Please edit documentation in R/4_aggregate.R
 \name{aggregate_ctdf}
 \alias{aggregate_ctdf}
-\title{Aggregate ctdf data}
+\title{Aggregate a ctdf.}
 \usage{
 aggregate_ctdf(ctdf, dist)
 }
 \arguments{
 \item{ctdf}{A `ctdf` object.}
 
-\item{dist}{aggregation scale}
+\item{dist}{aggregation scale (numeric treated as km )}
 }
 \description{
-Aggregate ctdf data
+Aggregate a ctdf.
 }

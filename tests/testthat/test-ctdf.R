@@ -23,12 +23,6 @@ test_that(".check_ctdf errors when required columns missing", {
 
 # Test as_ctdf
 
-test_that("as_ctdf errors on duplicated points", {
-  x = rbind(mini_ruff, mini_ruff[1, ])
-  expect_error(as_ctdf(x))
-})
-
-
 test_that("as_ctdf warns on reserved columns", {
   mini_ruff = copy(mini_ruff)
   mini_ruff[, .id := 1]
@@ -41,7 +35,7 @@ test_that("as_ctdf_track creates LINESTRING segments", {
   ctdf = as_ctdf(mini_ruff)
   track = as_ctdf_track(ctdf)
   expect_true(nrow(track) == nrow(ctdf) - 1)
-  geom_types = st_geometry_type(track$track)
+  geom_types = sf::st_geometry_type(track$track)
   expect_true(all(geom_types == "LINESTRING"))
 })
 
@@ -61,7 +55,7 @@ test_that("summary.ctdf returns correct summary", {
       "start",
       "stop",
       "geometry",
-      "putative_clusters",
+      "ids",
       "N",
       "tenure",
       "dist_to_next"

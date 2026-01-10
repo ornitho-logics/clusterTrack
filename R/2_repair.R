@@ -182,7 +182,7 @@ temporal_repair <- function(
             list() |>
             st_sfc()
         ) |>
-        st_set_geometry("track")
+        sf::st_set_geometry("track")
 
       nc = st_crosses(tr) |> sapply(length)
       list(ncrosses = nc, .id = .id[-1])
