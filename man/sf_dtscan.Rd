@@ -7,7 +7,7 @@
 sf_dtscan(x, min_pts = 5, area_z_min = 0, length_z_min = 0, id_col = NULL)
 }
 \arguments{
-\item{x}{An `sf` object with POINT geometry.}
+\item{x}{An \code{sf} object with POINT geometry.}
 
 \item{min_pts}{Minimum neighbour count for a point to be treated as a core point.
 Neighbours are the sites directly connected by kept Delaunay edges after pruning.
@@ -17,14 +17,15 @@ their multiplicity contributes to this count.}
 \item{area_z_min}{Threshold (in SD units) on the inverse z-score of triangle areas used for pruning.
 Larger thresholds keep only progressively smaller-than-average triangles and prune more edges. Default to 0.}
 
-\item{length_z_min}{Threshold (in SD units) on the inverse z-score of Delaunay edge lengths used for pruning. Larger thresholds keep only progressively shorter-than-average edges and prune more connections.}
+\item{length_z_min}{Threshold (in SD units) on the inverse z-score of Delaunay edge lengths used for pruning.
+Larger thresholds keep only progressively shorter-than-average edges and prune more connections.}
 
-\item{id_col}{Optional character scalar naming a unique identifier column in `x` used to align output.
-If `NULL` or missing from `x`, output is aligned by current row order.}
+\item{id_col}{Optional character scalar naming a unique identifier column in \code{x} used to align output.
+If \code{NULL} or missing from \code{x}, output is aligned by current row order.}
 }
 \value{
-An integer vector of cluster labels of length `nrow(x)`.
-  `0` indicates noise/unassigned; positive integers are cluster ids.
+An integer vector of cluster labels of length \code{nrow(x)}.
+\code{0} indicates noise/unassigned; positive integers are cluster ids.
 }
 \description{
 Runs a DTSCAN-style clustering pipeline using a Delaunay triangulation of point coordinates,
@@ -33,8 +34,8 @@ Returns only the cluster labels vector aligned to the input rows.
 }
 \details{
 Identical coordinates are collapsed before triangulation; their multiplicity contributes
-to MinPts via `effective_degree = degree + (mult - 1)`.
-#' Cluster labels are produced by starting a new cluster at each unassigned core site
+to MinPts via \code{effective_degree = degree + (mult - 1)}.
+Cluster labels are produced by starting a new cluster at each unassigned core site
 (a site meeting the MinPts rule) and iteratively visiting all sites reachable through
 pruned Delaunay edges from that seed; the cluster id is assigned to every visited site.
 }
@@ -52,6 +53,7 @@ x[,
 ]
 }
 \references{
-Kim, J., & Cho, J. (2019). Delaunay triangulation-based spatial clustering technique for enhanced adjacent boundary detection and segmentation of LiDAR 3D point clouds. Sensors, 19(18), 3926.
+Kim, J., & Cho, J. (2019). Delaunay triangulation-based spatial clustering technique for enhanced adjacent
+boundary detection and segmentation of LiDAR 3D point clouds. Sensors, 19(18), 3926.
 doi:10.3390/s19183926
 }

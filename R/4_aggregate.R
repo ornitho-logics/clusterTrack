@@ -82,7 +82,7 @@
 #' This updates `cluster` by reference.
 #'
 #' @param ctdf A `ctdf` object. Must contain `cluster`, `timestamp`, and `location`.
-#' @param dist Aggregation scale in [km].
+#' @param dist Aggregation scale in km.
 #'
 #' @return The input `ctdf`, invisibly, with `cluster` updated in-place.
 #'

@@ -2,23 +2,30 @@
 % Please edit documentation in R/1_slice.R
 \name{slice_ctdf}
 \alias{slice_ctdf}
-\title{Segment and filter a CTDF by temporal continuity and spatial clustering}
+\title{Slice a CTDF into putative clusters using temporal continuity and spatial clustering}
 \usage{
 slice_ctdf(ctdf, deltaT = 30, nmin = 5)
 }
 \arguments{
-\item{ctdf}{A CTDF object.}
+\item{ctdf}{A \emph{CTDF} object.}
 
-\item{deltaT}{Numeric; maximum allowable gap (in days) between segment
-endpoints to consider them continuous.}
+\item{deltaT}{Numeric; maximum allowable time gap (in days) between segment endpoints for intersections
+to  consider them continuous.}
+
+\item{nmin}{Integer; the \code{minPts} parameter passed to \code{dbscan::hdbscan()}.}
 }
 \value{
-The input CTDF, updated (in-place) with an integer
-  \code{.putative_cluster} column indicating bout membership.
+Invisibly returns \code{ctdf}, with \code{.putative_cluster} updated in-place.
 }
 \description{
-Recursively splits a CTDF into putative cluster regions. The split stops when a region is homogenous
- (established via HDBSCAN).
+Identifies spatially heterogeneous regions (via HDBSCAN on point coordinates) and, for those regions,
+recursively subdivides the track into temporally continuous movement segments. Subdivision continues
+until a region is spatially homogeneous (no evidence for multiple clusters) .
+}
+\details{
+This function updates a \code{ctdf} in-place.
+
+Internally, candidate regions are queued. Regions that show evidence for multiple clusters are split by movement segmentation; otherwise they are retained as a single putative cluster.
 }
 \examples{
 data(mini_ruff)
@@ -27,5 +34,8 @@ ctdf = slice_ctdf(ctdf)
 
 data(pesa56511)
 ctdf = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
-slice_ctdf(ctdf )
+ctdf = slice_ctdf(ctdf)
+}
+\seealso{
+\code{\link[dbscan]{hdbscan}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/cluster_track.R
 \name{cluster_track}
 \alias{cluster_track}
-\title{Cluster movement tracks}
+\title{Cluster a movement track into spatiotemporal clusters}
 \usage{
 cluster_track(
   ctdf,
@@ -16,40 +16,49 @@ cluster_track(
 )
 }
 \arguments{
-\item{ctdf}{A `ctdf` data frame (see [as_ctdf()]) representing a single movement track .}
+\item{ctdf}{A \code{ctdf} object (see \code{\link[=as_ctdf]{as_ctdf()}}).}
 
-\item{deltaT}{Numeric; maximum allowable gap (in days) between segment endpoints to consider them non-intersecting.
-Default to 1 day. Passed to [slice()]) .}
+\item{deltaT}{Numeric; passed to \code{\link[=slice_ctdf]{slice_ctdf()}}. Maximum allowable time gap (in days)
+used when splitting candidate regions into movement segments.}
 
-\item{nmin}{Integer. Segments or tessellations with fewer than nmin points yield no clusters.
-Default to 3. Passed to [cluster_segments()].}
+\item{nmin}{Integer; passed to \code{\link[=slice_ctdf]{slice_ctdf()}} (\code{nmin}) and \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} (\code{nmin}).}
 
-\item{aggregate_dist}{distance in km. default NULL.}
+\item{minCluster}{Integer; minimum number of points required to keep a putative cluster
+(clusters with \code{N <= minCluster} are dropped before final repairs).}
 
-\item{threshold}{Numeric. the multiplier of the standard deviation
-on log‐areas used in pruning. Passed to [cluster_segments()].}
+\item{area_z_min}{Numeric; pruning threshold forwarded to \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} and
+ultimately \code{\link[=sf_dtscan]{sf_dtscan()}} as \code{area_z_min} (sign is flipped internally).}
 
-\item{time_contiguity}{Logical; if `TRUE`, missing cluster IDs (usually spatial outliers) are  filled
-within each cluster to enforce temporal continuity.
-Default to `FALSE`.
-Passed to [cluster_segments()].}
+\item{length_z_min}{Numeric; pruning threshold forwarded to \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} and
+ultimately \code{\link[=sf_dtscan]{sf_dtscan()}} as \code{length_z_min} (sign is flipped internally).}
 
-\item{overlap_threshold}{Numeric between 0 and 1; minimum area‐overlap ratio
-required to merge adjacent clusters. Default to 0.1.
-Clusters with overlap > threshold are combined.
-Passed to [spatial_repair()]}
+\item{trim}{Numeric; passed to \code{\link[=temporal_repair]{temporal_repair()}}. Maximum fraction trimmed from each
+tail when estimating each cluster's time domain.}
+
+\item{aggregate_dist}{Optional numeric; if supplied, passed to \code{\link[=aggregate_ctdf]{aggregate_ctdf()}} as \code{dist}
+(numeric treated as km).}
 }
 \value{
-NULL.
-The function modifies `ctdf` by reference, adding or updating the column \code{cluster},
-which assigns a cluster ID to each row (point).
-Clustering parameters are stored as an attribute: `attr(ctdf, "cluster_params")`.
+Invisibly returns \code{ctdf}, with \code{cluster} updated in-place and
+\code{attr(ctdf, "cluster_params")} set.
 }
 \description{
-Performs spatiotemporal clustering on a ctdf by segmenting movement, identifying stops, and applying DBSCAN-like clustering.
+\code{cluster_track} that assigns a \code{cluster} id to each location in a \code{ctdf} by running a
+multi-step pipeline:
+\enumerate{
+\item identify temporally continuous putative regions via \code{\link[=slice_ctdf]{slice_ctdf()}}.
+\item merge adjacent putative regions with intersecting convex hulls via \code{\link[=spatial_repair]{spatial_repair()}}.
+\item locally split each putative region using DTSCAN via \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} and \code{\link[=sf_dtscan]{sf_dtscan()}}.
+\item enforce non-overlap in time by merging any putative regions with
+overlapping time domains via \code{\link[=temporal_repair]{temporal_repair()}}.
+\item drop small clusters and run additional spatial and track-shape repairs via \code{\link[=spatial_repair]{spatial_repair()}}
+and \code{\link[=tail_repair]{tail_repair()}}.
+\item optionally merge adjacent clusters within \code{aggregate_dist} via \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}.
+}
 }
 \details{
-This is a high-level wrapper function that applies a pipeline of segmentation, clustering, and repairing steps on a movement track stored in a `ctdf` object.
+The function updates \code{ctdf} by reference and stores its parameters in
+\code{attr(ctdf, "cluster_params")}.
 }
 \examples{
 data(mini_ruff)
@@ -76,4 +85,8 @@ map(ctdf)
 
 
 }
+}
+\seealso{
+\code{\link[=as_ctdf]{as_ctdf()}}, \code{\link[=slice_ctdf]{slice_ctdf()}}, \code{\link[=spatial_repair]{spatial_repair()}}, \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}}, \code{\link[=sf_dtscan]{sf_dtscan()}},
+\code{\link[=temporal_repair]{temporal_repair()}}, \code{\link[=tail_repair]{tail_repair()}}, \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}
 }

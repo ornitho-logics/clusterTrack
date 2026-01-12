@@ -9,13 +9,13 @@
 \arguments{
 \item{...}{Currently ignored.}
 
-\item{object}{A `ctdf` (inherits `data.table`).}
+\item{object}{A \code{ctdf} (inherits \code{data.table}).}
 }
 \value{
-A `data.table` (and `data.frame`) of class c("summary_ctdf","data.table","data.frame").
+A \code{data.table} (and \code{data.frame}) of class c("summary_ctdf","data.table","data.frame").
 }
 \description{
-Returns one row per `cluster` with start/stop times, tenure (days),
+Returns one row per \code{cluster} with start/stop times, tenure (days),
 convex‐hull centroid and row‐count.
 }
 \examples{

@@ -5,14 +5,14 @@
 \alias{ruff143789}
 \title{ARGOS satellite tracking data for an individual Ruff}
 \format{
-For `ruff143789`: a data.table with 2834 rows and 4 columns.
+For \code{ruff143789}: a data.table with 2834 rows and 4 columns.
 
-For `mini_ruff`: a data.table with 276 rows and the same columns.
+For \code{mini_ruff}: a data.table with 276 rows and the same columns.
 }
 \source{
 Kempenaers, Bart, et al. "Large-scale sampling of potential breeding sites in male ruffs."
-         Proceedings B 292.2038 (2025): 20242225.
-         https://royalsocietypublishing.org/doi/full/10.1098/rspb.2024.2225.
+Proceedings B 292.2038 (2025): 20242225.
+https://royalsocietypublishing.org/doi/full/10.1098/rspb.2024.2225.
 }
 \usage{
 ruff143789
@@ -21,7 +21,7 @@ ruff143789
 A dataset containing ARGOS locations for an individual male Ruff.
 }
 \details{
-`ruff143789` is the full dataset; `mini_ruff` is a reduced subset used for examples and tests.
+\code{ruff143789} is the full dataset; \code{mini_ruff} is a reduced subset used for examples and tests.
 }
 \examples{
 data(ruff143789)

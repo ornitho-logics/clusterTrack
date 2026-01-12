@@ -2,15 +2,32 @@
 % Please edit documentation in R/4_aggregate.R
 \name{aggregate_ctdf}
 \alias{aggregate_ctdf}
-\title{Aggregate a ctdf.}
+\title{Aggregate (merge) adjacent clusters by spatial proximity}
 \usage{
 aggregate_ctdf(ctdf, dist)
 }
 \arguments{
-\item{ctdf}{A `ctdf` object.}
+\item{ctdf}{A \code{ctdf} object. Must contain \code{cluster}, \code{timestamp}, and \code{location}.}
 
-\item{dist}{aggregation scale (numeric treated as km )}
+\item{dist}{Aggregation scale in km.}
+}
+\value{
+The input \code{ctdf}, invisibly, with \code{cluster} updated in-place.
 }
 \description{
-Aggregate a ctdf.
+Iteratively merges temporally adjacent \code{cluster} ids whose locations are within
+\code{dist} of each other. This is a repair/aggregation step for an existing clustering:
+it does not compute clusters from scratch, it merges neighbouring ones.
+}
+\details{
+Merging is put as a graph problem. An undirected adjacency graph is constructed with one
+vertex per \code{cluster}. An edge is added between two vertices corresponding to consecutive cluster
+ids (\code{cluster} and \code{cluster + 1}) if the distance between their geometries is less
+than \code{dist}. clusters are merged by taking connected components of this graph.
+The procedure is repeated until no further merges occur.
+
+Representative geometry for each cluster is computed as the centroid of the convex hull of all
+points in that cluster.
+
+This updates \code{cluster} by reference.
 }

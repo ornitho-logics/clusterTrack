@@ -14,29 +14,29 @@ as_ctdf(
 )
 }
 \arguments{
-\item{x}{A `data.frame` object.}
+\item{x}{A \code{data.frame} object.}
 
 \item{coords}{Character vector of length 2 specifying the coordinate column names.
-Defaults to `c("longitude", "latitude")`.}
+Defaults to \code{c("longitude", "latitude")}.}
 
-\item{time}{Name of the time column. Will be renamed to `"timestamp"` internally.}
+\item{time}{Name of the time column. Will be renamed to \code{"timestamp"} internally.}
 
-\item{s_srs}{Source spatial reference. Default is 4326.}
+\item{s_srs}{Source spatial reference. Default is EPSG:4326}
 
-\item{t_srs}{target spatial reference passed to `st_transform()`. Default is "+proj=eqearth".}
+\item{t_srs}{target spatial reference passed to \code{st_transform()}. Default is "+proj=eqearth".}
 
 \item{...}{Currently unused}
 }
 \value{
-An object of class `ctdf`, which inherits from `sf`.
+An object of class \code{ctdf} (inherits from \code{sf}, \code{data.table}).
 }
 \description{
 Converts an object with spatial coordinates and a timestamp column
-to a standardized `sf/data.table`-based format used internally by the clusterTrack package.
+to a standardized \code{sf/data.table}-based format used by the clusterTrack package.
 }
 \note{
-This is currently a thin wrapper around `st_as_sf()`, but standardizes timestamp naming, ordering,
-and geometry column name (`"location"`). Several dot columns,updated by upstream methods, are added as well.
+This is currently a thin wrapper around \code{st_as_sf()}, but standardizes timestamp naming, ordering,
+and geometry column name (\code{"location"}). Several dot columns,updated by upstream methods, are added as well.
 }
 \examples{
 data(mini_ruff)

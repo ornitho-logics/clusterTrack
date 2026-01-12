@@ -7,9 +7,9 @@
 \format{
 A data.table with 44 rows and 3 columns:
 \describe{
-  \item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
-  \item{latitude}{Numeric. Latitude in decimal degrees (WGS84).}
-  \item{time}{POSIXct. Timestamp of location fix (UTC).}
+\item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
+\item{latitude}{Numeric. Latitude in decimal degrees (WGS84).}
+\item{time}{POSIXct. Timestamp of location fix (UTC).}
 }
 }
 \usage{

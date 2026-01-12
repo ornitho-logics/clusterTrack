@@ -7,16 +7,16 @@
 \format{
 A data.table with 2501 rows and 4 columns:
 \describe{
-  \item{latitude}{Numeric. Latitude in decimal degrees (WGS84).}
-  \item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
-  \item{locationDate}{POSIXct. Timestamp of location fix (UTC).}
-  \item{locationClass}{Character. ARGOS location quality class (e.g., B, 0, A).}
+\item{latitude}{Numeric. Latitude in decimal degrees (WGS84).}
+\item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
+\item{locationDate}{POSIXct. Timestamp of location fix (UTC).}
+\item{locationClass}{Character. ARGOS location quality class (e.g., B, 0, A).}
 }
 }
 \source{
 Kwon, Eunbi, Mihai Valcu, and Bart Kempenaers. “Strong Wintering Site Fidelity Contrasts
-         with Exploratory Breeding Site Sampling in a Socially Monogamous Shorebird.”
-         Movement Ecology, vol. 13, no. 1, 2025, p. 49, https://doi.org/10.1186/s40462-025-00580-3.
+with Exploratory Breeding Site Sampling in a Socially Monogamous Shorebird.”
+Movement Ecology, vol. 13, no. 1, 2025, p. 49, https://doi.org/10.1186/s40462-025-00580-3.
 }
 \usage{
 lbdo66862
