@@ -1,18 +1,3 @@
-#' Repair temporally adjacent clusters
-#'
-#' Merge spatial clusters.
-#'
-#' @param ctdf A CTDF object. Must contain an updated `cluster` column.
-#' @return The input CTDF, with an updated (in-place) cluster` column.
-#'
-#' @export
-#' @examples
-#' data(mini_ruff)
-#' ctdf = as_ctdf(mini_ruff)
-#' slice_ctdf(ctdf)
-#' spatial_repair(ctdf)
-#'
-
 .is_intersection <- function(ctdf, pc, next_pc) {
   ac = ctdf[.putative_cluster == pc, location] |>
     st_union() |>
@@ -60,6 +45,22 @@
   }
 }
 
+#' Repair spatially overlapping adjacent putative clusters
+#'
+#' Iteratively merges temporally adjacent putative clusters whose convex hulls intersect.
+#' This operates on the `.putative_cluster` column created by [slice_ctdf()] and updates it in-place.
+#'
+#' If `time_contiguity = TRUE`, missing `.putative_cluster` values between identical
+#' forward- and backward-filled labels are filled, so each cluster becomes
+#' temporally contiguous (short spatial outliers inside a cluster are absorbed).
+#'
+#' @param ctdf A `ctdf` object. Must contain `.putative_cluster` (typically produced by [slice_ctdf()]).
+#' @param time_contiguity Logical; if `TRUE`, enforce temporal contiguity within clusters by filling
+#' internal gaps as described above. Default is `TRUE`.
+#'
+#' @return The input `ctdf`, invisibly, with `.putative_cluster` updated in-place.
+#'
+
 spatial_repair <- function(ctdf, time_contiguity = TRUE) {
   .check_ctdf(ctdf)
 
@@ -76,11 +77,33 @@ spatial_repair <- function(ctdf, time_contiguity = TRUE) {
   ]
 }
 
+
+#' Repair temporally overlapping putative clusters
+#'
+#' Merges `.putative_cluster` labels whose (trimmed) time domains overlap.
+#' For each putative cluster, a time interval `[lo, hi]` is estimated from the
+#' `timestamp` distribution after trimming a small fraction from each tail to
+#' reduce sensitivity to single-point temporal outliers. Any clusters with
+#' overlapping intervals are merged (transitively) using connected components on
+#' an overlap graph.
+#'
+#' @param ctdf A `ctdf` object. Must contain `timestamp` and `.putative_cluster`.
+#' @param trim Numeric in `[0, 0.5)`. Maximum fraction trimmed from each tail when
+#'   estimating each cluster's time domain. The effective trim per cluster is
+#'   `min(trim, 1 / n_i)` where `n_i` is the number of points in that cluster.
+#'
+#' @details
+#' Clusters are merged using connected components of an *interval overlap graph*:
+#' an undirected graph with one vertex per `.putative_cluster`, and an edge
+#' between two vertices  if their trimmed time intervals overlap.
+#'
+#' @return The input `ctdf`, invisibly, with `.putative_cluster` updated in-place.
+#'
 #' @export
-temporal_repair <- function(
-  ctdf,
-  trim = 0.01 # % on each tail that can be noise
-) {
+#' @examples
+
+#' @export
+temporal_repair <- function(ctdf, trim = 0.01) {
   x = ctdf[!is.na(.putative_cluster)]
 
   .trim_by_n = function(n, trim_max = trim, k = 1) {

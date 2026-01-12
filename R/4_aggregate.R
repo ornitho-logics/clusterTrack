@@ -63,13 +63,30 @@
   ]
 }
 
-
-#' Aggregate a ctdf.
+#' Aggregate (merge) adjacent clusters by spatial proximity
 #'
-#' @param ctdf A `ctdf` object.
-#' @param dist aggregation scale (numeric treated as km )
+#' Iteratively merges temporally adjacent `cluster` ids whose locations are within
+#' `dist` of each other. This is a repair/aggregation step for an existing clustering:
+#' it does not compute clusters from scratch, it merges neighbouring ones.
+#'
+#' @details
+#' Merging is put as a graph problem. An undirected adjacency graph is constructed with one
+#' vertex per `cluster`. An edge is added between two vertices corresponding to consecutive cluster
+#' ids (`cluster` and `cluster + 1`) if the distance between their geometries is less
+#' than `dist`. clusters are merged by taking connected components of this graph.
+#' The procedure is repeated until no further merges occur.
+#'
+#' Representative geometry for each cluster is computed as the centroid of the convex hull of all
+#' points in that cluster.
+#'
+#' This updates `cluster` by reference.
+#'
+#' @param ctdf A `ctdf` object. Must contain `cluster`, `timestamp`, and `location`.
+#' @param dist Aggregation scale in [km].
+#'
+#' @return The input `ctdf`, invisibly, with `cluster` updated in-place.
+#'
 #' @export
-
 aggregate_ctdf <- function(ctdf, dist) {
   .check_ctdf(ctdf)
 

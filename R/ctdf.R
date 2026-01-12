@@ -26,12 +26,6 @@ reserved_ctdf_nams = c(
   if (!all(nams_ok)) {
     stop("Some build in columns are missing", call. = FALSE)
   }
-
-  # if (!.is_sorted_and_contiguous(x[.putative_cluster > 0, .putative_cluster])) {
-  #   stop(
-  #     "Something went wrong! `.putative_cluster` is not sorted and contiguous anymore."
-  #   )
-  # }
 }
 
 
@@ -73,19 +67,18 @@ plot.ctdf <- function(x, y = NULL, pch = 16) {
 #' Coerce an object to clusterTrack data format
 #'
 #' Converts an object with spatial coordinates and a timestamp column
-#' to a standardized `sf/data.table`-based format used internally by the clusterTrack package.
+#' to a standardized `sf/data.table`-based format used by the clusterTrack package.
 #'
 #' @param x       A `data.frame` object.
 #' @param coords  Character vector of length 2 specifying the coordinate column names.
 #'                Defaults to `c("longitude", "latitude")`.
 #' @param time    Name of the time column. Will be renamed to `"timestamp"` internally.
-#' @param s_srs   Source spatial reference. Default is 4326.
+#' @param s_srs   Source spatial reference. Default is EPSG:4326
 #' @param t_srs  target spatial reference passed to `st_transform()`. Default is "+proj=eqearth".
-#'
 #' @param ...     Currently unused
 #'
 
-#' @return An object of class `ctdf`, which inherits from `sf`.
+#' @return An object of class `ctdf` (inherits from `sf`, `data.table`).
 #'
 #' @note
 #' This is currently a thin wrapper around `st_as_sf()`, but standardizes timestamp naming, ordering,

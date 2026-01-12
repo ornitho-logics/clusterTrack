@@ -26,34 +26,43 @@ plot.clusterTrack <- function(x) {
 }
 
 
-#' Cluster movement tracks
+#' Cluster a movement track into spatiotemporal clusters
 #'
-#' Performs spatiotemporal clustering on a ctdf by segmenting movement, identifying stops, and applying DBSCAN-like clustering.
+#' `cluster_track` that assigns a `cluster` id to each location in a `ctdf` by running a
+#' multi-step pipeline:
+#' 1) identify temporally continuous putative regions via [slice_ctdf()].
+#' 2) merge adjacent putative regions with intersecting convex hulls via [spatial_repair()].
+#' 3) locally split each putative region using DTSCAN via [local_cluster_ctdf()] and [sf_dtscan()].
+#' 4) enforce non-overlap in time by merging any putative regions with
+#' overlapping time domains via [temporal_repair()].
+#' 5) drop small clusters and run additional spatial and track-shape repairs via [spatial_repair()]
+#'    and [tail_repair()].
+#' 5) optionally merge adjacent clusters within `aggregate_dist` via [aggregate_ctdf()].
 #'
+#' The function updates `ctdf` by reference and stores its parameters in
+#' `attr(ctdf, "cluster_params")`.
 #'
-#' This is a high-level wrapper function that applies a pipeline of segmentation, clustering, and repairing steps on a movement track stored in a `ctdf` object.
+#' @param ctdf A `ctdf` object (see [as_ctdf()]).
+#' @param deltaT Numeric; passed to [slice_ctdf()]. Maximum allowable time gap (in days)
+#'   used when splitting candidate regions into movement segments.
+#' @param nmin Integer; passed to [slice_ctdf()] (`nmin`) and [local_cluster_ctdf()] (`nmin`).
+#' @param minCluster Integer; minimum number of points required to keep a putative cluster
+#'   (clusters with `N <= minCluster` are dropped before final repairs).
+#' @param area_z_min Numeric; pruning threshold forwarded to [local_cluster_ctdf()] and
+#'   ultimately [sf_dtscan()] as `area_z_min` (sign is flipped internally).
+#' @param length_z_min Numeric; pruning threshold forwarded to [local_cluster_ctdf()] and
+#'   ultimately [sf_dtscan()] as `length_z_min` (sign is flipped internally).
+#' @param trim Numeric; passed to [temporal_repair()]. Maximum fraction trimmed from each
+#'   tail when estimating each cluster's time domain.
+#' @param aggregate_dist Optional numeric; if supplied, passed to [aggregate_ctdf()] as `dist`
+#'   (numeric treated as km).
 #'
+#' @return Invisibly returns `ctdf`, with `cluster` updated in-place and
+#'   `attr(ctdf, "cluster_params")` set.
 #'
-#' @param ctdf   A `ctdf` data frame (see [as_ctdf()]) representing a single movement track .
-#' @param deltaT Numeric; maximum allowable gap (in days) between segment endpoints to consider them non-intersecting.
-#'               Default to 1 day. Passed to [slice()]) .
-#' @param nmin   Integer. Segments or tessellations with fewer than nmin points yield no clusters.
-#'               Default to 3. Passed to [cluster_segments()].
-#' @param threshold Numeric. the multiplier of the standard deviation
-#'                  on log‐areas used in pruning. Passed to [cluster_segments()].
-#' @param time_contiguity Logical; if `TRUE`, missing cluster IDs (usually spatial outliers) are  filled
-#'                        within each cluster to enforce temporal continuity.
-#'                        Default to `FALSE`.
-#'                        Passed to [cluster_segments()].
-#' @param overlap_threshold Numeric between 0 and 1; minimum area‐overlap ratio
-#'                          required to merge adjacent clusters. Default to 0.1.
-#'                          Clusters with overlap > threshold are combined.
-#'                          Passed to [spatial_repair()]
-#' @param aggregate_dist distance in km. default NULL.
-#' @return NULL.
-#' The function modifies `ctdf` by reference, adding or updating the column \code{cluster},
-#' which assigns a cluster ID to each row (point).
-#' Clustering parameters are stored as an attribute: `attr(ctdf, "cluster_params")`.
+#' @seealso
+#' [as_ctdf()], [slice_ctdf()], [spatial_repair()], [local_cluster_ctdf()], [sf_dtscan()],
+#' [temporal_repair()], [tail_repair()], [aggregate_ctdf()]
 #'
 
 #' @export

@@ -1,7 +1,4 @@
-.has_clusters <- function(
-  ctdf,
-  minPts = 3
-) {
+.has_clusters <- function(ctdf, minPts = 3) {
   n = nrow(ctdf)
   if (n <= minPts) {
     return(FALSE)
@@ -70,18 +67,28 @@
   split(ctdf[.move_seg == 0], by = ".seg_id")
 }
 
-#' Segment and filter a CTDF by temporal continuity and spatial clustering
+#' Slice a CTDF into putative clusters using temporal continuity and spatial clustering
 #'
-#' Recursively splits a CTDF into putative cluster regions. The split stops when a region is homogenous
-#'  (established via HDBSCAN).
+#' Identifies spatially heterogeneous regions (via HDBSCAN on point coordinates) and, for those regions,
+#' recursively subdivides the track into temporally continuous movement segments. Subdivision continues
+#' until a region is spatially homogeneous (no evidence for multiple clusters) .
 #'
-#' @param ctdf A CTDF object.
-#' @param deltaT Numeric; maximum allowable gap (in days) between segment
-#'   endpoints to consider them continuous.
-#' @return The input CTDF, updated (in-place) with an integer
-#'   \code{.putative_cluster} column indicating bout membership.
+#' This function updates a \code{ctdf} in-place.
+#'
+#' @param ctdf A \emph{CTDF} object.
+#' @param deltaT Numeric; maximum allowable time gap (in days) between segment endpoints for intersections
+#'   to  consider them continuous.
+#' @param nmin Integer; the \code{minPts} parameter passed to \code{dbscan::hdbscan()}.
+#'
+#' @return Invisibly returns \code{ctdf}, with \code{.putative_cluster} updated in-place.
+#'
+#' @details
+#' Internally, candidate regions are queued. Regions that show evidence for multiple clusters are split by movement segmentation; otherwise they are retained as a single putative cluster.
+#'
+#' @seealso \code{\link[dbscan]{hdbscan}}
 #'
 #' @export
+#'
 #' @examples
 #' data(mini_ruff)
 #' ctdf = as_ctdf(mini_ruff, s_srs = 4326, t_srs = "+proj=eqearth")
@@ -89,7 +96,7 @@
 #'
 #' data(pesa56511)
 #' ctdf = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
-#' slice_ctdf(ctdf )
+#' ctdf = slice_ctdf(ctdf)
 
 slice_ctdf <- function(ctdf, deltaT = 30, nmin = 5) {
   .check_ctdf(ctdf)
