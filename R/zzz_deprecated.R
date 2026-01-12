@@ -31,7 +31,6 @@ as_tdbscan <- function(
 #'
 #'
 #' @export
-#' @md
 #'
 #' @examples
 #' data(pesa56511)
@@ -39,12 +38,8 @@ as_tdbscan <- function(
 #' x = st_transform(x, '+proj=eqearth')
 #' z = tdbscan(track=x, eps =6600 , minPts   = 8, maxLag = 6, borderPoints = TRUE )
 #'
-#' ggplot(z ) +geom_sf(aes(color = factor(clustID) ))
-#'
-#'
 #' # Set minTenure
 #' z = tdbscan(x, eps =6600, minPts   = 8, maxLag = 6, borderPoints = TRUE, minTenure= 24 )
-#' ggplot(z ) +geom_sf(aes(color = factor(clustID) ))
 #'
 
 tdbscan <- function(
