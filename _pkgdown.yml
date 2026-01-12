@@ -1,50 +1,51 @@
 url: https://ornitho-logics.github.io/clusterTrack/
 template:
   bootstrap: 5
-
 navbar:
   structure:
-    left: [ intro, reference, articles, news ]
-    right: [ search, github ]
+    left:
+    - intro
+    - reference
+    - articles
+    - news
+    right:
+    - search
+    - github
   components:
     github:
       icon: fa-github
       aria-label: GitHub
       href: https://github.com/ornitho-logics/clusterTrack
-
 reference:
-- title: "Core data format"
-  desc: "Coercion and helpers around the ctdf format."
+- title: Core data format
+  desc: Coercion and helpers around the ctdf format.
 - contents:
   - as_ctdf
   - as_ctdf_track
   - summary.ctdf
-
-- title: "Main clustering pipeline"
-  desc: "High-level track clustering and post-processing."
+- title: Main clustering pipeline
+  desc: High-level track clustering and post-processing.
 - contents:
   - cluster_track
   - aggregate_ctdf
-
-- title: "Pipeline steps"
-  desc: "Lower-level steps used by cluster_track()."
+- title: Pipeline steps
+  desc: Lower-level steps used by cluster_track().
 - contents:
   - slice_ctdf
   - spatial_repair
   - local_cluster_ctdf
   - temporal_repair
   - tail_repair
-
-- title: "Spatial clustering backends"
-  desc: "DTSCAN and time-aware DBSCAN."
+- title: Spatial clustering backends
+  desc: DTSCAN and time-aware DBSCAN.
 - contents:
   - sf_dtscan
   - tdbscan
-
-- title: "Datasets"
-  desc: "Example datasets shipped with the package."
+- title: Datasets
+  desc: Example datasets shipped with the package.
   contents:
-  - "lbdo66862"
-  - "mini_ruff"
-  - "pesa56511"
-  - "ruff143789"
+  - lbdo66862
+  - mini_ruff
+  - pesa56511
+  - ruff143789
+
