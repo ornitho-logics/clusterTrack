@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/ornitho-logics/clusterTrack/blob/HEAD/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/ornitho-logics/clusterTrack/blob/main/DESCRIPTION)
 
 Valcu M (2026). *clusterTrack: Clustering Animal Movements.*. R package
 version 0.1.0.1, <https://ornitho-logics.github.io/clusterTrack/>.
