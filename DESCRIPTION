@@ -11,12 +11,13 @@ Imports:
     cli,
     data.table,
     dbscan,
+    sf,
+    geometry,
     dplyr,
     forcats,
     foreach,
     glue,
     igraph,
-    sf,
     spdep,
     units
 Suggests:
