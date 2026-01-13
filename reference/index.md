@@ -1,5 +1,16 @@
 # Package index
 
+## Main clustering function
+
+High-level track clustering and post-processing.
+
+- [`cluster_track()`](https://ornitho-logics.github.io/clusterTrack/reference/cluster_track.md)
+  : Cluster a movement track into spatiotemporal clusters
+- [`aggregate_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/aggregate_ctdf.md)
+  : Aggregate (merge) adjacent clusters by spatial proximity
+- [`summary(`*`<ctdf>`*`)`](https://ornitho-logics.github.io/clusterTrack/reference/summary.ctdf.md)
+  : Summarise a ctdf by cluster
+
 ## Core data format
 
 Coercion and helpers around the ctdf format.
@@ -11,18 +22,6 @@ Coercion and helpers around the ctdf format.
   :
 
   Convert a `ctdf` track to movement step segments as LINESTRINGs
-
-- [`summary(`*`<ctdf>`*`)`](https://ornitho-logics.github.io/clusterTrack/reference/summary.ctdf.md)
-  : Summarise a ctdf by cluster
-
-## Main clustering pipeline
-
-High-level track clustering and post-processing.
-
-- [`cluster_track()`](https://ornitho-logics.github.io/clusterTrack/reference/cluster_track.md)
-  : Cluster a movement track into spatiotemporal clusters
-- [`aggregate_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/aggregate_ctdf.md)
-  : Aggregate (merge) adjacent clusters by spatial proximity
 
 ## Pipeline steps
 
