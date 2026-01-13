@@ -41,3 +41,4 @@ vignettes/*.pdf
 # R Environment Variables
 .vscode/
 docs/
+docs
