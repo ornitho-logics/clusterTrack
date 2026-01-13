@@ -1,0 +1,73 @@
+# clusterTrack
+
+Clustering Animal Movements using DBSCAN and Related Algorithms
+
+``` r
+remotes::install_github('mpio-be/clusterTrack')
+```
+
+# Package index
+
+## Core data format
+
+Coercion and helpers around the ctdf format.
+
+- [`as_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf.md)
+  : Coerce an object to clusterTrack data format
+
+- [`as_ctdf_track()`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf_track.md)
+  :
+
+  Convert a `ctdf` track to movement step segments as LINESTRINGs
+
+- [`summary(`*`<ctdf>`*`)`](https://ornitho-logics.github.io/clusterTrack/reference/summary.ctdf.md)
+  : Summarise a ctdf by cluster
+
+## Main clustering pipeline
+
+High-level track clustering and post-processing.
+
+- [`cluster_track()`](https://ornitho-logics.github.io/clusterTrack/reference/cluster_track.md)
+  : Cluster a movement track into spatiotemporal clusters
+- [`aggregate_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/aggregate_ctdf.md)
+  : Aggregate (merge) adjacent clusters by spatial proximity
+
+## Pipeline steps
+
+Lower-level steps used by cluster_track().
+
+- [`slice_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/slice_ctdf.md)
+  : Slice a CTDF into putative clusters using temporal continuity and
+  spatial clustering
+- [`spatial_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/spatial_repair.md)
+  : Repair spatially overlapping adjacent putative clusters
+- [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md)
+  : Locally refine putative clusters using DTSCAN
+- [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md)
+  : Repair temporally overlapping putative clusters
+- [`tail_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/tail_repair.md)
+  : Repair putative clusters by trimming track tails
+
+## Spatial clustering backends
+
+DTSCAN and time-aware DBSCAN.
+
+- [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md)
+  : DTSCAN: Delaunay Triangulation-Based Spatial Clustering.
+- [`tdbscan()`](https://ornitho-logics.github.io/clusterTrack/reference/tdbscan.md)
+  : tdbscan
+
+## Datasets
+
+Example datasets shipped with the package.
+
+- [`lbdo66862`](https://ornitho-logics.github.io/clusterTrack/reference/lbdo66862.md)
+  : ARGOS satellite tracking data for an individual Long-billed
+  dowitcher
+- [`mini_ruff`](https://ornitho-logics.github.io/clusterTrack/reference/mini_ruff.md)
+  : Simulated ARGOS tracking data with 3 spatial clusters
+- [`pesa56511`](https://ornitho-logics.github.io/clusterTrack/reference/pesa56511.md)
+  : ARGOS satellite tracking data for an individual Pectoral Sandpiper
+- [`ruff143789`](https://ornitho-logics.github.io/clusterTrack/reference/ruff143789.md)
+  : ARGOS satellite tracking data for an individual Ruff
+
