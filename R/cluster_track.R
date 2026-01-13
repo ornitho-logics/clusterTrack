@@ -70,6 +70,10 @@ plot.clusterTrack <- function(x) {
 #' data(mini_ruff)
 #' ctdf = as_ctdf(mini_ruff) |> cluster_track()
 #'
+#' if (requireNamespace("clusterTrack.Vis" )) {
+#'   clusterTrack.Vis::map(ctdf)
+#' }
+
 #' \dontrun{
 #' data(pesa56511)
 #' ctdf = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
