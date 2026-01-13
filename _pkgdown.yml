@@ -17,17 +17,17 @@ navbar:
       aria-label: GitHub
       href: https://github.com/ornitho-logics/clusterTrack
 reference:
+- title: Main clustering function
+  desc: High-level track clustering and post-processing.
+- contents:
+  - cluster_track
+  - aggregate_ctdf
+  - summary.ctdf
 - title: Core data format
   desc: Coercion and helpers around the ctdf format.
 - contents:
   - as_ctdf
   - as_ctdf_track
-  - summary.ctdf
-- title: Main clustering pipeline
-  desc: High-level track clustering and post-processing.
-- contents:
-  - cluster_track
-  - aggregate_ctdf
 - title: Pipeline steps
   desc: Lower-level steps used by cluster_track().
 - contents:
@@ -48,4 +48,3 @@ reference:
   - mini_ruff
   - pesa56511
   - ruff143789
-

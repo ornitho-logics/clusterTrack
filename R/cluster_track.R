@@ -76,16 +76,26 @@ plot.clusterTrack <- function(x) {
 
 #' \dontrun{
 #' data(pesa56511)
-#' ctdf = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
+#' pesa = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
 #'
-#' ctdf = as_ctdf(pesa56511, time = "locationDate")
-#' cluster_track(ctdf, aggregate_dist = 20)
+#' if (requireNamespace("clusterTrack.Vis" )) {
+#'   clusterTrack.Vis::map(pesa)
+#' }
 #'
 #' data(ruff143789)
-#' ctdf = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
+#' ruff = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
+#'
+#' if (requireNamespace("clusterTrack.Vis" )) {
+#'   clusterTrack.Vis::map(ruff)
+#' }
 #'
 #' data(lbdo66862)
-#' ctdf = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+#' lbdo = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+#'
+#' if (requireNamespace("clusterTrack.Vis" )) {
+#'   clusterTrack.Vis::map(lbdo)
+#' }
+#'
 #' }
 
 cluster_track <- function(
@@ -101,13 +111,19 @@ cluster_track <- function(
   options(datatable.showProgress = FALSE)
 
   # slice
-  cli_alert("Finding putative cluster regions.")
+  if (interactive()) {
+    cli_alert("Finding putative cluster regions.")
+  }
   slice_ctdf(ctdf, deltaT = deltaT, nmin = nmin)
 
-  cli_alert("Preparing for local clustering.")
+  if (interactive()) {
+    cli_alert("Preparing for local clustering.")
+  }
   spatial_repair(ctdf, time_contiguity = TRUE)
 
-  cli_alert("Running local clustering.")
+  if (interactive()) {
+    cli_alert("Running local clustering.")
+  }
 
   local_cluster_ctdf(
     ctdf,
