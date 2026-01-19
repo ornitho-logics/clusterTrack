@@ -42,3 +42,4 @@ vignettes/*.pdf
 .vscode/
 docs/
 docs
+**/.quarto/

@@ -64,30 +64,17 @@ The function updates \code{ctdf} by reference and stores its parameters in
 data(mini_ruff)
 ctdf = as_ctdf(mini_ruff) |> cluster_track()
 
-if (requireNamespace("clusterTrack.Vis" )) {
-  clusterTrack.Vis::map(ctdf)
-}
 \dontrun{
 data(pesa56511)
 pesa = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
 
-if (requireNamespace("clusterTrack.Vis" )) {
-  clusterTrack.Vis::map(pesa)
-}
-
 data(ruff143789)
 ruff = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 
-if (requireNamespace("clusterTrack.Vis" )) {
-  clusterTrack.Vis::map(ruff)
-}
 
 data(lbdo66862)
 lbdo = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
 
-if (requireNamespace("clusterTrack.Vis" )) {
-  clusterTrack.Vis::map(lbdo)
-}
 
 }
 }
