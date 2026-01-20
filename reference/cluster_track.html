@@ -76,12 +76,11 @@ and <code><a href="tail_repair.html">tail_repair()</a></code>.</p></li>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">cluster_track</span><span class="op">(</span></span>
 <span>  <span class="va">ctdf</span>,</span>
-<span>  deltaT <span class="op">=</span> <span class="fl">30</span>,</span>
 <span>  nmin <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  minCluster <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  area_z_min <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  length_z_min <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  z_min <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  <span class="va">deltaT</span>,</span>
 <span>  <span class="va">aggregate_dist</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -94,11 +93,6 @@ and <code><a href="tail_repair.html">tail_repair()</a></code>.</p></li>
 <dd><p>A <code>ctdf</code> object (see <code><a href="as_ctdf.html">as_ctdf()</a></code>).</p></dd>
 
 
-<dt id="arg-deltat">deltaT<a class="anchor" aria-label="anchor" href="#arg-deltat"></a></dt>
-<dd><p>Numeric; passed to <code><a href="slice_ctdf.html">slice_ctdf()</a></code>. Maximum allowable time gap (in days)
-used when splitting candidate regions into movement segments.</p></dd>
-
-
 <dt id="arg-nmin">nmin<a class="anchor" aria-label="anchor" href="#arg-nmin"></a></dt>
 <dd><p>Integer; passed to <code><a href="slice_ctdf.html">slice_ctdf()</a></code> (<code>nmin</code>) and <code><a href="local_cluster_ctdf.html">local_cluster_ctdf()</a></code> (<code>nmin</code>).</p></dd>
 
@@ -108,18 +102,18 @@ used when splitting candidate regions into movement segments.</p></dd>
 (clusters with <code>N &lt;= minCluster</code> are dropped before final repairs).</p></dd>
 
 
-<dt id="arg-area-z-min">area_z_min<a class="anchor" aria-label="anchor" href="#arg-area-z-min"></a></dt>
+<dt id="arg-z-min">z_min<a class="anchor" aria-label="anchor" href="#arg-z-min"></a></dt>
 <dd><p>Numeric; pruning threshold forwarded to <code><a href="local_cluster_ctdf.html">local_cluster_ctdf()</a></code> and
-ultimately <code><a href="sf_dtscan.html">sf_dtscan()</a></code> as <code>area_z_min</code> (sign is flipped internally).</p></dd>
-
-
-<dt id="arg-length-z-min">length_z_min<a class="anchor" aria-label="anchor" href="#arg-length-z-min"></a></dt>
-<dd><p>Numeric; pruning threshold forwarded to <code><a href="local_cluster_ctdf.html">local_cluster_ctdf()</a></code> and
-ultimately <code><a href="sf_dtscan.html">sf_dtscan()</a></code> as <code>length_z_min</code> (sign is flipped internally).</p></dd>
+ultimately <code><a href="sf_dtscan.html">sf_dtscan()</a></code> as <code>area_z_min</code> and <code>length_z_min</code> (sign is flipped internally).</p></dd>
 
 
 <dt id="arg-trim">trim<a class="anchor" aria-label="anchor" href="#arg-trim"></a></dt>
-<dd><p>Numeric; passed to <code><a href="temporal_repair.html">temporal_repair()</a></code>. Maximum fraction trimmed from each
+<dd><p>Numeric; passed to <code><a href="temporal_repair.html">temporal_repair()</a></code>. Maximum fraction trimmed from each</p></dd>
+
+
+<dt id="arg-deltat">deltaT<a class="anchor" aria-label="anchor" href="#arg-deltat"></a></dt>
+<dd><p>Optional numeric; passed to <code><a href="slice_ctdf.html">slice_ctdf()</a></code>. Maximum allowable time gap (in days)
+used when splitting candidate regions into movement segments.
 tail when estimating each cluster's time domain.</p></dd>
 
 
@@ -147,19 +141,8 @@ tail when estimating each cluster's time domain.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">mini_ruff</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">ctdf</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">mini_ruff</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">cluster_track</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">mini_ruff</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">cluster_track</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → Finding putative cluster regions.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
- ⠙ 59 segments processed…
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
- ⠹ 62 segments processed…
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
- ⠹ 63 segments processed…
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → Preparing for local clustering.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → Running local clustering.</span>
 <span class="r-in"><span></span></span>
