@@ -43,16 +43,14 @@ plot.clusterTrack <- function(x) {
 #' `attr(ctdf, "cluster_params")`.
 #'
 #' @param ctdf A `ctdf` object (see [as_ctdf()]).
-#' @param deltaT Numeric; passed to [slice_ctdf()]. Maximum allowable time gap (in days)
-#'   used when splitting candidate regions into movement segments.
 #' @param nmin Integer; passed to [slice_ctdf()] (`nmin`) and [local_cluster_ctdf()] (`nmin`).
 #' @param minCluster Integer; minimum number of points required to keep a putative cluster
 #'   (clusters with `N <= minCluster` are dropped before final repairs).
-#' @param area_z_min Numeric; pruning threshold forwarded to [local_cluster_ctdf()] and
-#'   ultimately [sf_dtscan()] as `area_z_min` (sign is flipped internally).
-#' @param length_z_min Numeric; pruning threshold forwarded to [local_cluster_ctdf()] and
-#'   ultimately [sf_dtscan()] as `length_z_min` (sign is flipped internally).
+#' @param z_min Numeric; pruning threshold forwarded to [local_cluster_ctdf()] and
+#'   ultimately [sf_dtscan()] as `area_z_min` and `length_z_min` (sign is flipped internally).
 #' @param trim Numeric; passed to [temporal_repair()]. Maximum fraction trimmed from each
+#' @param deltaT Optional numeric; passed to [slice_ctdf()]. Maximum allowable time gap (in days)
+#'   used when splitting candidate regions into movement segments.
 #'   tail when estimating each cluster's time domain.
 #' @param aggregate_dist Optional numeric; if supplied, passed to [aggregate_ctdf()] as `dist`
 #'   (numeric treated as km).
@@ -68,7 +66,7 @@ plot.clusterTrack <- function(x) {
 #' @export
 #' @examples
 #' data(mini_ruff)
-#' ctdf = as_ctdf(mini_ruff) |> cluster_track()
+#' x = as_ctdf(mini_ruff) |> cluster_track()
 #'
 #' \dontrun{
 #' data(pesa56511)
@@ -86,44 +84,42 @@ plot.clusterTrack <- function(x) {
 
 cluster_track <- function(
   ctdf,
-  deltaT = 30,
   nmin = 3,
   minCluster = 3,
-  area_z_min = 1,
-  length_z_min = 1,
+  z_min = 1,
   trim = 0.05,
+  deltaT,
   aggregate_dist
 ) {
   options(datatable.showProgress = FALSE)
 
   # slice
-  if (interactive()) {
-    cli_alert("Finding putative cluster regions.")
+
+  cli_alert("Find putative cluster regions.")
+
+  if (missing(deltaT)) {
+    deltaT = 1e+05
   }
   slice_ctdf(ctdf, deltaT = deltaT, nmin = nmin)
 
-  if (interactive()) {
-    cli_alert("Preparing for local clustering.")
-  }
+  cli_alert_warning("Spatial repair.")
+
   spatial_repair(ctdf, time_contiguity = TRUE)
 
-  if (interactive()) {
-    cli_alert("Running local clustering.")
-  }
+  cli_alert("Local clustering.")
 
   local_cluster_ctdf(
     ctdf,
     nmin = nmin,
-    area_z_min = area_z_min * -1,
-    length_z_min = length_z_min * -1
+    area_z_min = z_min * -1,
+    length_z_min = z_min * -1
   )
 
+  cli_alert_warning("Temporal repair.")
   temporal_repair(ctdf, trim = trim)
 
   .subset_by_minCluster(ctdf, minCluster = minCluster)
-
   spatial_repair(ctdf, time_contiguity = FALSE)
-
   tail_repair(ctdf)
 
   # assign to cluster
@@ -136,12 +132,15 @@ cluster_track <- function(
 
   #collect parameters
   cluster_params = list(
-    deltaT = deltaT,
     nmin = nmin,
     minCluster = minCluster,
-    area_z_min = area_z_min,
-    length_z_min = length_z_min,
+    z_min = z_min,
     trim = trim,
+    deltaT = if (deltaT == 1e+05) {
+      deltaT = NA
+    } else {
+      deltaT
+    },
     aggregate_dist = if (missing(aggregate_dist)) {
       aggregate_dist = NA
     } else {

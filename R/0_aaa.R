@@ -16,7 +16,7 @@
 #'
 #' @importFrom forcats fct_inorder
 #' @importFrom units set_units
-#' @importFrom cli cli_alert cli_progress_bar cli_progress_update cli_progress_done pb_current pb_elapsed pb_spin
+#' @importFrom cli cli_alert cli_alert_warning cli_progress_bar cli_progress_update cli_progress_done pb_current pb_elapsed pb_spin
 #' @importFrom geometry delaunayn
 
 utils::globalVariables(c('isCluster', 'datetime', 'tenure'))

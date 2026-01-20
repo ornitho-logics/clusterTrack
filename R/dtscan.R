@@ -172,9 +172,7 @@
 
 #'  DTSCAN: Delaunay Triangulation-Based Spatial Clustering.
 #'
-#' Runs a DTSCAN-style clustering pipeline using a Delaunay triangulation of point coordinates,
-#' global pruning based on z-scored triangle areas and edge lengths, and MinPts graph expansion.
-#' Returns only the cluster labels vector aligned to the input rows.
+#' Runs a clustering using a Delaunay triangulation of point coordinates.
 #'
 #' @param x An `sf` object with POINT geometry.
 #' @param min_pts Minimum neighbour count for a point to be treated as a core point.

@@ -28,9 +28,7 @@ An integer vector of cluster labels of length \code{nrow(x)}.
 \code{0} indicates noise/unassigned; positive integers are cluster ids.
 }
 \description{
-Runs a DTSCAN-style clustering pipeline using a Delaunay triangulation of point coordinates,
-global pruning based on z-scored triangle areas and edge lengths, and MinPts graph expansion.
-Returns only the cluster labels vector aligned to the input rows.
+Runs a clustering using a Delaunay triangulation of point coordinates.
 }
 \details{
 Identical coordinates are collapsed before triangulation; their multiplicity contributes
