@@ -1,8 +1,11 @@
-pandoc: 3.1.11
+pandoc: '3.5'
 pkgdown: 2.2.0
 pkgdown_sha: ~
-articles: {}
-last_built: 2026-01-13T10:03Z
+articles:
+  articles/lbdo: lbdo.html
+  articles/pesa: pesa.html
+  articles/ruff: ruff.html
+last_built: 2026-01-20T15:23Z
 urls:
   reference: https://ornitho-logics.github.io/clusterTrack/reference
   article: https://ornitho-logics.github.io/clusterTrack/articles

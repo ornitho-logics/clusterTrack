@@ -124,32 +124,32 @@ The function updates `ctdf` by reference and stores its parameters in
 ``` r
 data(mini_ruff)
 ctdf = as_ctdf(mini_ruff) |> cluster_track()
+#> → Finding putative cluster regions.
+#> 
+ ⠙ 59 segments processed…
 
-if (requireNamespace("clusterTrack.Vis" )) {
-  clusterTrack.Vis::map(ctdf)
-}
-#> Loading required namespace: clusterTrack.Vis
+#> 
+ ⠹ 62 segments processed…
+
+#> 
+ ⠹ 63 segments processed…
+
+#> 
+
+#> → Preparing for local clustering.
+#> → Running local clustering.
+
 if (FALSE) { # \dontrun{
 data(pesa56511)
 pesa = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
 
-if (requireNamespace("clusterTrack.Vis" )) {
-  clusterTrack.Vis::map(pesa)
-}
-
 data(ruff143789)
 ruff = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 
-if (requireNamespace("clusterTrack.Vis" )) {
-  clusterTrack.Vis::map(ruff)
-}
 
 data(lbdo66862)
 lbdo = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
 
-if (requireNamespace("clusterTrack.Vis" )) {
-  clusterTrack.Vis::map(lbdo)
-}
 
 } # }
 ```

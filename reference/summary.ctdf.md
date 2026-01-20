@@ -31,6 +31,17 @@ c("summary_ctdf","data.table","data.frame").
 #' data(mini_ruff)
 ctdf = as_ctdf(mini_ruff)
 cluster_track(ctdf)
+#> → Finding putative cluster regions.
+#> 
+ ⠙ 62 segments processed…
+
+#> 
+ ⠙ 63 segments processed…
+
+#> 
+
+#> → Preparing for local clustering.
+#> → Running local clustering.
 summary(ctdf)
 #>    cluster               start                stop                geometry
 #>      <int>              <POSc>              <POSc>             <sfc_POINT>
