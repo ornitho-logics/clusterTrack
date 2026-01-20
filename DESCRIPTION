@@ -4,7 +4,7 @@ Version: 0.1.0.1
 Authors@R: 
     person("Mihai", "Valcu", , "mvalcu@gwdg.de", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0002-6907-7802"))
-Description: Clustering Animal Movements using DBSCAN and Related Algorithms.
+Description: Identification of use-sites from animal movement tracks using spatiotemporal segmentation and adjacency-based spatial clustering.
 Depends:
     R (>= 4.1.0)
 Imports:

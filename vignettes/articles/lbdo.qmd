@@ -1,0 +1,38 @@
+---
+title: "Long-billed Dowitcher"
+format:
+  html:
+    page-layout: full
+    embed-resources: true
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+```{r}
+#| label: setup
+#| results: hide
+require(clusterTrack)
+require(clusterTrack.Vis)
+
+
+```
+
+
+## ARGOS locations for one Long-billed Dowitcher.
+
+```{r}
+#| label: map-lbdo
+#| message: false
+#| output-div: lbdo
+
+data(lbdo66862)
+
+lbdo <- as_ctdf(lbdo66862, time = "locationDate") |>
+  cluster_track()
+
+map(lbdo)
+
+
+```

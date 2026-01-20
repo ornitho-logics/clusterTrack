@@ -1,6 +1,8 @@
 url: https://ornitho-logics.github.io/clusterTrack/
+
 template:
   bootstrap: 5
+
 navbar:
   structure:
     left:
@@ -12,35 +14,50 @@ navbar:
     - search
     - github
   components:
-    github:
-      icon: fa-github
-      aria-label: GitHub
-      href: https://github.com/ornitho-logics/clusterTrack
+    articles:
+      text: Case studies
+      menu:
+      - text: Pectoral Sandpiper
+        href: articles/pesa.html
+      - text: Ruff
+        href: articles/ruff.html
+      - text: Long billed dowitcher
+        href: articles/lbdo.html
+
+  github:
+    icon: fa-github
+    aria-label: GitHub
+    href: https://github.com/ornitho-logics/clusterTrack
+
 reference:
 - title: Main clustering function
   desc: High-level track clustering and post-processing.
-- contents:
+  contents:
   - cluster_track
   - aggregate_ctdf
   - summary.ctdf
+
 - title: Core data format
   desc: Coercion and helpers around the ctdf format.
-- contents:
+  contents:
   - as_ctdf
   - as_ctdf_track
+
 - title: Pipeline steps
   desc: Lower-level steps used by cluster_track().
-- contents:
+  contents:
   - slice_ctdf
   - spatial_repair
   - local_cluster_ctdf
   - temporal_repair
   - tail_repair
+
 - title: Spatial clustering backends
   desc: DTSCAN and time-aware DBSCAN.
-- contents:
+  contents:
   - sf_dtscan
   - tdbscan
+
 - title: Datasets
   desc: Example datasets shipped with the package.
   contents:
@@ -48,4 +65,3 @@ reference:
   - mini_ruff
   - pesa56511
   - ruff143789
-

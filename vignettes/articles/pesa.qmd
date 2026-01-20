@@ -1,0 +1,34 @@
+---
+title: "Pectoral Sandpiper"
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+```{r}
+#| results: hide
+#| message: false
+require(clusterTrack)
+require(clusterTrack.Vis)
+
+
+```
+
+## ARGOS locations for one male Pectoral Sandpiper.
+
+```{r}
+#| message: false
+
+data(mini_ruff)
+
+pesa <- as_ctdf(mini_ruff, time = "time") |>
+  cluster_track()
+
+map(pesa)
+
+
+summary(pesa) |>
+  head()
+
+```
