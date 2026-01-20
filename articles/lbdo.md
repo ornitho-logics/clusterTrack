@@ -20,14 +20,13 @@ map(lbdo)
 
 - **N**:  
   - fixes:2501  
-  - segments: 28  
-  - clusters: 28
+  - segments: 27  
+  - clusters: 27
 - **Parameters**:  
-  - deltaT = 30  
   - nmin = 3  
   - minCluster = 3  
-  - area_z_min = 1  
-  - length_z_min = 1  
+  - z_min = 1  
   - trim = 0.05  
+  - deltaT = NA  
   - aggregate_dist = NA
 - *clusterTrack v.0.1.0.1*

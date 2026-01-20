@@ -21,12 +21,11 @@ map(pesa)
   - segments: 4  
   - clusters: 4
 - **Parameters**:  
-  - deltaT = 30  
   - nmin = 3  
   - minCluster = 3  
-  - area_z_min = 1  
-  - length_z_min = 1  
+  - z_min = 1  
   - trim = 0.05  
+  - deltaT = NA  
   - aggregate_dist = NA
 - *clusterTrack v.0.1.0.1*
 
