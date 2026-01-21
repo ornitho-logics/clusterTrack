@@ -1,4 +1,4 @@
-.is_intersection <- function(ctdf, pc, next_pc) {
+.is_intersection.geom <- function(ctdf, pc, next_pc) {
   ac = ctdf[.putative_cluster == pc, location] |>
     st_union() |>
     st_convex_hull()
@@ -11,6 +11,43 @@
 
   any(lengths(o) > 0)
 }
+
+
+.is_intersection.knn <- function(ctdf, pc, next_pc) {
+  x = ctdf[.putative_cluster %chin% c(pc, next_pc)]
+
+  xy = x[, st_coordinates(location)]
+
+  y = x$.putative_cluster
+
+  n = nrow(x)
+
+  n_min = min(tabulate(y))
+  if (n_min < 3) {
+    return(FALSE)
+  }
+
+  k = floor(sqrt(n))
+  k = min(k, 15L, n - 1, n_min - 1)
+  k = max(k, 2L)
+
+  nn = FNN::get.knn(xy, k = k)$nn.index
+  mix = mean(y[nn] != rep.int(y, times = k))
+
+  p = mean(y == 1)
+  mix_exp = 2 * p * (1 - p)
+
+  mix >= 0.6 * mix_exp
+}
+
+.is_intersection <- function(ctdf, pc, next_pc) {
+  if (.is_intersection.geom(ctdf, pc, next_pc)) {
+    return(TRUE)
+  } else {
+    return(.is_intersection.knn(ctdf, pc, next_pc))
+  }
+}
+
 
 .spatial_repair <- function(ctdf, time_contiguity) {
   olap = ctdf[!is.na(.putative_cluster), .(pc = .putative_cluster)] |> unique()
