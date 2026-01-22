@@ -6,7 +6,12 @@
 
     o = hdbscan(ctdf[, st_coordinates(location)], minPts = minPts)
 
-    ncl = length(o$cluster_scores)
+    if (length(o$cluster_scores) == 1L && is.nan(o$cluster_scores)) {
+        return(FALSE)
+    }
+
+    x = o$cluster
+    ncl = length(unique(x[x > 0]))
 
     ncl > 1
 }

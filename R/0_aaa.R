@@ -11,7 +11,7 @@
 #' @importFrom igraph graph_from_edgelist graph_from_data_frame set_edge_attr
 #' @importFrom igraph  subgraph_from_edges E components groups
 #'
-#' @importFrom dbscan hdbscan frNN dbscan
+#' @importFrom dbscan hdbscan frNN dbscan kNN
 #' @importFrom dplyr mutate ungroup rowwise lag select slice filter
 #'
 #' @importFrom forcats fct_inorder
@@ -27,15 +27,15 @@ NULL
 # general undocumented functions
 
 .is_sorted_and_contiguous <- function(x) {
-    o = unique(x)
+  o = unique(x)
 
-    sorted = all(o == sort(o))
-    contiguous = all(diff(o) == 1)
-    sorted && contiguous
+  sorted = all(o == sort(o))
+  contiguous = all(diff(o) == 1)
+  sorted && contiguous
 }
 
 .as_inorder_int <- function(x) {
-    factor(x) |>
-        fct_inorder() |>
-        as.integer()
+  factor(x) |>
+    fct_inorder() |>
+    as.integer()
 }
