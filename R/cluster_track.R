@@ -1,28 +1,28 @@
 #' @export
 print.clusterTrack <- function(x, ...) {
-  cat("<clusters:", uniqueN(x$cluster) - 1, ">\n\n")
+    cat("<clusters:", uniqueN(x$cluster) - 1, ">\n\n")
 
-  NextMethod("print", topn = 3, nrows = 10, print.keys = FALSE, ...)
+    NextMethod("print", topn = 3, nrows = 10, print.keys = FALSE, ...)
 }
 
 #' @export
 plot.clusterTrack <- function(x) {
-  pal = topo.colors(n = uniqueN(x$cluster))
-  cols = pal[match(x$cluster, sort(unique(x$cluster)))]
+    pal = topo.colors(n = uniqueN(x$cluster))
+    cols = pal[match(x$cluster, sort(unique(x$cluster)))]
 
-  plot(st_geometry(x$location), col = cols)
+    plot(st_geometry(x$location), col = cols)
 }
 
 
 .subset_by_minCluster <- function(ctdf, minCluster) {
-  ctdf[
-    .putative_cluster %in%
-      ctdf[, .N, .putative_cluster][N <= minCluster]$.putative_cluster,
-    .putative_cluster := NA
-  ]
-  ctdf[,
-    .putative_cluster := .as_inorder_int(.putative_cluster)
-  ]
+    ctdf[
+        .putative_cluster %in%
+            ctdf[, .N, .putative_cluster][N <= minCluster]$.putative_cluster,
+        .putative_cluster := NA
+    ]
+    ctdf[,
+        .putative_cluster := .as_inorder_int(.putative_cluster)
+    ]
 }
 
 
@@ -83,70 +83,70 @@ plot.clusterTrack <- function(x) {
 #' }
 
 cluster_track <- function(
-  ctdf,
-  nmin = 3,
-  minCluster = 3,
-  z_min = 1,
-  trim = 0.05,
-  deltaT,
-  aggregate_dist
-) {
-  options(datatable.showProgress = FALSE)
-
-  # slice
-
-  cli_alert("Find putative cluster regions.")
-
-  if (missing(deltaT)) {
-    deltaT = 1e+05
-  }
-  slice_ctdf(ctdf, deltaT = deltaT, nmin = nmin)
-
-  cli_alert_warning("Spatial repair.")
-
-  spatial_repair(ctdf, time_contiguity = TRUE)
-
-  cli_alert("Local clustering.")
-
-  local_cluster_ctdf(
     ctdf,
-    nmin = nmin,
-    area_z_min = z_min * -1,
-    length_z_min = z_min * -1
-  )
+    nmin = 3,
+    minCluster = 3,
+    z_min = 1,
+    trim = 0.05,
+    deltaT,
+    aggregate_dist
+) {
+    options(datatable.showProgress = FALSE)
 
-  cli_alert_warning("Temporal repair.")
-  temporal_repair(ctdf, trim = trim)
+    # slice
 
-  .subset_by_minCluster(ctdf, minCluster = minCluster)
-  spatial_repair(ctdf, time_contiguity = FALSE)
-  tail_repair(ctdf)
+    cli_alert("Find putative cluster regions.")
 
-  # assign to cluster
-  ctdf[, cluster := .putative_cluster]
-  ctdf[is.na(cluster), cluster := 0]
-
-  if (!missing(aggregate_dist)) {
-    aggregate_ctdf(ctdf, dist = aggregate_dist)
-  }
-
-  #collect parameters
-  cluster_params = list(
-    nmin = nmin,
-    minCluster = minCluster,
-    z_min = z_min,
-    trim = trim,
-    deltaT = if (deltaT == 1e+05) {
-      deltaT = NA
-    } else {
-      deltaT
-    },
-    aggregate_dist = if (missing(aggregate_dist)) {
-      aggregate_dist = NA
-    } else {
-      aggregate_dist
+    if (missing(deltaT)) {
+        deltaT = 1e+05
     }
-  )
+    slice_ctdf(ctdf, deltaT = deltaT, nmin = nmin)
 
-  setattr(ctdf, "cluster_params", cluster_params)
+    cli_alert_warning("Spatial repair.")
+
+    spatial_repair(ctdf, time_contiguity = TRUE)
+
+    cli_alert("Local clustering.")
+
+    local_cluster_ctdf(
+        ctdf,
+        nmin = nmin,
+        area_z_min = z_min * -1,
+        length_z_min = z_min * -1
+    )
+
+    cli_alert_warning("Temporal repair.")
+    temporal_repair(ctdf, trim = trim)
+
+    .subset_by_minCluster(ctdf, minCluster = minCluster)
+    spatial_repair(ctdf, time_contiguity = FALSE)
+    tail_repair(ctdf)
+
+    # assign to cluster
+    ctdf[, cluster := .putative_cluster]
+    ctdf[is.na(cluster), cluster := 0]
+
+    if (!missing(aggregate_dist)) {
+        aggregate_ctdf(ctdf, dist = aggregate_dist)
+    }
+
+    #collect parameters
+    cluster_params = list(
+        nmin = nmin,
+        minCluster = minCluster,
+        z_min = z_min,
+        trim = trim,
+        deltaT = if (deltaT == 1e+05) {
+            deltaT = NA
+        } else {
+            deltaT
+        },
+        aggregate_dist = if (missing(aggregate_dist)) {
+            aggregate_dist = NA
+        } else {
+            aggregate_dist
+        }
+    )
+
+    setattr(ctdf, "cluster_params", cluster_params)
 }

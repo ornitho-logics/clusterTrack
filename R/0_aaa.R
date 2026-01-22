@@ -26,15 +26,15 @@ NULL
 # general undocumented functions
 
 .is_sorted_and_contiguous <- function(x) {
-  o = unique(x)
+    o = unique(x)
 
-  sorted = all(o == sort(o))
-  contiguous = all(diff(o) == 1)
-  sorted && contiguous
+    sorted = all(o == sort(o))
+    contiguous = all(diff(o) == 1)
+    sorted && contiguous
 }
 
 .as_inorder_int <- function(x) {
-  factor(x) |>
-    fct_inorder() |>
-    as.integer()
+    factor(x) |>
+        fct_inorder() |>
+        as.integer()
 }
