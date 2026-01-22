@@ -44,7 +44,6 @@
 
   o = mix >= 0.6 * mix_exp
 
-  print(o)
   o
 }
 
