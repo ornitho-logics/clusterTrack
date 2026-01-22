@@ -12,6 +12,7 @@ Imports:
     data.table,
     dbscan,
     sf,
+    FNN,
     geometry,
     dplyr,
     forcats,
