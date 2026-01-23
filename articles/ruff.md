@@ -20,8 +20,8 @@ map(ruff)
 
 - **N**:  
   - fixes:2402  
-  - segments: 25  
-  - clusters: 25
+  - segments: 20  
+  - clusters: 20
 - **Parameters**:  
   - nmin = 3  
   - minCluster = 3  

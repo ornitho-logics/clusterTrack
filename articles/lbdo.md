@@ -20,8 +20,8 @@ map(lbdo)
 
 - **N**:  
   - fixes:2501  
-  - segments: 27  
-  - clusters: 27
+  - segments: 28  
+  - clusters: 28
 - **Parameters**:  
   - nmin = 3  
   - minCluster = 3  

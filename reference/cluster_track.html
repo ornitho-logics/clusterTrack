@@ -77,9 +77,9 @@ and <code><a href="tail_repair.html">tail_repair()</a></code>.</p></li>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">cluster_track</span><span class="op">(</span></span>
 <span>  <span class="va">ctdf</span>,</span>
 <span>  nmin <span class="op">=</span> <span class="fl">3</span>,</span>
-<span>  minCluster <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  z_min <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  trim <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  minCluster <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  <span class="va">deltaT</span>,</span>
 <span>  <span class="va">aggregate_dist</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -94,11 +94,7 @@ and <code><a href="tail_repair.html">tail_repair()</a></code>.</p></li>
 
 
 <dt id="arg-nmin">nmin<a class="anchor" aria-label="anchor" href="#arg-nmin"></a></dt>
-<dd><p>Integer; passed to <code><a href="slice_ctdf.html">slice_ctdf()</a></code> (<code>nmin</code>) and <code><a href="local_cluster_ctdf.html">local_cluster_ctdf()</a></code> (<code>nmin</code>).</p></dd>
-
-
-<dt id="arg-mincluster">minCluster<a class="anchor" aria-label="anchor" href="#arg-mincluster"></a></dt>
-<dd><p>Integer; minimum number of points required to keep a putative cluster
+<dd><p>Integer; passed to <code><a href="local_cluster_ctdf.html">local_cluster_ctdf()</a></code> (<code>nmin</code>).
 (clusters with <code>N &lt;= minCluster</code> are dropped before final repairs).</p></dd>
 
 
@@ -111,10 +107,14 @@ ultimately <code><a href="sf_dtscan.html">sf_dtscan()</a></code> as <code>area_z
 <dd><p>Numeric; passed to <code><a href="temporal_repair.html">temporal_repair()</a></code>. Maximum fraction trimmed from each</p></dd>
 
 
-<dt id="arg-deltat">deltaT<a class="anchor" aria-label="anchor" href="#arg-deltat"></a></dt>
-<dd><p>Optional numeric; passed to <code><a href="slice_ctdf.html">slice_ctdf()</a></code>. Maximum allowable time gap (in days)
+<dt id="arg-mincluster">minCluster<a class="anchor" aria-label="anchor" href="#arg-mincluster"></a></dt>
+<dd><p>Integer; minimum number of points required to keep a putative cluster
 used when splitting candidate regions into movement segments.
 tail when estimating each cluster's time domain.</p></dd>
+
+
+<dt id="arg-deltat">deltaT<a class="anchor" aria-label="anchor" href="#arg-deltat"></a></dt>
+<dd><p>Optional numeric; passed to <code><a href="slice_ctdf.html">slice_ctdf()</a></code>. Maximum allowable time gap (in days)</p></dd>
 
 
 <dt id="arg-aggregate-dist">aggregate_dist<a class="anchor" aria-label="anchor" href="#arg-aggregate-dist"></a></dt>
@@ -142,20 +142,10 @@ tail when estimating each cluster's time domain.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">mini_ruff</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">mini_ruff</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">cluster_track</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Finding putative cluster regions.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
- ⠙ 57 segments processed [2s]
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
- ⠹ 62 segments processed [2.2s]
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
- ⠹ 63 segments processed [2.2s]
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 
-</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Preparing for local clustering.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> → Running local clustering.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → Find putative cluster regions.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Spatial repair.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> → Local clustering.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Temporal repair.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pesa56511</span><span class="op">)</span></span></span>

@@ -5,7 +5,7 @@ Runs a clustering using a Delaunay triangulation of point coordinates.
 ## Usage
 
 ``` r
-sf_dtscan(x, min_pts = 5, area_z_min = 0, length_z_min = 0, id_col = NULL)
+sf_dtscan(x, min_pts = 5, area_z_min = -1, length_z_min = -1, id_col = NULL)
 ```
 
 ## Arguments
@@ -65,16 +65,12 @@ doi:10.3390/s19183926
 ## Examples
 
 ``` r
-data(mini_ruff)
-x = as_ctdf(mini_ruff)[.id %in% 90:177]
-x[,
-  cluster := sf_dtscan(
-    st_as_sf(x),
-    id_col = ".id",
-    min_pts = 5,
-    area_z_min = 0,
-    length_z_min = 0
-  )
-]
-#> Error in st_as_sf(x): could not find function "st_as_sf"
+data(moons)
+#> Warning: data set ‘moons’ not found
+m = st_as_sf(moons, coords = c("X", "Y"))
+#> Error in st_as_sf(moons, coords = c("X", "Y")): could not find function "st_as_sf"
+m$cluster = sf_dtscan(m)
+#> Error: object 'm' not found
+hullplot(moons, m$cluster)
+#> Error in hullplot(moons, m$cluster): could not find function "hullplot"
 ```

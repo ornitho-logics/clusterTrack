@@ -9,7 +9,7 @@ clusters) .
 ## Usage
 
 ``` r
-slice_ctdf(ctdf, deltaT = 30, nmin = 5)
+slice_ctdf(ctdf, nmin = 5, deltaT)
 ```
 
 ## Arguments
@@ -18,15 +18,14 @@ slice_ctdf(ctdf, deltaT = 30, nmin = 5)
 
   A *CTDF* object.
 
+- nmin:
+
+  Integer; smallest size of a putative cluster.
+
 - deltaT:
 
   Numeric; maximum allowable time gap (in days) between segment
   endpoints for intersections to consider them continuous.
-
-- nmin:
-
-  Integer; the `minPts` parameter passed to
-  [`dbscan::hdbscan()`](https://rdrr.io/pkg/dbscan/man/hdbscan.html).
 
 ## Value
 
@@ -54,53 +53,19 @@ ctdf = slice_ctdf(ctdf)
 data(pesa56511)
 ctdf = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
 ctdf = slice_ctdf(ctdf)
-#> 
- ⠙ 13 segments processed [2.1s]
-
-#> 
- ⠹ 15 segments processed [2.2s]
-
-#> 
- ⠸ 18 segments processed [2.4s]
-
-#> 
- ⠼ 20 segments processed [2.6s]
-
-#> 
- ⠴ 25 segments processed [2.8s]
-
-#> 
- ⠦ 29 segments processed [3s]
-
-#> 
- ⠧ 37 segments processed [3.2s]
-
-#> 
- ⠇ 44 segments processed [3.5s]
-
-#> 
- ⠏ 48 segments processed [3.6s]
-
-#> 
- ⠋ 54 segments processed [3.8s]
-
-#> 
- ⠙ 58 segments processed [4s]
-
-#> 
- ⠹ 63 segments processed [4.2s]
-
-#> 
- ⠸ 69 segments processed [4.4s]
-
-#> 
- ⠼ 74 segments processed [4.6s]
-
-#> 
- ⠴ 88 segments processed [4.8s]
-
-#> 
- ⠴ 90 segments processed [5s]
-
-#> 
+#>  ⠙ 17 segments processed [2s]
+#>  ⠹ 18 segments processed [2.1s]
+#>  ⠸ 20 segments processed [2.3s]
+#>  ⠼ 25 segments processed [2.5s]
+#>  ⠴ 29 segments processed [2.7s]
+#>  ⠦ 35 segments processed [2.9s]
+#>  ⠧ 42 segments processed [3.1s]
+#>  ⠇ 48 segments processed [3.3s]
+#>  ⠏ 54 segments processed [3.5s]
+#>  ⠋ 58 segments processed [3.7s]
+#>  ⠙ 63 segments processed [3.9s]
+#>  ⠹ 70 segments processed [4.1s]
+#>  ⠸ 74 segments processed [4.3s]
+#>  ⠼ 88 segments processed [4.5s]
+#>  ⠼ 90 segments processed [4.6s]
 ```

@@ -44,7 +44,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sf_dtscan</span><span class="op">(</span><span class="va">x</span>, min_pts <span class="op">=</span> <span class="fl">5</span>, area_z_min <span class="op">=</span> <span class="fl">0</span>, length_z_min <span class="op">=</span> <span class="fl">0</span>, id_col <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sf_dtscan</span><span class="op">(</span><span class="va">x</span>, min_pts <span class="op">=</span> <span class="fl">5</span>, area_z_min <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, length_z_min <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, id_col <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -99,18 +99,14 @@ doi:10.3390/s19183926</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">mini_ruff</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">mini_ruff</span><span class="op">)</span><span class="op">[</span><span class="va">.id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">90</span><span class="op">:</span><span class="fl">177</span><span class="op">]</span></span></span>
-<span class="r-in"><span><span class="va">x</span><span class="op">[</span>,</span></span>
-<span class="r-in"><span>  <span class="va">cluster</span> <span class="op">:=</span> <span class="fu">sf_dtscan</span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    id_col <span class="op">=</span> <span class="st">".id"</span>,</span></span>
-<span class="r-in"><span>    min_pts <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>    area_z_min <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>    length_z_min <span class="op">=</span> <span class="fl">0</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">]</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in st_as_sf(x):</span> could not find function "st_as_sf"</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">moons</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>data set ‘moons’ not found</span>
+<span class="r-in"><span><span class="va">m</span> <span class="op">=</span> <span class="fu">st_as_sf</span><span class="op">(</span><span class="va">moons</span>, coords <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"X"</span>, <span class="st">"Y"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in st_as_sf(moons, coords = c("X", "Y")):</span> could not find function "st_as_sf"</span>
+<span class="r-in"><span><span class="va">m</span><span class="op">$</span><span class="va">cluster</span> <span class="op">=</span> <span class="fu">sf_dtscan</span><span class="op">(</span><span class="va">m</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'm' not found</span>
+<span class="r-in"><span><span class="fu">hullplot</span><span class="op">(</span><span class="va">moons</span>, <span class="va">m</span><span class="op">$</span><span class="va">cluster</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in hullplot(moons, m$cluster):</span> could not find function "hullplot"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

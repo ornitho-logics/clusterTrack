@@ -33,9 +33,9 @@ by running a multi-step pipeline:
 cluster_track(
   ctdf,
   nmin = 3,
-  minCluster = 3,
   z_min = 1,
   trim = 0.05,
+  minCluster = 3,
   deltaT,
   aggregate_dist
 )
@@ -51,15 +51,9 @@ cluster_track(
 - nmin:
 
   Integer; passed to
-  [`slice_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/slice_ctdf.md)
-  (`nmin`) and
   [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md)
-  (`nmin`).
-
-- minCluster:
-
-  Integer; minimum number of points required to keep a putative cluster
-  (clusters with `N <= minCluster` are dropped before final repairs).
+  (`nmin`). (clusters with `N <= minCluster` are dropped before final
+  repairs).
 
 - z_min:
 
@@ -75,13 +69,17 @@ cluster_track(
   [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md).
   Maximum fraction trimmed from each
 
+- minCluster:
+
+  Integer; minimum number of points required to keep a putative cluster
+  used when splitting candidate regions into movement segments. tail
+  when estimating each cluster's time domain.
+
 - deltaT:
 
   Optional numeric; passed to
   [`slice_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/slice_ctdf.md).
-  Maximum allowable time gap (in days) used when splitting candidate
-  regions into movement segments. tail when estimating each cluster's
-  time domain.
+  Maximum allowable time gap (in days)
 
 - aggregate_dist:
 
@@ -115,20 +113,10 @@ The function updates `ctdf` by reference and stores its parameters in
 ``` r
 data(mini_ruff)
 x = as_ctdf(mini_ruff) |> cluster_track()
-#> → Finding putative cluster regions.
-#> 
- ⠙ 57 segments processed [2s]
-
-#> 
- ⠹ 62 segments processed [2.2s]
-
-#> 
- ⠹ 63 segments processed [2.2s]
-
-#> 
-
-#> → Preparing for local clustering.
-#> → Running local clustering.
+#> → Find putative cluster regions.
+#> ! Spatial repair.
+#> → Local clustering.
+#> ! Temporal repair.
 
 if (FALSE) { # \dontrun{
 data(pesa56511)
