@@ -16,6 +16,6 @@ clustering often perform poorly.
 
 
 ``` r
-remotes::install_github('mpio-be/clusterTrack')
-remotes::install_github('mpio-be/clusterTrack.Vis')
+remotes::install_github('ornitho-logics/clusterTrack')
+remotes::install_github('ornitho-logics/clusterTrack.Vis')
 ```
