@@ -1,67 +1,67 @@
 #' Reserved ctdf column names
 #' @keywords internal
 reserved_ctdf_nams = c(
-    "cluster",
-    ".id",
-    ".move_seg",
-    ".seg_id",
-    ".putative_cluster"
+  "cluster",
+  ".id",
+  ".move_seg",
+  ".seg_id",
+  ".putative_cluster"
 )
 
 .check_ctdf <- function(x) {
-    if (!inherits(x, "ctdf")) {
-        stop("Not a 'ctdf' object!", call. = FALSE)
-    }
+  if (!inherits(x, "ctdf")) {
+    stop("Not a 'ctdf' object!", call. = FALSE)
+  }
 
-    if (is.unsorted(x$timestamp)) {
-        stop(
-            "It seems this ctdf is not sorted anymore along timestamp!",
-            call. = FALSE
-        )
-    }
+  if (is.unsorted(x$timestamp)) {
+    stop(
+      "It seems this ctdf is not sorted anymore along timestamp!",
+      call. = FALSE
+    )
+  }
 
-    nams = c(".id", ".putative_cluster", "cluster", "location", "timestamp")
-    nams_ok = nams %in% names(x)
+  nams = c(".id", ".putative_cluster", "cluster", "location", "timestamp")
+  nams_ok = nams %in% names(x)
 
-    if (!all(nams_ok)) {
-        stop("Some build in columns are missing", call. = FALSE)
-    }
+  if (!all(nams_ok)) {
+    stop("Some build in columns are missing", call. = FALSE)
+  }
 }
 
 
 #' @export
 as_ctdf <- function(x, ...) {
-    UseMethod("as_ctdf")
+  UseMethod("as_ctdf")
 }
 
 #' @export
 as_ctdf.default <- function(x, ...) {
-    stop("No method for objects of class ", class(x))
+  stop("No method for objects of class ", class(x))
 }
 
 #' @export
 plot.ctdf <- function(x, y = NULL, pch = 16) {
-    tr = as_ctdf_track(x)
-    xs = st_as_sf(x)
+  tr = as_ctdf_track(x)
+  xs = st_as_sf(x)
 
-    plot(st_geometry(tr), col = "#706b6b")
+  plot(st_geometry(tr), col = "#706b6b")
 
-    plot(xs |> st_geometry(), pch = pch, add = TRUE)
+  plot(xs |> st_geometry(), pch = pch, add = TRUE)
 
-    plot(
-        x[1, .(location)] |> st_as_sf(),
-        col = "#1900ff",
-        size = 3,
-        pch = 16,
-        add = TRUE
-    )
-    plot(
-        x[nrow(x), .(location)] |> st_as_sf(),
-        col = "#ff0000",
-        size = 3,
-        pch = 16,
-        add = TRUE
-    )
+  plot(
+    x[1, .(location)] |> st_as_sf(),
+    col = "#1900ff",
+    size = 3,
+    pch = 16,
+    add = TRUE
+  )
+  plot(
+    x[nrow(x), .(location)] |> st_as_sf(),
+    col = "#ff0000",
+    size = 3,
+    pch = 16,
+    add = TRUE
+  )
 }
 
 #' Coerce an object to clusterTrack data format
@@ -93,63 +93,63 @@ plot.ctdf <- function(x, y = NULL, pch = 16) {
 #' @export
 
 as_ctdf <- function(
-    x,
-    coords = c("longitude", "latitude"),
-    time = "time",
-    s_srs = 4326,
-    t_srs = "+proj=eqearth",
-    ...
+  x,
+  coords = c("longitude", "latitude"),
+  time = "time",
+  s_srs = 4326,
+  t_srs = "+proj=eqearth",
+  ...
 ) {
-    reserved = intersect(names(x), reserved_ctdf_nams)
+  reserved = intersect(names(x), reserved_ctdf_nams)
 
-    if (length(reserved) > 0) {
-        warning(
-            sprintf(
-                "as_ctdf(): input contains reserved column name%s: %s which may be overwritten here or by upstream methods.",
-                if (length(reserved) > 1) "s" else "",
-                paste(reserved, collapse = ", ")
-            )
-        )
-    }
+  if (length(reserved) > 0) {
+    warning(
+      sprintf(
+        "as_ctdf(): input contains reserved column name%s: %s which may be overwritten here or by upstream methods.",
+        if (length(reserved) > 1) "s" else "",
+        paste(reserved, collapse = ", ")
+      )
+    )
+  }
 
-    o = as.data.table(x)
-    setnames(o, c(coords, time), c("X", "Y", "timestamp"))
+  o = as.data.table(x)
+  setnames(o, c(coords, time), c("X", "Y", "timestamp"))
 
-    dups = which(duplicated(o[, .(Y, X, timestamp)]))
-    if (length(dups) > 0) {
-        warning(
-            sprintf(
-                "as_ctdf(): found %d duplicated point%s (latitude, longitude, timestamp) at row%s: %s",
-                length(dups),
-                if (length(dups) > 1) "s" else "",
-                if (length(dups) > 1) "s" else "",
-                paste(dups, collapse = ", ")
-            ),
-            call. = FALSE
-        )
-    }
+  dups = which(duplicated(o[, .(Y, X, timestamp)]))
+  if (length(dups) > 0) {
+    warning(
+      sprintf(
+        "as_ctdf(): found %d duplicated point%s (latitude, longitude, timestamp) at row%s: %s",
+        length(dups),
+        if (length(dups) > 1) "s" else "",
+        if (length(dups) > 1) "s" else "",
+        paste(dups, collapse = ", ")
+      ),
+      call. = FALSE
+    )
+  }
 
-    setorder(o, timestamp)
+  setorder(o, timestamp)
 
-    o[, .id := .I]
+  o[, .id := .I]
 
-    o[, .seg_id := NA_integer_]
-    o[, .move_seg := NA_integer_]
-    o[, .putative_cluster := NA_integer_]
-    o[, cluster := NA_integer_]
+  o[, .seg_id := NA_integer_]
+  o[, .move_seg := NA_integer_]
+  o[, .putative_cluster := NA_integer_]
+  o[, cluster := NA_integer_]
 
-    o = st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
+  o = st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
 
-    o = st_transform(o, crs = t_srs)
+  o = st_transform(o, crs = t_srs)
 
-    st_geometry(o) = "location"
+  st_geometry(o) = "location"
 
-    setDT(o)
-    setkey(o, .id)
-    setcolorder(o, reserved_ctdf_nams, after = ncol(o))
+  setDT(o)
+  setkey(o, .id)
+  setcolorder(o, reserved_ctdf_nams, after = ncol(o))
 
-    class(o) <- c("ctdf", class(o))
-    o
+  class(o) <- c("ctdf", class(o))
+  o
 }
 
 
@@ -177,30 +177,30 @@ as_ctdf <- function(
 #'
 #' @export
 as_ctdf_track <- function(ctdf) {
-    o = ctdf |>
-        st_as_sf() |>
-        mutate(
-            location_prev = lag(location),
-            start = lag(timestamp),
-            stop = timestamp
-        )
-    this_crs = st_crs(o)
+  o = ctdf |>
+    st_as_sf() |>
+    mutate(
+      location_prev = lag(location),
+      start = lag(timestamp),
+      stop = timestamp
+    )
+  this_crs = st_crs(o)
 
-    o = o |>
-        dplyr::filter(!st_is_empty(location_prev))
+  o = o |>
+    dplyr::filter(!st_is_empty(location_prev))
 
-    o =
-        o |>
-        rowwise() |>
-        mutate(
-            track = rbind(st_coordinates(location_prev), st_coordinates(location)) |>
-                st_linestring() |>
-                list()
-        ) |>
-        ungroup() |>
-        st_set_geometry("track") |>
-        select(.id, .putative_cluster, start, stop, track) |>
-        st_set_crs(this_crs)
+  o =
+    o |>
+    rowwise() |>
+    mutate(
+      track = rbind(st_coordinates(location_prev), st_coordinates(location)) |>
+        st_linestring() |>
+        list()
+    ) |>
+    ungroup() |>
+    st_set_geometry("track") |>
+    select(.id, .putative_cluster, start, stop, track) |>
+    st_set_crs(this_crs)
 }
 
 
@@ -221,31 +221,31 @@ as_ctdf_track <- function(ctdf) {
 #'
 #'
 summary.ctdf = function(ctdf, ...) {
-    .check_ctdf(ctdf)
+  .check_ctdf(ctdf)
 
-    # TODO: pre-cluster summary.
+  # TODO: pre-cluster summary.
 
-    out =
-        ctdf[
-            cluster > 0,
-            .(
-                start = min(timestamp),
-                stop = max(timestamp),
-                geometry = st_union(location) |> st_convex_hull() |> st_centroid(),
-                ids = paste(range(.id), collapse = "-"),
-                N = .N
-            ),
-            by = cluster
-        ]
+  out =
+    ctdf[
+      cluster > 0,
+      .(
+        start = min(timestamp),
+        stop = max(timestamp),
+        geometry = st_union(location) |> st_convex_hull() |> st_centroid(),
+        ids = paste(range(.id), collapse = "-"),
+        N = .N
+      ),
+      by = cluster
+    ]
 
-    out[, tenure := difftime(stop, start, units = "days")]
+  out[, tenure := difftime(stop, start, units = "days")]
 
-    out[, next_geom := geometry[shift(seq_len(.N), type = "lead")]]
+  out[, next_geom := geometry[shift(seq_len(.N), type = "lead")]]
 
-    out[, dist_to_next := st_distance(geometry, next_geom, by_element = TRUE)]
+  out[, dist_to_next := st_distance(geometry, next_geom, by_element = TRUE)]
 
-    out[, next_geom := NULL]
+  out[, next_geom := NULL]
 
-    class(out) = c("summary_ctdf", class(out))
-    out
+  class(out) = c("summary_ctdf", class(out))
+  out
 }

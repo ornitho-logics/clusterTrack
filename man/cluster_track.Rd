@@ -7,9 +7,9 @@
 cluster_track(
   ctdf,
   nmin = 3,
-  minCluster = 3,
   z_min = 1,
   trim = 0.05,
+  minCluster = 3,
   deltaT,
   aggregate_dist
 )
@@ -17,9 +17,7 @@ cluster_track(
 \arguments{
 \item{ctdf}{A \code{ctdf} object (see \code{\link[=as_ctdf]{as_ctdf()}}).}
 
-\item{nmin}{Integer; passed to \code{\link[=slice_ctdf]{slice_ctdf()}} (\code{nmin}) and \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} (\code{nmin}).}
-
-\item{minCluster}{Integer; minimum number of points required to keep a putative cluster
+\item{nmin}{Integer; passed to \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} (\code{nmin}).
 (clusters with \code{N <= minCluster} are dropped before final repairs).}
 
 \item{z_min}{Numeric; pruning threshold forwarded to \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} and
@@ -27,9 +25,11 @@ ultimately \code{\link[=sf_dtscan]{sf_dtscan()}} as \code{area_z_min} and \code{
 
 \item{trim}{Numeric; passed to \code{\link[=temporal_repair]{temporal_repair()}}. Maximum fraction trimmed from each}
 
-\item{deltaT}{Optional numeric; passed to \code{\link[=slice_ctdf]{slice_ctdf()}}. Maximum allowable time gap (in days)
+\item{minCluster}{Integer; minimum number of points required to keep a putative cluster
 used when splitting candidate regions into movement segments.
 tail when estimating each cluster's time domain.}
+
+\item{deltaT}{Optional numeric; passed to \code{\link[=slice_ctdf]{slice_ctdf()}}. Maximum allowable time gap (in days)}
 
 \item{aggregate_dist}{Optional numeric; if supplied, passed to \code{\link[=aggregate_ctdf]{aggregate_ctdf()}} as \code{dist}
 (numeric treated as km).}

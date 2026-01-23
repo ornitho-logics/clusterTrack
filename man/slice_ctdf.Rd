@@ -4,15 +4,15 @@
 \alias{slice_ctdf}
 \title{Slice a CTDF into putative clusters using temporal continuity and spatial clustering}
 \usage{
-slice_ctdf(ctdf, deltaT = 30, nmin = 5)
+slice_ctdf(ctdf, nmin = 5, deltaT)
 }
 \arguments{
 \item{ctdf}{A \emph{CTDF} object.}
 
+\item{nmin}{Integer;  smallest size of a putative cluster.}
+
 \item{deltaT}{Numeric; maximum allowable time gap (in days) between segment endpoints for intersections
 to  consider them continuous.}
-
-\item{nmin}{Integer; the \code{minPts} parameter passed to \code{dbscan::hdbscan()}.}
 }
 \value{
 Invisibly returns \code{ctdf}, with \code{.putative_cluster} updated in-place.

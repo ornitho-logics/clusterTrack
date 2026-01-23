@@ -230,6 +230,8 @@ temporal_repair <- function(ctdf, trim = 0.01) {
 
 .tail_repair <- function(ctdf) {
   x = ctdf[!is.na(.putative_cluster)]
+  x[, n := .N, by = .putative_cluster]
+  x = x[n > 1][, n := NULL]
 
   o = x[,
     {

@@ -25,15 +25,19 @@ local_cluster_ctdf <- function(
   length_z_min = 0
 ) {
   x = ctdf[!is.na(.putative_cluster)]
+  x[, n := .N, by = .putative_cluster]
+  x = x[n > nmin]
 
   x = x[,
-    putative_cluster_local := sf_dtscan(
-      st_as_sf(.SD),
-      id_col = '.id',
-      min_pts = nmin,
-      area_z_min = area_z_min,
-      length_z_min = length_z_min
-    ),
+    putative_cluster_local := {
+      sf_dtscan(
+        st_as_sf(.SD),
+        id_col = '.id',
+        min_pts = nmin,
+        area_z_min = area_z_min,
+        length_z_min = length_z_min
+      )
+    },
     by = .putative_cluster
   ]
 
