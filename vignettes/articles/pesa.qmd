@@ -17,7 +17,10 @@ require(clusterTrack.Vis)
 
 ## ARGOS locations for one male Pectoral Sandpiper.
 
-See [`pesa56511`] for more information on the dataset. 
+
+See [`pesa56511`](../reference/pesa56511.html) for more information on the dataset. 
+
+
 
 ```{r}
 #| message: false
