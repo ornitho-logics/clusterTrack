@@ -17,12 +17,14 @@ require(clusterTrack.Vis)
 
 ## ARGOS locations for one male Pectoral Sandpiper.
 
+See the [`pesa56511` dataset docs](../reference/pesa56511.html)
+
 ```{r}
 #| message: false
 
-data(mini_ruff)
+data(pesa56511)
 
-pesa <- as_ctdf(mini_ruff, time = "time") |>
+pesa <- as_ctdf(pesa56511, time = "time") |>
   cluster_track()
 
 map(pesa)

@@ -23,7 +23,7 @@
   xy = x[, sf::st_coordinates(location)]
   xy = as.matrix(xy)
 
-  y = as.integer(x$.putative_cluster == pc) + 1L
+  y = as.integer(x$.putative_cluster == pc) + 1
   n_min = min(tabulate(y))
   if (n_min < 3) {
     return(FALSE)
@@ -39,7 +39,7 @@
   self = matrix(y, nrow = n, ncol = k)
   mix = mean(neigh != self)
 
-  p = mean(y == 1L)
+  p = mean(y == 1)
   mix_exp = 2 * p * (1 - p)
 
   o = mix >= 0.6 * mix_exp

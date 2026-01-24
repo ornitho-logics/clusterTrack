@@ -19,8 +19,10 @@ require(clusterTrack.Vis)
 
 ```
 
-
 ## ARGOS locations for one Long-billed Dowitcher.
+
+See the [`lbdo66862` dataset docs](../reference/lbdo66862.html)
+
 
 ```{r}
 #| label: map-lbdo
