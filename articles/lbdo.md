@@ -9,8 +9,7 @@ require(clusterTrack.Vis)
 
 ## ARGOS locations for one Long-billed Dowitcher.
 
-See the [`lbdo66862` dataset
-docs](https://ornitho-logics.github.io/clusterTrack/reference/lbdo66862.md)
+See \[`lbdo66862`\] for more information on the dataset.
 
 ``` r
 data(lbdo66862)
