@@ -24,7 +24,7 @@ See the [`pesa56511` dataset docs](../reference/pesa56511.html)
 
 data(pesa56511)
 
-pesa <- as_ctdf(pesa56511, time = "time") |>
+pesa <- as_ctdf(pesa56511, time = "locationDate") |>
   cluster_track()
 
 map(pesa)
