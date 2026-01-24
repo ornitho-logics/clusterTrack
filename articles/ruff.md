@@ -9,7 +9,9 @@ require(clusterTrack.Vis)
 
 ## ARGOS locations for one male Ruff.
 
-See \[`ruff143789`\] for more information on the dataset.
+See
+[`ruff143789`](https://ornitho-logics.github.io/clusterTrack/reference/ruff143789.md)
+for more information on the dataset.
 
 ``` r
 data(ruff143789)
