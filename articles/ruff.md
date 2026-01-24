@@ -9,6 +9,9 @@ require(clusterTrack.Vis)
 
 ## ARGOS locations for one male Ruff.
 
+See the [`ruff143789` dataset
+docs](https://ornitho-logics.github.io/clusterTrack/reference/ruff143789.md)
+
 ``` r
 data(ruff143789)
 
@@ -20,8 +23,8 @@ map(ruff)
 
 - **N**:  
   - fixes:2402  
-  - segments: 20  
-  - clusters: 20
+  - segments: 25  
+  - clusters: 25
 - **Parameters**:  
   - nmin = 3  
   - minCluster = 3  

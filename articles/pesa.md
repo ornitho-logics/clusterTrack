@@ -7,19 +7,22 @@ require(clusterTrack.Vis)
 
 ## ARGOS locations for one male Pectoral Sandpiper.
 
-``` r
-data(mini_ruff)
+See the [`pesa56511` dataset
+docs](https://ornitho-logics.github.io/clusterTrack/reference/pesa56511.md)
 
-pesa <- as_ctdf(mini_ruff, time = "time") |>
+``` r
+data(pesa56511)
+
+pesa <- as_ctdf(pesa56511, time = "locationDate") |>
   cluster_track()
 
 map(pesa)
 ```
 
 - **N**:  
-  - fixes:276  
-  - segments: 4  
-  - clusters: 4
+  - fixes:863  
+  - segments: 6  
+  - clusters: 6
 - **Parameters**:  
   - nmin = 3  
   - minCluster = 3  
@@ -34,16 +37,20 @@ map(pesa)
 
 summary(pesa) |>
   head()
-#>    cluster               start                stop                geometry
-#>      <int>              <POSc>              <POSc>             <sfc_POINT>
-#> 1:       1 2015-05-31 17:43:18 2015-06-01 02:25:38 POINT (2733519 7441508)
-#> 2:       2 2015-06-01 06:30:05 2015-06-03 00:22:51 POINT (2864236 7442328)
-#> 3:       3 2015-06-03 06:21:09 2015-06-05 12:40:33 POINT (2943517 7429601)
-#> 4:       4 2015-06-05 17:23:50 2015-06-08 19:05:21 POINT (2866074 7441004)
-#>        ids     N         tenure  dist_to_next
-#>     <char> <int>     <difftime>       <units>
-#> 1:    5-12     8 0.3627315 days 130719.95 [m]
-#> 2:   20-82    57 1.7449769 days  80295.78 [m]
-#> 3:  91-177    74 2.2634722 days  78278.08 [m]
-#> 4: 185-276    86 3.0704977 days        NA [m]
+#>    cluster               start                stop                  geometry
+#>      <int>              <POSc>              <POSc>               <sfc_POINT>
+#> 1:       1 2014-06-03 01:30:53 2014-06-04 05:00:22 POINT (-10052790 7771939)
+#> 2:       2 2014-06-04 07:52:17 2014-06-04 15:37:33  POINT (-9968399 7758418)
+#> 3:       3 2014-06-04 17:27:19 2014-06-05 04:22:12  POINT (-9970427 7754612)
+#> 4:       4 2014-06-05 15:24:14 2014-06-05 18:16:43  POINT (-9865444 7728828)
+#> 5:       5 2014-06-06 06:34:07 2014-06-09 20:01:01  POINT (-9658012 7710815)
+#> 6:       6 2014-06-10 11:10:21 2014-06-21 02:07:48 POINT (-10051222 7769608)
+#>        ids     N          tenure   dist_to_next
+#>     <char> <int>      <difftime>        <units>
+#> 1:    9-75    63  1.1454745 days  85467.551 [m]
+#> 2:  83-107    25  0.3231019 days   4312.954 [m]
+#> 3: 113-137    20  0.4547801 days 108102.828 [m]
+#> 4: 155-165    10  0.1197801 days 208212.881 [m]
+#> 5: 191-351   154  3.5603472 days 397581.709 [m]
+#> 6: 364-862   462 10.6232292 days         NA [m]
 ```
