@@ -22,8 +22,7 @@ require(clusterTrack.Vis)
 
 ## ARGOS locations for one male Ruff.
 
-
-See the [`ruff143789` dataset docs](../reference/ruff143789.html)
+See [`ruff143789`] for more information on the dataset. 
 
 
 ```{r}
