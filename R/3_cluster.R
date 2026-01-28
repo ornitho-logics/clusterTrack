@@ -1,4 +1,4 @@
-#' Locally refine putative clusters using DTSCAN
+#' Local clustering using DTSCAN
 #'
 #' Within each existing `.putative_cluster` region (typically produced by [slice_ctdf()]),
 #' run [sf_dtscan()] on the points in that region to split it into one or more local spatial

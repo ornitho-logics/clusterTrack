@@ -1,8 +1,11 @@
 #' @import data.table
 #'
+#' @importFrom  grDevices topo.colors
+#' @importFrom  stats median quantile setNames start
+#' @importFrom  utils tail timestamp
+#'
 #' @importFrom utils globalVariables
 #' @importFrom stats sd
-#'
 #'
 #' @importFrom sf st_as_sf st_centroid st_convex_hull st_coordinates st_crosses st_crs
 #' @importFrom sf st_distance st_geometry st_geometry st_geometry<- st_intersects st_is_empty st_is_within_distance
@@ -18,9 +21,81 @@
 #' @importFrom units set_units
 #' @importFrom cli cli_alert cli_alert_warning cli_progress_bar cli_progress_update cli_progress_done pb_current pb_elapsed pb_spin
 #' @importFrom geometry delaunayn
-#' @importFrom FNN get.knn
 
 utils::globalVariables(c('isCluster', 'datetime', 'tenure'))
+NULL
+
+
+utils::globalVariables(c(
+  "isCluster",
+  "datetime",
+  "tenure",
+  ".",
+  ".id",
+  ".move_seg",
+  ".putative_cluster",
+  ".putative_cluster2",
+  ".seg_id",
+  "N",
+  "X",
+  "Y",
+  "a",
+  "b",
+  "any_cross",
+  "checkClust",
+  "clustID",
+  "cluster",
+  "dist_to_next",
+  "from",
+  "geometry",
+  "good_seg_id",
+  "good_seg_len",
+  "hi",
+  "hi2",
+  "lo",
+  "lo2",
+  "i.merged",
+  "i.move_seg",
+  "i.new_cluster",
+  "i.new_putative_cluster",
+  "i.putative_cluster",
+  "i.seg_id",
+  "id",
+  "is_overlap",
+  "lead_i",
+  "len",
+  "len_z",
+  "location",
+  "location_prev",
+  "move_seg",
+  "n",
+  "n_crosses",
+  "ncrosses",
+  "new_cluster",
+  "new_putative_cluster",
+  "next_cluster",
+  "next_cluster_is_nb",
+  "next_geom",
+  "next_pc",
+  "ngb",
+  "noise",
+  "ov",
+  "pc",
+  "putative_cluster",
+  "putative_cluster_local",
+  "rid",
+  "seg_id",
+  "site_id",
+  "size",
+  "t_key",
+  "tc",
+  "to",
+  "track",
+  "tri_any_keep",
+  "width",
+  "x",
+  "y"
+))
 NULL
 
 

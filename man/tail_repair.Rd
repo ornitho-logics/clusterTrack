@@ -7,7 +7,7 @@
 tail_repair(ctdf)
 }
 \arguments{
-\item{ctdf}{A \code{ctdf} object. Must contain \code{.id}, \code{timestamp}, \code{location}, and \code{.putative_cluster}.}
+\item{ctdf}{A \code{ctdf} object.}
 }
 \value{
 The input \code{ctdf}, invisibly, with \code{.putative_cluster} updated in-place.
@@ -20,6 +20,5 @@ and drop commuting legs at the both beginning and end.
 \details{
 If the track has any self-crossing steps, the kept "core" is defined as the contiguous block of
 steps between the first and last crossing; all points outside this block are set to \code{NA} in
-\code{.putative_cluster}. If a cluster has no self-crossings at all, the entire cluster is dropped
-(all its points are set to \code{NA}).
+\code{.putative_cluster}.
 }

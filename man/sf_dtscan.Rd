@@ -38,10 +38,10 @@ Cluster labels are produced by starting a new cluster at each unassigned core si
 pruned Delaunay edges from that seed; the cluster id is assigned to every visited site.
 }
 \examples{
-data(moons)
-m = st_as_sf(moons, coords = c("X", "Y"))
+data("moons", package = "dbscan")
+m = sf::st_as_sf(moons, coords = c("X", "Y"))
 m$cluster = sf_dtscan(m)
-hullplot(moons, m$cluster)
+dbscan::hullplot(moons, m$cluster)
 }
 \references{
 Kim, J., & Cho, J. (2019). Delaunay triangulation-based spatial clustering technique for enhanced adjacent

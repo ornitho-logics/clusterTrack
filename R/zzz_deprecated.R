@@ -34,13 +34,10 @@ as_tdbscan <- function(
 #'
 #' @examples
 #' data(pesa56511)
-#' x = as_tdbscan(pesa56511, time = "locationDate", s_srs = 4326)
-#' x = st_transform(x, '+proj=eqearth')
-#' z = tdbscan(track=x, eps =6600 , minPts   = 8, maxLag = 6, borderPoints = TRUE )
-#'
-#' # Set minTenure
-#' z = tdbscan(x, eps =6600, minPts   = 8, maxLag = 6, borderPoints = TRUE, minTenure= 24 )
-#'
+#' x = as_tdbscan(pesa56511, time = "locationDate")
+#' x = sf::st_transform(x, "+proj=eqearth")
+#' z = tdbscan(track = x, eps = 6600, minPts = 8, maxLag = 6)
+#' table(z$clustID)
 
 tdbscan <- function(
   track,
@@ -50,9 +47,6 @@ tdbscan <- function(
   maxLag = 6,
   minTenure
 ) {
-  checkClust = clustID = id = iscore = n = ngb = tc = y = NULL # due to NSE notes in R CMD check
-  `.` = function(...) NULL
-
   stopifnot(inherits(track, 'sf'))
 
   x = st_coordinates(track) |> data.table()

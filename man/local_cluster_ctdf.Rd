@@ -2,7 +2,7 @@
 % Please edit documentation in R/3_cluster.R
 \name{local_cluster_ctdf}
 \alias{local_cluster_ctdf}
-\title{Locally refine putative clusters using DTSCAN}
+\title{Local clustering using DTSCAN}
 \usage{
 local_cluster_ctdf(ctdf, nmin = 3, area_z_min = 0, length_z_min = 0)
 }

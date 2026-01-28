@@ -29,11 +29,8 @@ When maxLag is set to \code{maxLag>N} output is the same as for \link[dbscan:dbs
 }
 \examples{
 data(pesa56511)
-x = as_tdbscan(pesa56511, time = "locationDate", s_srs = 4326)
-x = st_transform(x, '+proj=eqearth')
-z = tdbscan(track=x, eps =6600 , minPts   = 8, maxLag = 6, borderPoints = TRUE )
-
-# Set minTenure
-z = tdbscan(x, eps =6600, minPts   = 8, maxLag = 6, borderPoints = TRUE, minTenure= 24 )
-
+x = as_tdbscan(pesa56511, time = "locationDate")
+x = sf::st_transform(x, "+proj=eqearth")
+z = tdbscan(track = x, eps = 6600, minPts = 8, maxLag = 6)
+table(z$clustID)
 }

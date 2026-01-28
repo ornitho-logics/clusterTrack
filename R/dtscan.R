@@ -206,10 +206,10 @@
 #' @examples
 # https://hdbscan.readthedocs.io/en/latest/how_hdbscan_works.html
 
-#' data(moons)
-#' m = st_as_sf(moons, coords = c("X", "Y"))
+#' data("moons", package = "dbscan")
+#' m = sf::st_as_sf(moons, coords = c("X", "Y"))
 #' m$cluster = sf_dtscan(m)
-#' hullplot(moons, m$cluster)
+#' dbscan::hullplot(moons, m$cluster)
 
 sf_dtscan = function(
   x,

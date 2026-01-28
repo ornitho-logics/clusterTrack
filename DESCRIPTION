@@ -1,5 +1,5 @@
 Package: clusterTrack
-Title: Clustering Animal Movements. 
+Title: Clustering Animal Movements
 Version: 0.1.0.1
 Authors@R: 
     person("Mihai", "Valcu", , "mvalcu@gwdg.de", role = c("aut", "cre"),
@@ -12,14 +12,11 @@ Imports:
     data.table,
     dbscan,
     sf,
+    units,
     geometry,
     dplyr,
     forcats,
-    foreach,
-    glue,
-    igraph,
-    spdep,
-    units
+    igraph
 Suggests:
     ggplot2,
     quarto,

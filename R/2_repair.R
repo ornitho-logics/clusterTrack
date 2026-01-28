@@ -295,10 +295,9 @@ temporal_repair <- function(ctdf, trim = 0.01) {
 #' @details
 #' If the track has any self-crossing steps, the kept "core" is defined as the contiguous block of
 #' steps between the first and last crossing; all points outside this block are set to `NA` in
-#' `.putative_cluster`. If a cluster has no self-crossings at all, the entire cluster is dropped
-#' (all its points are set to `NA`).
+#' `.putative_cluster`.
 #'
-#' @param ctdf A `ctdf` object. Must contain `.id`, `timestamp`, `location`, and `.putative_cluster`.
+#' @param ctdf A `ctdf` object.
 #'
 #' @return The input `ctdf`, invisibly, with `.putative_cluster` updated in-place.
 #'
