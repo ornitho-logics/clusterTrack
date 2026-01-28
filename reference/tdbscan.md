@@ -49,14 +49,11 @@ When maxLag is set to `maxLag>N` output is the same as for
 
 ``` r
 data(pesa56511)
-x = as_tdbscan(pesa56511, time = "locationDate", s_srs = 4326)
-#> Error in as_tdbscan(pesa56511, time = "locationDate", s_srs = 4326): unused argument (s_srs = 4326)
-x = st_transform(x, '+proj=eqearth')
-#> Error: object 'x' not found
-z = tdbscan(track=x, eps =6600 , minPts   = 8, maxLag = 6, borderPoints = TRUE )
-#> Error: object 'x' not found
-
-# Set minTenure
-z = tdbscan(x, eps =6600, minPts   = 8, maxLag = 6, borderPoints = TRUE, minTenure= 24 )
-#> Error: object 'x' not found
+x = as_tdbscan(pesa56511, time = "locationDate")
+x = sf::st_transform(x, "+proj=eqearth")
+z = tdbscan(track = x, eps = 6600, minPts = 8, maxLag = 6)
+table(z$clustID)
+#> 
+#>   1   2   3   4   5   6 
+#>  67  60  17  33 128 454 
 ```

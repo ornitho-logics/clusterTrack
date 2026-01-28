@@ -65,12 +65,8 @@ doi:10.3390/s19183926
 ## Examples
 
 ``` r
-data(moons)
-#> Warning: data set ‘moons’ not found
-m = st_as_sf(moons, coords = c("X", "Y"))
-#> Error: object 'moons' not found
+data("moons", package = "dbscan")
+m = sf::st_as_sf(moons, coords = c("X", "Y"))
 m$cluster = sf_dtscan(m)
-#> Error: object 'm' not found
-hullplot(moons, m$cluster)
-#> Error: object 'moons' not found
+dbscan::hullplot(moons, m$cluster)
 ```

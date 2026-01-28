@@ -1,4 +1,4 @@
-# Locally refine putative clusters using DTSCAN
+# Local clustering using DTSCAN
 
 Within each existing `.putative_cluster` region (typically produced by
 [`slice_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/slice_ctdf.md)),

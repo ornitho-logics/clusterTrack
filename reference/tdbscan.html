@@ -86,17 +86,13 @@ Clusters with  values smaller than minTenure are discarded.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pesa56511</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu">as_tdbscan</span><span class="op">(</span><span class="va">pesa56511</span>, time <span class="op">=</span> <span class="st">"locationDate"</span>, s_srs <span class="op">=</span> <span class="fl">4326</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in as_tdbscan(pesa56511, time = "locationDate", s_srs = 4326):</span> unused argument (s_srs = 4326)</span>
-<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu">st_transform</span><span class="op">(</span><span class="va">x</span>, <span class="st">'+proj=eqearth'</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'x' not found</span>
-<span class="r-in"><span><span class="va">z</span> <span class="op">=</span> <span class="fu">tdbscan</span><span class="op">(</span>track<span class="op">=</span><span class="va">x</span>, eps <span class="op">=</span><span class="fl">6600</span> , minPts   <span class="op">=</span> <span class="fl">8</span>, maxLag <span class="op">=</span> <span class="fl">6</span>, borderPoints <span class="op">=</span> <span class="cn">TRUE</span> <span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'x' not found</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Set minTenure</span></span></span>
-<span class="r-in"><span><span class="va">z</span> <span class="op">=</span> <span class="fu">tdbscan</span><span class="op">(</span><span class="va">x</span>, eps <span class="op">=</span><span class="fl">6600</span>, minPts   <span class="op">=</span> <span class="fl">8</span>, maxLag <span class="op">=</span> <span class="fl">6</span>, borderPoints <span class="op">=</span> <span class="cn">TRUE</span>, minTenure<span class="op">=</span> <span class="fl">24</span> <span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'x' not found</span>
-<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu">as_tdbscan</span><span class="op">(</span><span class="va">pesa56511</span>, time <span class="op">=</span> <span class="st">"locationDate"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="fu">sf</span><span class="fu">::</span><span class="fu"><a href="https://r-spatial.github.io/sf/reference/st_transform.html" class="external-link">st_transform</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"+proj=eqearth"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">z</span> <span class="op">=</span> <span class="fu">tdbscan</span><span class="op">(</span>track <span class="op">=</span> <span class="va">x</span>, eps <span class="op">=</span> <span class="fl">6600</span>, minPts <span class="op">=</span> <span class="fl">8</span>, maxLag <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">z</span><span class="op">$</span><span class="va">clustID</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1   2   3   4   5   6 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  67  60  17  33 128 454 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
