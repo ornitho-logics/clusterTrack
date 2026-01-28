@@ -1,14 +1,18 @@
 # Homogeneous = no meaningful multi-modality (2 clusters but one is tiny)
 
-.has_clusters <- function(ctdf, minPts = 5) {
-  n = nrow(ctdf)
+.has_clusters <- function(x, minPts = 5) {
+  n = nrow(x)
   if (n <= minPts) {
     return(FALSE)
   }
 
-  xy = ctdf[, st_coordinates(location)]
+  xy = x[, st_coordinates(location)]
 
-  o = hdbscan(xy, minPts = minPts) |>
+  o = hdbscan(xy, minPts = minPts)
+  
+  .save_hdbscan_plot(x$.id, o, xy)
+
+  o = o |>
     tidy() |>
     setDT()
   o = o[!(noise)]
@@ -71,7 +75,7 @@
   ctdf[segs, .seg_id := i.seg_id]
 }
 
-.split_by_maxlen <- function(ctdf, deltaT) {
+.split_by_longest_movement <- function(ctdf, deltaT) {
   .prepare_segs(ctdf, deltaT = deltaT)
 
   split(ctdf[.move_seg == 0], by = ".seg_id")
@@ -143,7 +147,7 @@ slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
     }
 
     if (current |> .has_clusters()) {
-      new_chunks = .split_by_maxlen(ctdf = current, deltaT = deltaT)
+      new_chunks = .split_by_longest_movement(ctdf = current, deltaT = deltaT)
       if (length(new_chunks) > 0) {
         n0 = length(queue)
         n1 = length(new_chunks)

@@ -114,3 +114,28 @@ NULL
     fct_inorder() |>
     as.integer()
 }
+
+
+
+.save_hdbscan_plot <- function(ii, h, xy, dir = "~/Desktop/temp") {
+
+  a = stringr::str_pad(min(ii),
+    pad = "0",
+    width = stringr::str_count(max(ii))
+  )
+
+  b = max(ii)
+
+  nam = paste(a, b, sep = "-")
+  path = paste0(dir, "/", nam,'.png')
+
+  png(filename = path,
+      width = 800,            
+      height = 600,           
+      res = 72)
+
+  hullplot(xy, h$cluster, main =  nam, cex = 0.6)
+  
+  dev.off()
+
+}
