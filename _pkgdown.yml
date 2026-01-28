@@ -15,7 +15,7 @@ navbar:
     - github
   components:
     articles:
-      text: Case studies
+      text: Use cases
       menu:
       - text: Pectoral Sandpiper
         href: articles/pesa.html
@@ -23,6 +23,8 @@ navbar:
         href: articles/ruff.html
       - text: Long billed dowitcher
         href: articles/lbdo.html
+      - text: Map gallery
+        href: articles/interactive_maps.html
 
   github:
     icon: fa-github
