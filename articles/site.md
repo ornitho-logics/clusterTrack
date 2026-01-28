@@ -1,4 +1,4 @@
-# Browse exported maps
+# Map gallery
 
 Once you have exported a bunch of interactive map HTML files with
 `map(ctdf, path = ...)`, you can call

@@ -68,9 +68,9 @@ doi:10.3390/s19183926
 data(moons)
 #> Warning: data set ‘moons’ not found
 m = st_as_sf(moons, coords = c("X", "Y"))
-#> Error in st_as_sf(moons, coords = c("X", "Y")): could not find function "st_as_sf"
+#> Error: object 'moons' not found
 m$cluster = sf_dtscan(m)
 #> Error: object 'm' not found
 hullplot(moons, m$cluster)
-#> Error in hullplot(moons, m$cluster): could not find function "hullplot"
+#> Error: object 'moons' not found
 ```
