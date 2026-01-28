@@ -24,7 +24,7 @@ navbar:
       - text: Long billed dowitcher
         href: articles/lbdo.html
       - text: Map gallery
-        href: articles/interactive_maps.html
+        href: articles/site.html
 
   github:
     icon: fa-github
