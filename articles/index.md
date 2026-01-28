@@ -2,6 +2,8 @@
 
 ### All vignettes
 
+- [Browse exported
+  maps](https://ornitho-logics.github.io/clusterTrack/articles/interactive_maps.md):
 - [Long-billed
   Dowitcher](https://ornitho-logics.github.io/clusterTrack/articles/lbdo.md):
 - [Pectoral
