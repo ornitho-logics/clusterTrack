@@ -10,7 +10,6 @@
 
   o = hdbscan(xy, minPts = minPts)
   
-  .save_hdbscan_plot(x$.id, o, xy)
 
   o = o |>
     tidy() |>
