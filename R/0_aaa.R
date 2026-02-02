@@ -126,11 +126,11 @@ NULL
 
     x = data.table(
       cluster = h$cluster,
-      membership_prob =  h$membership_prob,
+      membership_prob = h$membership_prob,
       outlier_scores = h$outlier_scores
     )
-   
     
+
 
 
 
