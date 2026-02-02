@@ -1,6 +1,79 @@
-# Homogeneous = no meaningful multi-modality (2 clusters but one is tiny)
 
-.has_clusters <- function(x, minPts = 5) {
+
+.estimate_hdbscan_eps <- function(x,
+  q = 0.90,
+  membership_min = 0.80
+  ) {
+
+  minPts = 5
+  min_cluster_size = 5
+
+  n = nrow(x)
+  if (n <= (minPts + 1)) {
+    return(0)
+  }
+
+  xy = x[, st_coordinates(location)]
+
+  h =  hdbscan(xy, minPts = minPts)
+  cl = h$cluster
+  if (all(cl == 0)) {
+    return(0)
+  }
+
+  X = data.table(
+    i = seq_len(n),
+    cluster = cl,
+    mp = h$membership_prob
+  )
+  
+  X = X[cluster > 0]
+
+  # cluster_scores 
+  if (!is.null(h$cluster_scores) && length(h$cluster_scores) > 0) {
+    scores =  data.table(
+      cluster = seq_along(h$cluster_scores),
+      score = as.numeric(h$cluster_scores)
+    )
+    X = scores[X, on = "cluster"]
+
+  }
+
+  if (nrow(X) == 0) {
+    return(0)
+  }
+
+  X = X[mp >= membership_min]
+  if (nrow(X) == 0) {
+    return(0)
+  }
+
+  # min_cluster_size
+  X[, n_bycl := .N, by = cluster]
+  X = X[n_bycl  > min_cluster_size]
+  if (nrow(X) == 0) {
+    return(0)
+  }
+
+
+
+  # within-cluster kNN distances (distance to k-th NN)
+
+  eps_dists = X[, 
+    .(
+      d = dbscan::kNNdist(xy[i, , drop = FALSE], k = minPts)
+      ),
+      by = cluster
+    ]$d
+
+  o = quantile(eps_dists, probs = q, names = FALSE, type = 8)
+  
+  o
+
+}
+
+
+.has_clusters <- function(x, minPts = 5, EPS) {
   n = nrow(x)
   if (n <= minPts) {
     return(FALSE)
@@ -8,7 +81,7 @@
 
   xy = x[, st_coordinates(location)]
 
-  o = hdbscan(xy, minPts = minPts)
+  o = hdbscan(xy, minPts = minPts, cluster_selection_epsilon = EPS)
   
 
   o = o |>
@@ -17,12 +90,14 @@
   o = o[!(noise)]
   o = o[size >= minPts]
 
+  # Homogeneous = no meaningful multi-modality (2 clusters but one is tiny)
   if (nrow(o) < 2) {
     return(FALSE)
   }
 
   nrow(o) > 1
 }
+
 
 .prepare_segs <- function(ctdf, deltaT) {
   ctdf[, let(.move_seg = NA, .seg_id = NA)]
@@ -119,6 +194,8 @@ slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
     deltaT = 1e+05
   }
 
+  epsilon = .estimate_hdbscan_eps(ctdf)
+
   queue = list(ctdf)
   res = list()
 
@@ -145,7 +222,7 @@ slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
       next # back to head, no need to test for clusters
     }
 
-    if (current |> .has_clusters()) {
+    if (current |> .has_clusters(EPS = epsilon)) {
       new_chunks = .split_by_longest_movement(ctdf = current, deltaT = deltaT)
       if (length(new_chunks) > 0) {
         n0 = length(queue)

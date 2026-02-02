@@ -14,7 +14,7 @@
 #' @importFrom igraph graph_from_edgelist graph_from_data_frame set_edge_attr
 #' @importFrom igraph  subgraph_from_edges E components groups
 #'
-#' @importFrom dbscan hdbscan frNN  kNN tidy hullplot
+#' @importFrom dbscan hdbscan frNN  kNN kNNdist tidy hullplot
 #' @importFrom dplyr mutate ungroup rowwise lag select slice filter
 #'
 #' @importFrom forcats fct_inorder
@@ -117,7 +117,27 @@ NULL
 
 
 
-.save_hdbscan_plot <- function(ii, h, xy, dir = "~/Desktop/temp") {
+.hdbscan2dt <- function(h){
+
+    scores = data.table(
+      cluster = names(h$cluster_scores) |> as.numeric(),
+      score = as.numeric(h$cluster_scores)
+    )
+
+    x = data.table(
+      cluster = h$cluster,
+      membership_prob =  h$membership_prob,
+      outlier_scores = h$outlier_scores
+    )
+   
+    
+
+
+
+}
+
+
+.save_hdbscan_plot <- function(ii, h, xy, dir) {
 
   a = stringr::str_pad(min(ii),
     pad = "0",
