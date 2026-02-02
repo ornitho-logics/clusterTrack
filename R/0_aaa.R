@@ -14,7 +14,7 @@
 #' @importFrom igraph graph_from_edgelist graph_from_data_frame set_edge_attr
 #' @importFrom igraph  subgraph_from_edges E components groups
 #'
-#' @importFrom dbscan hdbscan frNN  kNN kNNdist tidy hullplot
+#' @importFrom dbscan hdbscan frNN  kNN kNNdist hullplot
 #' @importFrom dplyr mutate ungroup rowwise lag select slice filter
 #'
 #' @importFrom forcats fct_inorder
@@ -129,11 +129,9 @@ NULL
       membership_prob = h$membership_prob,
       outlier_scores = h$outlier_scores
     )
+
+    merge(x, scores, by = "cluster", all.x = TRUE, sort = FALSE)
     
-
-
-
-
 }
 
 

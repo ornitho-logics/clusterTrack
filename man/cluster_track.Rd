@@ -20,8 +20,10 @@ cluster_track(
 \item{nmin}{Integer; passed to \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} (\code{nmin}).
 (clusters with \code{N <= minCluster} are dropped before final repairs).}
 
-\item{z_min}{Numeric; pruning threshold forwarded to \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} and
-ultimately \code{\link[=sf_dtscan]{sf_dtscan()}} as \code{area_z_min} and \code{length_z_min} (sign is flipped internally).}
+\item{z_min}{Numeric; pruning strictness in SD units.
+Smaller values produce more compact clusters and often more unassigned points.
+Implementation detail: the underlying thresholds use an inverse z-score convention,
+so the sign is flipped internally; see \code{\link[=sf_dtscan]{sf_dtscan()}}  and \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}}.}
 
 \item{trim}{Numeric; passed to \code{\link[=temporal_repair]{temporal_repair()}}. Maximum fraction trimmed from each}
 
@@ -66,7 +68,6 @@ pesa = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
 
 data(ruff143789)
 ruff = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
-
 
 data(lbdo66862)
 lbdo = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()

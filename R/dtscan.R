@@ -230,7 +230,10 @@ sf_dtscan = function(
     area_z_min = area_z_min,
     length_z_min = length_z_min
   )
-  adj = .build_adjacency_list(kept_edges, n_sites = nrow(unique_sites))
+  adj = .build_adjacency_list(
+    kept_edges,
+    n_sites = nrow(unique_sites)
+  )
 
   site_cluster = .cluster_on_pruned_graph(
     adj,
