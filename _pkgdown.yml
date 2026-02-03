@@ -47,6 +47,7 @@ reference:
   desc: Coercion and helpers around the ctdf format.
   contents:
   - as_ctdf
+  - as_ctdf.data.frame
   - as_ctdf_track
 
 - title: Pipeline steps
@@ -71,3 +72,5 @@ reference:
   - mini_ruff
   - pesa56511
   - ruff143789
+  - nola125a
+  - ruff07b5

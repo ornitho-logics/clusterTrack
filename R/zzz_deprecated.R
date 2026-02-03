@@ -10,6 +10,7 @@
 #' @param time Name of the time column.
 #' @param crs Coordinate reference system passed to `sf::st_as_sf()`.
 #' @return An `sf` object with a `timestamp` column.
+#' @keywords internal
 #' @export
 as_tdbscan <- function(
   x,

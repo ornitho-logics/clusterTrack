@@ -22,3 +22,4 @@ An \code{sf} object with a \code{timestamp} column.
 A small convenience helper that renames a time column to \code{timestamp},
 orders by time, and converts coordinates to an \code{sf} point geometry.
 }
+\keyword{internal}
