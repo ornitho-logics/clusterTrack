@@ -19,10 +19,6 @@ as_ctdf_track(ctdf)
   A `ctdf` object (with ordered rows and a `"location"` geometry
   column).
 
-- check:
-
-  check `ctdf` object class. Default to TRUE.
-
 ## Value
 
 An `sf` object with LINESTRING geometry for each step.

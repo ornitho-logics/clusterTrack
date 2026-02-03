@@ -57,11 +57,13 @@ cluster_track(
 
 - z_min:
 
-  Numeric; pruning threshold forwarded to
-  [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md)
-  and ultimately
+  Numeric; pruning strictness in SD units. Smaller values produce more
+  compact clusters and often more unassigned points. Implementation
+  detail: the underlying thresholds use an inverse z-score convention,
+  so the sign is flipped internally; see
   [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md)
-  as `area_z_min` and `length_z_min` (sign is flipped internally).
+  and
+  [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md).
 
 - trim:
 
@@ -125,9 +127,14 @@ pesa = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
 data(ruff143789)
 ruff = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 
+data(ruff07b5)
+lbdo = as_ctdf(ruff07b5, time = "locationDate") |> cluster_track()
 
 data(lbdo66862)
-lbdo = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+lbdo2 = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+
+data(nola125a)
+nola = as_ctdf(nola125a, time = "timestamp") |> cluster_track()
 
 
 } # }

@@ -40,9 +40,11 @@ optionally merge adjacent clusters within aggregate_dist via aggregate_ctdf().
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-use-cases" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Use cases</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-use-cases"><li><a class="dropdown-item" href="../articles/pesa.html">Pectoral Sandpiper</a></li>
-    <li><a class="dropdown-item" href="../articles/ruff.html">Ruff</a></li>
-    <li><a class="dropdown-item" href="../articles/lbdo.html">Long billed dowitcher</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-use-cases"><li><a class="dropdown-item" href="../articles/pesa.html">Pectoral Sandpiper (Argos doppler)</a></li>
+    <li><a class="dropdown-item" href="../articles/ruff.html">Ruff (Argos doppler)</a></li>
+    <li><a class="dropdown-item" href="../articles/lbdo.html">Long billed dowitcher (Argos doppler)</a></li>
+    <li><a class="dropdown-item" href="../articles/ruff2.html">Ruff (GNSS)</a></li>
+    <li><a class="dropdown-item" href="../articles/nola.html">Northern Lapwing (GNSS)</a></li>
     <li><a class="dropdown-item" href="../articles/site.html">Map gallery</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -100,8 +102,10 @@ and <code><a href="tail_repair.html">tail_repair()</a></code>.</p></li>
 
 
 <dt id="arg-z-min">z_min<a class="anchor" aria-label="anchor" href="#arg-z-min"></a></dt>
-<dd><p>Numeric; pruning threshold forwarded to <code><a href="local_cluster_ctdf.html">local_cluster_ctdf()</a></code> and
-ultimately <code><a href="sf_dtscan.html">sf_dtscan()</a></code> as <code>area_z_min</code> and <code>length_z_min</code> (sign is flipped internally).</p></dd>
+<dd><p>Numeric; pruning strictness in SD units.
+Smaller values produce more compact clusters and often more unassigned points.
+Implementation detail: the underlying thresholds use an inverse z-score convention,
+so the sign is flipped internally; see <code><a href="sf_dtscan.html">sf_dtscan()</a></code>  and <code><a href="local_cluster_ctdf.html">local_cluster_ctdf()</a></code>.</p></dd>
 
 
 <dt id="arg-trim">trim<a class="anchor" aria-label="anchor" href="#arg-trim"></a></dt>
@@ -155,9 +159,14 @@ tail when estimating each cluster's time domain.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ruff143789</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ruff</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">ruff143789</span>, time <span class="op">=</span> <span class="st">"locationDate"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">cluster_track</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ruff07b5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lbdo</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">ruff07b5</span>, time <span class="op">=</span> <span class="st">"locationDate"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">cluster_track</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">lbdo66862</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">lbdo</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">lbdo66862</span>, time <span class="op">=</span> <span class="st">"locationDate"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">cluster_track</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lbdo2</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">lbdo66862</span>, time <span class="op">=</span> <span class="st">"locationDate"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">cluster_track</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">nola125a</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">nola</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">nola125a</span>, time <span class="op">=</span> <span class="st">"timestamp"</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu">cluster_track</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>

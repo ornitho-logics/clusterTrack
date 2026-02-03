@@ -1,8 +1,7 @@
-# Simulated ARGOS tracking data with 3 spatial clusters
+# Reduced ARGOS satellite tracking data for an individual Ruff
 
-A toy dataset simulating ARGOS satellite tracking data for one
-individual. The dataset contains timestamped locations arranged in three
-distinct spatial clusters.
+`mini_ruff` is a reduced subset of `ruff143789` used in examples and
+tests.
 
 ## Usage
 
@@ -12,29 +11,39 @@ mini_ruff
 
 ## Format
 
-A data.table with 44 rows and 3 columns:
-
-- longitude:
-
-  Numeric. Longitude in decimal degrees (WGS84).
+A data.table with 276 rows and 4 columns:
 
 - latitude:
 
   Numeric. Latitude in decimal degrees (WGS84).
 
-- time:
+- longitude:
+
+  Numeric. Longitude in decimal degrees (WGS84).
+
+- locationDate:
 
   POSIXct. Timestamp of location fix (UTC).
 
-## Details
+- locationClass:
 
-This dataset is fully synthetic and was created to represent idealized
-movement within and between three clusters. There is no associated
-individual or species.
+  Character. ARGOS location quality class.
+
+## Source
+
+See `ruff143789`.
 
 ## Examples
 
 ``` r
 data(mini_ruff)
-plot(mini_ruff$longitude, mini_ruff$latitude, type = "l")
+head(mini_ruff)
+#>    latitude longitude                time
+#>       <num>     <num>              <POSc>
+#> 1:   66.751    41.098 2015-05-31 14:33:09
+#> 2:   66.741    40.881 2015-05-31 15:12:44
+#> 3:   66.670    40.801 2015-05-31 16:41:01
+#> 4:   66.665    40.985 2015-05-31 16:50:30
+#> 5:   66.427    40.462 2015-05-31 17:43:18
+#> 6:   66.485    40.456 2015-05-31 18:20:13
 ```

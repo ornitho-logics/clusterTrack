@@ -3,10 +3,12 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   articles/lbdo: lbdo.html
+  articles/nola: nola.html
   articles/pesa: pesa.html
   articles/ruff: ruff.html
+  articles/ruff2: ruff2.html
   articles/site: site.html
-last_built: 2026-01-28T10:39Z
+last_built: 2026-02-03T15:20Z
 urls:
   reference: https://ornitho-logics.github.io/clusterTrack/reference
   article: https://ornitho-logics.github.io/clusterTrack/articles

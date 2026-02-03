@@ -18,6 +18,9 @@ Coercion and helpers around the ctdf format.
 - [`as_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf.md)
   : Coerce an object to clusterTrack data format
 
+- [`as_ctdf(`*`<data.frame>`*`)`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf.data.frame.md)
+  : Coerce an object to clusterTrack data format
+
 - [`as_ctdf_track()`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf_track.md)
   :
 
@@ -56,8 +59,12 @@ Example datasets shipped with the package.
   : ARGOS satellite tracking data for an individual Long-billed
   dowitcher
 - [`mini_ruff`](https://ornitho-logics.github.io/clusterTrack/reference/mini_ruff.md)
-  : Simulated ARGOS tracking data with 3 spatial clusters
+  : Reduced ARGOS satellite tracking data for an individual Ruff
 - [`pesa56511`](https://ornitho-logics.github.io/clusterTrack/reference/pesa56511.md)
   : ARGOS satellite tracking data for an individual Pectoral Sandpiper
 - [`ruff143789`](https://ornitho-logics.github.io/clusterTrack/reference/ruff143789.md)
   : ARGOS satellite tracking data for an individual Ruff
+- [`nola125a`](https://ornitho-logics.github.io/clusterTrack/reference/nola125a.md)
+  : GNSS tracking data for an individual northern lapwing.
+- [`ruff07b5`](https://ornitho-logics.github.io/clusterTrack/reference/ruff07b5.md)
+  : GNSS tracking data for an individual ruff.
