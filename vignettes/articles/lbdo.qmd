@@ -31,10 +31,12 @@ See [`lbdo66862`](../reference/lbdo66862.html) for more information on the datas
 
 data(lbdo66862)
 
-lbdo <- as_ctdf(lbdo66862, time = "locationDate") |>
+ctdf <- as_ctdf(lbdo66862, time = "locationDate") |>
   cluster_track()
 
-map(lbdo)
+map(ctdf)
 
+summary(ctdf) |>
+  head()
 
 ```

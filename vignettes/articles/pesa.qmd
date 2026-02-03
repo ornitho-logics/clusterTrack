@@ -27,13 +27,13 @@ See [`pesa56511`](../reference/pesa56511.html) for more information on the datas
 
 data(pesa56511)
 
-pesa <- as_ctdf(pesa56511, time = "locationDate") |>
+ctdf <- as_ctdf(pesa56511, time = "locationDate") |>
   cluster_track()
 
-map(pesa)
+map(ctdf)
 
 
-summary(pesa) |>
+summary(ctdf) |>
   head()
 
 ```

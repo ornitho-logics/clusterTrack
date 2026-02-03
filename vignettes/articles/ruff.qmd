@@ -33,9 +33,12 @@ See [`ruff143789`](../reference/ruff143789.html) for more information on the dat
 
 data(ruff143789)
 
-ruff <- as_ctdf(ruff143789, time = "locationDate") |>
+ctdf <- as_ctdf(ruff143789, time = "locationDate") |>
   cluster_track()
 
-map(ruff)
+map(ctdf)
+
+summary(ctdf) |>
+  head()
 
 ```
