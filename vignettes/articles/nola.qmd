@@ -33,7 +33,7 @@ See [`nola125a`](../reference/nola125a.html) for more information on the dataset
 
 data(nola125a)
 
-ruff <- as_ctdf(nola125a, time = "locationDate") |>
+ruff <- as_ctdf(nola125a, time = "timestamp") |>
   cluster_track()
 
 map(ruff)

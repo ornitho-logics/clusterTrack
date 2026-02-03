@@ -33,7 +33,7 @@ See [`ruff07b5`](../reference/ruff07b5.html) for more information on the dataset
 
 data(ruff07b5)
 
-ruff <- as_ctdf(ruff07b5, time = "locationDate") |>
+ruff <- as_ctdf(ruff07b5, time = "timestamp") |>
   cluster_track()
 
 map(ruff)
