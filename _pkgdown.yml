@@ -17,12 +17,16 @@ navbar:
     articles:
       text: Use cases
       menu:
-      - text: Pectoral Sandpiper
+      - text: Pectoral Sandpiper (Argos doppler)
         href: articles/pesa.html
-      - text: Ruff
+      - text: Ruff (Argos doppler)
         href: articles/ruff.html
-      - text: Long billed dowitcher
+      - text: Long billed dowitcher (Argos doppler)
         href: articles/lbdo.html
+      - text: Ruff (GNSS)
+        href: articles/ruff2.html
+      - text: Northern Lapwing (GNSS)
+        href: articles/nola.html
       - text: Map gallery
         href: articles/site.html
 

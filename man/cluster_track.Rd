@@ -69,8 +69,14 @@ pesa = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
 data(ruff143789)
 ruff = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 
+data(ruff07b5)
+lbdo = as_ctdf(ruff07b5, time = "locationDate") |> cluster_track()
+
 data(lbdo66862)
-lbdo = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+lbdo2 = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+
+data(nola125a)
+nola = as_ctdf(nola125a, time = "timestamp") |> cluster_track()
 
 
 }

@@ -1,6 +1,5 @@
 context('tdbscan')
 
-
 test_that('tdbscan is sf', {
   data(pesa56511)
   x = as_tdbscan(pesa56511, time = "locationDate")

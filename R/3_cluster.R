@@ -18,6 +18,7 @@
 #'
 #' @export
 #'
+
 local_cluster_ctdf <- function(
   ctdf,
   nmin = 3,

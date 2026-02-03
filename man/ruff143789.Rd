@@ -6,8 +6,6 @@
 \title{ARGOS satellite tracking data for an individual Ruff}
 \format{
 For \code{ruff143789}: a data.table with 2834 rows and 4 columns.
-
-For \code{mini_ruff}: a data.table with 276 rows and the same columns.
 }
 \source{
 Kempenaers, Bart, et al. "Large-scale sampling of potential breeding sites in male ruffs."
@@ -25,7 +23,5 @@ A dataset containing ARGOS locations for an individual male Ruff.
 }
 \examples{
 data(ruff143789)
-data(mini_ruff)
-head(mini_ruff)
 }
 \keyword{datasets}

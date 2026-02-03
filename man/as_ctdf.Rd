@@ -4,43 +4,16 @@
 \alias{as_ctdf}
 \title{Coerce an object to clusterTrack data format}
 \usage{
-as_ctdf(
-  x,
-  coords = c("longitude", "latitude"),
-  time = "time",
-  s_srs = 4326,
-  t_srs = "+proj=eqearth",
-  ...
-)
+as_ctdf(x, ...)
 }
 \arguments{
-\item{x}{A \code{data.frame} object.}
+\item{x}{An object to convert.}
 
-\item{coords}{Character vector of length 2 specifying the coordinate column names.
-Defaults to \code{c("longitude", "latitude")}.}
-
-\item{time}{Name of the time column. Will be renamed to \code{"timestamp"} internally.}
-
-\item{s_srs}{Source spatial reference. Default is EPSG:4326}
-
-\item{t_srs}{target spatial reference passed to \code{st_transform()}. Default is "+proj=eqearth".}
-
-\item{...}{Currently unused}
+\item{...}{Passed to methods.}
 }
 \value{
-An object of class \code{ctdf} (inherits from \code{sf}, \code{data.table}).
+A \code{ctdf}.
 }
 \description{
-Converts an object with spatial coordinates and a timestamp column
-to a standardized \code{sf/data.table}-based format used by the clusterTrack package.
-}
-\note{
-This is currently a thin wrapper around \code{st_as_sf()}, but standardizes timestamp naming, ordering,
-and geometry column name (\code{"location"}). Several dot columns,updated by upstream methods, are added as well.
-}
-\examples{
-data(mini_ruff)
-x = as_ctdf(mini_ruff)
-plot(x)
-
+S3 generic for converting objects into a \code{ctdf}.
 }

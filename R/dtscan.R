@@ -7,7 +7,6 @@
   (m - v) / s
 }
 
-
 .unique_xy = function(
   x,
   id_col = NULL
@@ -65,7 +64,6 @@
 
   tri
 }
-
 
 .prune_delaunay_edges = function(
   tri,

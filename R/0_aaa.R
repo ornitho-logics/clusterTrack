@@ -1,8 +1,8 @@
 #' @import data.table
 #'
-#' @importFrom  grDevices topo.colors
+#' @importFrom  grDevices topo.colors dev.off png
 #' @importFrom  stats median quantile setNames start
-#' @importFrom  utils tail timestamp
+#' @importFrom  utils tail timestamp getFromNamespace
 #'
 #' @importFrom utils globalVariables
 #' @importFrom stats sd
@@ -22,7 +22,16 @@
 #' @importFrom cli cli_alert cli_alert_warning cli_progress_bar cli_progress_update cli_progress_done pb_current pb_elapsed pb_spin
 #' @importFrom geometry delaunayn
 
-utils::globalVariables(c('isCluster', 'datetime', 'tenure'))
+utils::globalVariables(
+  c(
+    "isCluster",
+    "datetime",
+    "tenure",
+    "membership_prob",
+    "outlier_scores",
+    "q_outlier_scores"
+  )
+)
 NULL
 
 
@@ -116,44 +125,17 @@ NULL
 }
 
 
-
-.hdbscan2dt <- function(h){
-
-    scores = data.table(
-      cluster = names(h$cluster_scores) |> as.numeric(),
-      score = as.numeric(h$cluster_scores)
-    )
-
-    x = data.table(
-      cluster = h$cluster,
-      membership_prob = h$membership_prob,
-      outlier_scores = h$outlier_scores
-    )
-
-    merge(x, scores, by = "cluster", all.x = TRUE, sort = FALSE)
-    
-}
-
-
-.save_hdbscan_plot <- function(ii, h, xy, dir) {
-
-  a = stringr::str_pad(min(ii),
-    pad = "0",
-    width = stringr::str_count(max(ii))
+.hdbscan2dt <- function(h) {
+  scores = data.table(
+    cluster = names(h$cluster_scores) |> as.numeric(),
+    score = as.numeric(h$cluster_scores)
   )
 
-  b = max(ii)
+  x = data.table(
+    cluster = h$cluster,
+    membership_prob = h$membership_prob,
+    outlier_scores = h$outlier_scores
+  )
 
-  nam = paste(a, b, sep = "-")
-  path = paste0(dir, "/", nam,'.png')
-
-  png(filename = path,
-      width = 800,            
-      height = 600,           
-      res = 72)
-
-  hullplot(xy, h$cluster, main =  nam, cex = 0.6)
-  
-  dev.off()
-
+  merge(x, scores, by = "cluster", all.x = TRUE, sort = FALSE)
 }

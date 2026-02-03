@@ -1,5 +1,15 @@
 # TODO: properly deprecate before new major release!
 
+#' Coerce a track-like table to an sf object for tdbscan
+#'
+#' A small convenience helper that renames a time column to `timestamp`,
+#' orders by time, and converts coordinates to an `sf` point geometry.
+#'
+#' @param x A `data.frame` or `data.table` containing coordinates and a time column.
+#' @param coords Character vector of length 2 giving coordinate column names.
+#' @param time Name of the time column.
+#' @param crs Coordinate reference system passed to `sf::st_as_sf()`.
+#' @return An `sf` object with a `timestamp` column.
 #' @export
 as_tdbscan <- function(
   x,

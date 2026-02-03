@@ -3,28 +3,27 @@
 \docType{data}
 \name{mini_ruff}
 \alias{mini_ruff}
-\title{Simulated ARGOS tracking data with 3 spatial clusters}
+\title{Reduced ARGOS satellite tracking data for an individual Ruff}
 \format{
-A data.table with 44 rows and 3 columns:
+A data.table with 276 rows and 4 columns:
 \describe{
-\item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
 \item{latitude}{Numeric. Latitude in decimal degrees (WGS84).}
-\item{time}{POSIXct. Timestamp of location fix (UTC).}
+\item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
+\item{locationDate}{POSIXct. Timestamp of location fix (UTC).}
+\item{locationClass}{Character. ARGOS location quality class.}
 }
+}
+\source{
+See \code{ruff143789}.
 }
 \usage{
 mini_ruff
 }
 \description{
-A toy dataset simulating ARGOS satellite tracking data for one individual.
-The dataset contains timestamped locations arranged in three distinct spatial clusters.
-}
-\details{
-This dataset is fully synthetic and was created to represent idealized movement
-within and between three clusters. There is no associated individual or species.
+\code{mini_ruff} is a reduced subset of \code{ruff143789} used in examples and tests.
 }
 \examples{
 data(mini_ruff)
-plot(mini_ruff$longitude, mini_ruff$latitude, type = "l")
+head(mini_ruff)
 }
 \keyword{datasets}

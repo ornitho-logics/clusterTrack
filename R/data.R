@@ -1,24 +1,3 @@
-#' Simulated ARGOS tracking data with 3 spatial clusters
-#'
-#' A toy dataset simulating ARGOS satellite tracking data for one individual.
-#' The dataset contains timestamped locations arranged in three distinct spatial clusters.
-#'
-#' @format A data.table with 44 rows and 3 columns:
-#' \describe{
-#'   \item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
-#'   \item{latitude}{Numeric. Latitude in decimal degrees (WGS84).}
-#'   \item{time}{POSIXct. Timestamp of location fix (UTC).}
-#' }
-#'
-#' @details This dataset is fully synthetic and was created to represent idealized movement
-#' within and between three clusters. There is no associated individual or species.
-#'
-#' @examples
-#' data(mini_ruff)
-#' plot(mini_ruff$longitude, mini_ruff$latitude, type = "l")
-"mini_ruff"
-
-
 #' ARGOS satellite tracking data for an individual Pectoral Sandpiper
 #'
 #' A dataset containing ARGOS locations for an individual male Pectoral Sandpiper
@@ -68,16 +47,69 @@
 #'
 #' @format For `ruff143789`: a data.table with 2834 rows and 4 columns.
 #'
-#' @format For `mini_ruff`: a data.table with 276 rows and the same columns.
-#'
-#'
 #' @source  Kempenaers, Bart, et al. "Large-scale sampling of potential breeding sites in male ruffs."
 #'          Proceedings B 292.2038 (2025): 20242225.
 #'          https://royalsocietypublishing.org/doi/full/10.1098/rspb.2024.2225.
 #'
 #' @examples
 #' data(ruff143789)
+"ruff143789"
+
+#' Reduced ARGOS satellite tracking data for an individual Ruff
+#'
+#' `mini_ruff` is a reduced subset of `ruff143789` used in examples and tests.
+#'
+#' @format A data.table with 276 rows and 4 columns:
+#' \describe{
+#'   \item{latitude}{Numeric. Latitude in decimal degrees (WGS84).}
+#'   \item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
+#'   \item{locationDate}{POSIXct. Timestamp of location fix (UTC).}
+#'   \item{locationClass}{Character. ARGOS location quality class.}
+#' }
+#'
+#' @source See `ruff143789`.
+#'
+#' @examples
 #' data(mini_ruff)
 #' head(mini_ruff)
-"ruff143789"
 "mini_ruff"
+
+
+#' GNSS tracking data for an individual ruff.
+#'
+#' A dataset containing GNSS locations for an individual male ruff.
+#'
+#' @format A data.table with 2772 rows and 3 columns:
+#' \describe{
+#'   \item{timestamp}{POSIXct. Timestamp of location fix (UTC).}
+#'   \item{latitude}{Numeric. Latitude in decimal degrees (WGS84).}
+#'   \item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
+
+#' }
+#'
+#' @source  Unpublished data.
+#'
+#' @examples
+#' data(ruff07b5)
+#' head(ruff07b5)
+"ruff07b5"
+
+#'
+#' GNSS tracking data for an individual northern lapwing.
+#'
+#' A dataset containing GNSS locations for an individual female northern lapwing.
+#'
+#' @format A data.table with 2484 rows and 3 columns:
+#' \describe{
+#'   \item{timestamp}{POSIXct. Timestamp of location fix (UTC).}
+#'   \item{latitude}{Numeric. Latitude in decimal degrees (WGS84).}
+#'   \item{longitude}{Numeric. Longitude in decimal degrees (WGS84).}
+
+#' }
+#'
+#' @source  Unpublished data.
+#'
+#' @examples
+#' data(nola125a)
+#' head(nola125a)
+"nola125a"

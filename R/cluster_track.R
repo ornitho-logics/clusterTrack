@@ -1,16 +1,25 @@
 #' @export
 print.clusterTrack <- function(x, ...) {
-  cat("<clusters:", uniqueN(x$cluster) - 1, ">\n\n")
+  cat("<clusters:", data.table::uniqueN(x$cluster) - 1, ">\n\n")
 
-  NextMethod("print", topn = 3, nrows = 10, print.keys = FALSE, ...)
+  dt_print = getFromNamespace("print.data.table", "data.table")
+  dt_print(
+    x,
+    topn = 3,
+    nrows = 10,
+    print.keys = FALSE,
+    ...
+  )
+
+  invisible(x)
 }
 
 #' @export
-plot.clusterTrack <- function(x) {
+plot.clusterTrack <- function(x, y = NULL, ...) {
   pal = topo.colors(n = uniqueN(x$cluster))
   cols = pal[match(x$cluster, sort(unique(x$cluster)))]
 
-  plot(st_geometry(x$location), col = cols)
+  plot(st_geometry(x$location), col = cols, ...)
 }
 
 
@@ -47,7 +56,7 @@ plot.clusterTrack <- function(x) {
 #'   (clusters with `N <= minCluster` are dropped before final repairs).
 #' @param z_min Numeric; pruning strictness in SD units.
 #'   Smaller values produce more compact clusters and often more unassigned points.
-#'   Implementation detail: the underlying thresholds use an inverse z-score convention, 
+#'   Implementation detail: the underlying thresholds use an inverse z-score convention,
 #'   so the sign is flipped internally; see [sf_dtscan()]  and [local_cluster_ctdf()].
 #' @param trim Numeric; passed to [temporal_repair()]. Maximum fraction trimmed from each
 #' @param deltaT Optional numeric; passed to [slice_ctdf()]. Maximum allowable time gap (in days)
@@ -77,8 +86,14 @@ plot.clusterTrack <- function(x) {
 #' data(ruff143789)
 #' ruff = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 #'
+#' data(ruff07b5)
+#' lbdo = as_ctdf(ruff07b5, time = "locationDate") |> cluster_track()
+#'
 #' data(lbdo66862)
-#' lbdo = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+#' lbdo2 = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+#'
+#' data(nola125a)
+#' nola = as_ctdf(nola125a, time = "timestamp") |> cluster_track()
 #'
 #'
 #' }

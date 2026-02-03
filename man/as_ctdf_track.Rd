@@ -8,8 +8,6 @@ as_ctdf_track(ctdf)
 }
 \arguments{
 \item{ctdf}{A \code{ctdf} object (with ordered rows and a \code{"location"} geometry column).}
-
-\item{check}{check \code{ctdf} object class. Default to TRUE.}
 }
 \value{
 An \code{sf} object with LINESTRING geometry for each step.

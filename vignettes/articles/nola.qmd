@@ -1,0 +1,41 @@
+---
+title: "Northern Lapwing"
+format:
+  html:
+    page-layout: full
+    embed-resources: true
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+```{r}
+#| label: setup
+#| results: hide
+require(clusterTrack)
+require(clusterTrack.Vis)
+
+
+```
+
+
+## GNSS locations for one female Northern Lapwing.
+
+See [`nola125a`](../reference/nola125a.html) for more information on the dataset. 
+
+
+
+```{r}
+#| label: map-ruff
+#| message: false
+#| output-div: ruff
+
+data(nola125a)
+
+ruff <- as_ctdf(nola125a, time = "locationDate") |>
+  cluster_track()
+
+map(ruff)
+
+```

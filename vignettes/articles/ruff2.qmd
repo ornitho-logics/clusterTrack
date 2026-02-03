@@ -1,0 +1,41 @@
+---
+title: "Ruff"
+format:
+  html:
+    page-layout: full
+    embed-resources: true
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+```{r}
+#| label: setup
+#| results: hide
+require(clusterTrack)
+require(clusterTrack.Vis)
+
+
+```
+
+
+## GNSS locations for one male Ruff.
+
+See [`ruff07b5`](../reference/ruff07b5.html) for more information on the dataset. 
+
+
+
+```{r}
+#| label: map-ruff
+#| message: false
+#| output-div: ruff
+
+data(ruff07b5)
+
+ruff <- as_ctdf(ruff07b5, time = "locationDate") |>
+  cluster_track()
+
+map(ruff)
+
+```

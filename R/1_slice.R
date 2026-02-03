@@ -1,29 +1,26 @@
-
-
 .has_clusters <- function(x, minPts = 5) {
   n = nrow(x)
   if (n <= minPts) {
     return(FALSE)
   }
 
-  tfun = \(x){
-    a = x[,.N, cluster]
+  tfun = \(x) {
+    a = x[, .N, cluster]
     if (nrow(a) < 2) {
-    return(FALSE)
+      return(FALSE)
     }
   }
 
   xy = x[, st_coordinates(location)]
 
-  o = hdbscan(xy, minPts = minPts ) |>
+  o = hdbscan(xy, minPts = minPts) |>
     .hdbscan2dt()
   o = o[cluster > 0]
   tfun(o)
 
-
   # keep reliable points
   o[, q_outlier_scores := quantile(outlier_scores, probs = 0.95)]
-  o = o[membership_prob >= 0.6 & outlier_scores <= q_outlier_scores ]
+  o = o[membership_prob >= 0.6 & outlier_scores <= q_outlier_scores]
   tfun(o)
 
   # keep reliable clusters
@@ -33,7 +30,6 @@
 
   nrow(o) > 1
 }
-
 
 .prepare_segs <- function(ctdf, deltaT) {
   ctdf[, let(.move_seg = NA, .seg_id = NA)]
@@ -156,7 +152,7 @@ slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
       next # back to head, no need to test for clusters
     }
 
-    if (current |> .has_clusters() ) {
+    if (current |> .has_clusters()) {
       new_chunks = .split_by_longest_movement(ctdf = current, deltaT = deltaT)
       if (length(new_chunks) > 0) {
         n0 = length(queue)

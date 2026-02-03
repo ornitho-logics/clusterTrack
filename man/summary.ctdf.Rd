@@ -4,12 +4,12 @@
 \alias{summary.ctdf}
 \title{Summarise a ctdf by cluster}
 \usage{
-\method{summary}{ctdf}(ctdf, ...)
+\method{summary}{ctdf}(object, ...)
 }
 \arguments{
-\item{...}{Currently ignored.}
-
 \item{object}{A \code{ctdf} (inherits \code{data.table}).}
+
+\item{...}{Currently ignored.}
 }
 \value{
 A \code{data.table} (and \code{data.frame}) of class c("summary_ctdf","data.table","data.frame").

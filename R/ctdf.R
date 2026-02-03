@@ -28,7 +28,13 @@ reserved_ctdf_nams = c(
   }
 }
 
-
+#' Coerce an object to clusterTrack data format
+#'
+#' S3 generic for converting objects into a `ctdf`.
+#'
+#' @param x An object to convert.
+#' @param ... Passed to methods.
+#' @return A `ctdf`.
 #' @export
 as_ctdf <- function(x, ...) {
   UseMethod("as_ctdf")
@@ -40,27 +46,29 @@ as_ctdf.default <- function(x, ...) {
 }
 
 #' @export
-plot.ctdf <- function(x, y = NULL, pch = 16) {
+plot.ctdf <- function(x, y = NULL, ..., pch = 16) {
   tr = as_ctdf_track(x)
   xs = st_as_sf(x)
 
-  plot(st_geometry(tr), col = "#706b6b")
+  plot(st_geometry(tr), col = "#706b6b", ...)
 
-  plot(xs |> st_geometry(), pch = pch, add = TRUE)
+  plot(xs |> st_geometry(), pch = pch, add = TRUE, ...)
 
   plot(
     x[1, .(location)] |> st_as_sf(),
     col = "#1900ff",
-    size = 3,
+    cex = 3,
     pch = 16,
-    add = TRUE
+    add = TRUE,
+    ...
   )
   plot(
     x[nrow(x), .(location)] |> st_as_sf(),
     col = "#ff0000",
-    size = 3,
+    cex = 3,
     pch = 16,
-    add = TRUE
+    add = TRUE,
+    ...
   )
 }
 
@@ -91,8 +99,7 @@ plot.ctdf <- function(x, y = NULL, pch = 16) {
 #' plot(x)
 #'
 #' @export
-
-as_ctdf <- function(
+as_ctdf.data.frame <- function(
   x,
   coords = c("longitude", "latitude"),
   time = "time",
@@ -162,8 +169,6 @@ as_ctdf <- function(
 #'
 #' @param ctdf A `ctdf` object (with ordered rows and a `"location"` geometry column).
 #'
-#' @param check check `ctdf` object class. Default to TRUE.
-#'
 #' @return An `sf` object with LINESTRING geometry for each step.
 #'
 #' @details The number of rows is nrow(ctdf) - i, where i = 1 and corresponds to the starting index in ctdf.
@@ -220,13 +225,13 @@ as_ctdf_track <- function(ctdf) {
 #' summary(ctdf)
 #'
 #'
-summary.ctdf = function(ctdf, ...) {
-  .check_ctdf(ctdf)
+summary.ctdf <- function(object, ...) {
+  .check_ctdf(object)
 
   # TODO: pre-cluster summary.
 
   out =
-    ctdf[
+    object[
       cluster > 0,
       .(
         start = min(timestamp),
