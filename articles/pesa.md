@@ -14,10 +14,10 @@ for more information on the dataset.
 ``` r
 data(pesa56511)
 
-pesa <- as_ctdf(pesa56511, time = "locationDate") |>
+ctdf <- as_ctdf(pesa56511, time = "locationDate") |>
   cluster_track()
 
-map(pesa)
+map(ctdf)
 ```
 
 - **N**:  
@@ -35,7 +35,7 @@ map(pesa)
 ``` r
 
 
-summary(pesa) |>
+summary(ctdf) |>
   head()
 #>    cluster               start                stop                  geometry
 #>      <int>              <POSc>              <POSc>               <sfc_POINT>
