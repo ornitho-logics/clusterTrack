@@ -40,11 +40,11 @@ plot.clusterTrack <- function(x, y = NULL, ...) {
 #' `cluster_track` that assigns a `cluster` id to each location in a `ctdf` by running a
 #' multi-step pipeline:
 #' 1) identify temporally continuous putative regions via [slice_ctdf()].
-#' 2) merge adjacent putative regions with intersecting convex hulls via [spatial_repair()].
-#' 3) locally split each putative region using DTSCAN via [local_cluster_ctdf()] and [sf_dtscan()].
-#' 4) enforce non-overlap in time by merging any putative regions with
-#' overlapping time domains via [temporal_repair()].
-#' 5) drop small clusters and run additional spatial and track-shape repairs via [spatial_repair()]
+#' 2) merge temporally adjacent putative regions  via [spatial_repair()].
+#' 3) locally cluster each putative region using DTSCAN via  [sf_dtscan()].
+#' 4) enforce non-overlap in time by merging any clusters with
+#'    overlapping time domains via [temporal_repair()].
+#' 5) drop small clusters and run additional spatial repairs via [spatial_repair()]
 #'    and [tail_repair()].
 #' 5) optionally merge adjacent clusters within `aggregate_dist` via [aggregate_ctdf()].
 #'
