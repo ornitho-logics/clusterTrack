@@ -6,20 +6,17 @@ by running a multi-step pipeline:
 1.  identify temporally continuous putative regions via
     [`slice_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/slice_ctdf.md).
 
-2.  merge adjacent putative regions with intersecting convex hulls via
+2.  merge temporally adjacent putative regions via
     [`spatial_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/spatial_repair.md).
 
-3.  locally split each putative region using DTSCAN via
-    [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md)
-    and
+3.  locally cluster each putative region using DTSCAN via
     [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md).
 
-4.  enforce non-overlap in time by merging any putative regions with
-    overlapping time domains via
+4.  enforce non-overlap in time by merging any clusters with overlapping
+    time domains via
     [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md).
 
-5.  drop small clusters and run additional spatial and track-shape
-    repairs via
+5.  drop small clusters and run additional spatial repairs via
     [`spatial_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/spatial_repair.md)
     and
     [`tail_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/tail_repair.md).
