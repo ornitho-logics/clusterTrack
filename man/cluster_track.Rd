@@ -45,11 +45,11 @@ Invisibly returns \code{ctdf}, with \code{cluster} updated in-place and
 multi-step pipeline:
 \enumerate{
 \item identify temporally continuous putative regions via \code{\link[=slice_ctdf]{slice_ctdf()}}.
-\item merge adjacent putative regions with intersecting convex hulls via \code{\link[=spatial_repair]{spatial_repair()}}.
-\item locally split each putative region using DTSCAN via \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} and \code{\link[=sf_dtscan]{sf_dtscan()}}.
-\item enforce non-overlap in time by merging any putative regions with
+\item merge temporally adjacent putative regions  via \code{\link[=spatial_repair]{spatial_repair()}}.
+\item locally cluster each putative region using DTSCAN via  \code{\link[=sf_dtscan]{sf_dtscan()}}.
+\item enforce non-overlap in time by merging any clusters with
 overlapping time domains via \code{\link[=temporal_repair]{temporal_repair()}}.
-\item drop small clusters and run additional spatial and track-shape repairs via \code{\link[=spatial_repair]{spatial_repair()}}
+\item drop small clusters and run additional spatial repairs via \code{\link[=spatial_repair]{spatial_repair()}}
 and \code{\link[=tail_repair]{tail_repair()}}.
 \item optionally merge adjacent clusters within \code{aggregate_dist} via \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}.
 }
