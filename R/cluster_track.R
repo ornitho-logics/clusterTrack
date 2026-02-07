@@ -87,7 +87,7 @@ plot.clusterTrack <- function(x, y = NULL, ...) {
 #' ruff = as_ctdf(ruff143789, time = "locationDate") |> cluster_track()
 #'
 #' data(ruff07b5)
-#' lbdo = as_ctdf(ruff07b5, time = "locationDate") |> cluster_track()
+#' lbdo = as_ctdf(ruff07b5, time = "timestamp") |> cluster_track()
 #'
 #' data(lbdo66862)
 #' lbdo2 = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
