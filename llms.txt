@@ -1,4 +1,5 @@
-# clusterTrack
+clusterTrack [![clusterTrack
+website](reference/figures/logo.svg)](https://ornitho-logics.github.io/clusterTrack/)
 
 **Identification of use-sites from animal movement tracks using
 spatiotemporal segmentation and adjacency-based spatial clustering**

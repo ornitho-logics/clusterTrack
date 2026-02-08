@@ -1,4 +1,4 @@
-pandoc: '3.5'
+pandoc: 3.6.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
@@ -8,7 +8,7 @@ articles:
   articles/ruff: ruff.html
   articles/ruff2: ruff2.html
   articles/site: site.html
-last_built: 2026-02-07T19:34Z
+last_built: 2026-02-08T22:45Z
 urls:
   reference: https://ornitho-logics.github.io/clusterTrack/reference
   article: https://ornitho-logics.github.io/clusterTrack/articles
