@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Clustering Animal Movements • clusterTrack</title>
+<title>Spatiotemporal Clustering of Animal Telemetry Tracks • clusterTrack</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
@@ -14,9 +14,9 @@
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Clustering Animal Movements">
-<meta name="description" content="Identification of use-sites from animal movement tracks using spatiotemporal segmentation and adjacency-based spatial clustering.">
-<meta property="og:description" content="Identification of use-sites from animal movement tracks using spatiotemporal segmentation and adjacency-based spatial clustering.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Spatiotemporal Clustering of Animal Telemetry Tracks">
+<meta name="description" content="Detects spatiotemporally distinct use sites from animal telemetry tracks. The workflow combines recursive temporal segmentation of movement tracks, local spatial clustering based on Delaunay triangulation, and iterative spatial and temporal repair steps to reduce fragmentation and separate revisits in time. The package is designed for irregularly sampled relocation data, including noisy tracking data such as ARGOS as well as high-resolution GNSS tracks. Results are returned in a lightweight ctdf object built on data.table and sf, allowing direct downstream summarization and visualization.">
+<meta property="og:description" content="Detects spatiotemporally distinct use sites from animal telemetry tracks. The workflow combines recursive temporal segmentation of movement tracks, local spatial clustering based on Delaunay triangulation, and iterative spatial and temporal repair steps to reduce fragmentation and separate revisits in time. The package is designed for irregularly sampled relocation data, including noisy tracking data such as ARGOS as well as high-resolution GNSS tracks. Results are returned in a lightweight ctdf object built on data.table and sf, allowing direct downstream summarization and visualization.">
 <meta property="og:image" content="https://ornitho-logics.github.io/clusterTrack/logo.png">
 </head>
 <body>
@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="index.html">clusterTrack</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,12 +62,31 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><p>clusterTrack <a href="https://ornitho-logics.github.io/clusterTrack/"><img src="reference/figures/logo.png" align="right" height="139" alt="clusterTrack website"></a></p>
-<p><strong>Identification of use-sites from animal movement tracks using spatiotemporal segmentation and adjacency-based spatial clustering</strong></p>
-<hr>
-<p><strong>clusterTrack</strong> provides a clustering-based framework for identifying recurring use-sites in animal movement tracks with complex spatiotemporal structure. It is designed for data with irregular sampling, noise, long temporal gaps, and fragmented revisitation patterns, where movement models and purely spatial clustering often perform poorly.</p>
+<p><code>clusterTrack</code> identifies spatiotemporally distinct use sites from animal telemetry tracks.</p>
+<p>The package is designed for relocation data in which animals alternate between local site use and movement, often under irregular sampling, location error, and repeated revisits to the same places. It combines temporal segmentation of the track, local spatial clustering, and iterative repair steps to recover use sites while limiting over-fragmentation.</p>
+<p>The package works with both lower-precision telemetry data such as ARGOS and high-resolution GNSS tracks.</p>
+<div class="section level2">
+<h2 id="main-idea">Main idea<a class="anchor" aria-label="anchor" href="#main-idea"></a>
+</h2>
+<p><code>clusterTrack</code> follows a multi-step workflow:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Segmentation</strong><br>
+The track is recursively split into temporally ordered candidate regions when there is evidence for spatial heterogeneity.</p></li>
+<li><p><strong>Local clustering</strong><br>
+Within each candidate region, local spatial clusters are detected using a Delaunay triangulation-based clustering method implemented in <code><a href="reference/sf_dtscan.html">sf_dtscan()</a></code>.</p></li>
+<li><p><strong>Repair</strong><br>
+Spatially overlapping adjacent regions are merged, temporally overlapping clusters are reconciled, and track tails can be trimmed to reduce fragmentation and remove commuting segments.</p></li>
+</ol>
+<p>The final output is a set of temporally indexed spatial clusters stored directly in the input object.</p>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>You can install the development version from GitHub with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'ornitho-logics/clusterTrack'</span><span class="op">)</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'ornitho-logics/clusterTrack.Vis'</span><span class="op">)</span></span></code></pre></div>
+</div>
 
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
