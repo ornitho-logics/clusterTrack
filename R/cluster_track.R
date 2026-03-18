@@ -90,7 +90,7 @@ plot.clusterTrack <- function(x, y = NULL, ...) {
 #' ruff2 = as_ctdf(ruff07b5, time = "timestamp") |> cluster_track()
 #'
 #' data(lbdo66862)
-#' lbdo2 = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+#' lbdo = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
 #'
 #' data(nola125a)
 #' nola = as_ctdf(nola125a, time = "timestamp") |> cluster_track()
@@ -118,7 +118,7 @@ cluster_track <- function(
   }
   slice_ctdf(ctdf, deltaT = deltaT)
 
-  cli_alert_warning("Spatial repair.")
+  cli_alert_warning("Repairing[1]...")
 
   spatial_repair(ctdf, time_contiguity = TRUE)
 
@@ -131,12 +131,12 @@ cluster_track <- function(
     length_z_min = z_min * -1
   )
 
-  cli_alert_warning("Temporal repair.")
-  temporal_repair(ctdf, trim = trim)
+  cli_alert_warning("Repairing[2]...")
 
   .subset_by_minCluster(ctdf, minCluster = minCluster)
   spatial_repair(ctdf, time_contiguity = FALSE)
   tail_repair(ctdf)
+  temporal_repair(ctdf, trim = trim)
 
   # assign to cluster
   ctdf[, cluster := .putative_cluster]

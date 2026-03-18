@@ -12,7 +12,6 @@
   any(lengths(o) > 0)
 }
 
-
 .is_intersection.knn = function(ctdf, pc, next_pc) {
   x = ctdf[.putative_cluster %chin% c(pc, next_pc)]
   n = nrow(x)
@@ -47,7 +46,6 @@
   o
 }
 
-
 .is_intersection <- function(ctdf, pc, next_pc) {
   if (.is_intersection.geom(ctdf, pc, next_pc)) {
     return(TRUE)
@@ -55,7 +53,6 @@
     return(.is_intersection.knn(ctdf, pc, next_pc))
   }
 }
-
 
 .spatial_repair <- function(ctdf, time_contiguity) {
   olap = ctdf[!is.na(.putative_cluster), .(pc = .putative_cluster)] |> unique()
