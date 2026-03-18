@@ -131,8 +131,7 @@ spatial_repair <- function(ctdf, time_contiguity = TRUE) {
 #'
 #' @param ctdf A `ctdf` object. Must contain `timestamp` and `.putative_cluster`.
 #' @param trim Numeric in `[0, 0.5)`. Maximum fraction trimmed from each tail when
-#'   estimating each cluster's time domain. The effective trim per cluster is
-#'   `min(trim, 1 / n_i)` where `n_i` is the number of points in that cluster.
+#'   estimating each cluster's time domain.
 #'
 #' @details
 #' Clusters are merged using connected components of an *interval overlap graph*:
@@ -145,20 +144,11 @@ spatial_repair <- function(ctdf, time_contiguity = TRUE) {
 temporal_repair <- function(ctdf, trim = 0.01) {
   x = ctdf[!is.na(.putative_cluster)]
 
-  .trim_by_n = function(n, trim_max = trim, k = 1) {
-    # keep at least k points potentially trimmed from each tail,
-    # never exceed trim_max
-    p = k / pmax(n, 1)
-    pmin(trim_max, p)
-  }
-
   dom = x[,
     {
-      tr = .trim_by_n(.N, trim_max = trim)
-
       .(
-        lo = quantile(timestamp, probs = tr, type = 8),
-        hi = quantile(timestamp, probs = 1 - tr, type = 8),
+        lo = quantile(timestamp, probs = trim, type = 8),
+        hi = quantile(timestamp, probs = 1 - trim, type = 8),
         t_key = median(timestamp)
       )
     },

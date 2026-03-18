@@ -10,8 +10,7 @@ temporal_repair(ctdf, trim = 0.01)
 \item{ctdf}{A \code{ctdf} object. Must contain \code{timestamp} and \code{.putative_cluster}.}
 
 \item{trim}{Numeric in \verb{[0, 0.5)}. Maximum fraction trimmed from each tail when
-estimating each cluster's time domain. The effective trim per cluster is
-\code{min(trim, 1 / n_i)} where \code{n_i} is the number of points in that cluster.}
+estimating each cluster's time domain.}
 }
 \value{
 The input \code{ctdf}, invisibly, with \code{.putative_cluster} updated in-place.
