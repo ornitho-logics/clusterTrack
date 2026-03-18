@@ -22,9 +22,7 @@ temporal_repair(ctdf, trim = 0.01)
 - trim:
 
   Numeric in `[0, 0.5)`. Maximum fraction trimmed from each tail when
-  estimating each cluster's time domain. The effective trim per cluster
-  is `min(trim, 1 / n_i)` where `n_i` is the number of points in that
-  cluster.
+  estimating each cluster's time domain.
 
 ## Value
 

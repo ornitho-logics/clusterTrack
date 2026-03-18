@@ -128,7 +128,7 @@ data(ruff07b5)
 ruff2 = as_ctdf(ruff07b5, time = "timestamp") |> cluster_track()
 
 data(lbdo66862)
-lbdo2 = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+lbdo = as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
 
 data(nola125a)
 nola = as_ctdf(nola125a, time = "timestamp") |> cluster_track()

@@ -30,7 +30,7 @@ map(ctdf)
   - trim = 0.05  
   - deltaT = NA  
   - aggregate_dist = NA
-- *clusterTrack v.0.1.0.1*
+- *clusterTrack v.0.1.1*
 
 ``` r
 
