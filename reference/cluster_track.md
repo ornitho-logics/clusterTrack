@@ -113,9 +113,9 @@ The function updates `ctdf` by reference and stores its parameters in
 data(mini_ruff)
 x = as_ctdf(mini_ruff) |> cluster_track()
 #> → Find putative cluster regions.
-#> ! Spatial repair.
+#> ! Repairing[1]...
 #> → Local clustering.
-#> ! Temporal repair.
+#> ! Repairing[2]...
 
 if (FALSE) { # \dontrun{
 data(pesa56511)

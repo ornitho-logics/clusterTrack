@@ -32,9 +32,9 @@ c("summary_ctdf","data.table","data.frame").
 ctdf = as_ctdf(mini_ruff)
 cluster_track(ctdf)
 #> → Find putative cluster regions.
-#> ! Spatial repair.
+#> ! Repairing[1]...
 #> → Local clustering.
-#> ! Temporal repair.
+#> ! Repairing[2]...
 summary(ctdf)
 #>    cluster               start                stop                geometry
 #>      <int>              <POSc>              <POSc>             <sfc_POINT>
