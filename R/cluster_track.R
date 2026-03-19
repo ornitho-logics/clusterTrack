@@ -58,7 +58,8 @@ plot.clusterTrack <- function(x, y = NULL, ...) {
 #'   Smaller values produce more compact clusters and often more unassigned points.
 #'   Implementation detail: the underlying thresholds use an inverse z-score convention,
 #'   so the sign is flipped internally; see [sf_dtscan()]  and [local_cluster_ctdf()].
-#' @param trim Numeric; passed to [temporal_repair()]. Maximum fraction trimmed from each
+#' @param trim Numeric; passed to [temporal_repair()]. Maximum fraction
+#'             trimmed from each tail estimating each cluster's time domain.
 #' @param deltaT Optional numeric; passed to [slice_ctdf()]. Maximum allowable time gap (in days)
 #' @param minCluster Integer; minimum number of points required to keep a putative cluster
 #'   used when splitting candidate regions into movement segments.
