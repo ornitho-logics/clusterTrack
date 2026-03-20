@@ -288,6 +288,13 @@ temporal_repair <- function(ctdf, trim = 0.01) {
 #'
 #' @return The input `ctdf`, invisibly, with `.putative_cluster` updated in-place.
 #'
+#' @example
+#'
+#'  data(mini_ruff)
+#' x = as_ctdf(mini_ruff)
+#' x = x[.id < 20][, .putative_cluster := 1]
+#' tail_repair(x)
+#'
 #' @export
 tail_repair <- function(ctdf) {
   .check_ctdf(ctdf)
