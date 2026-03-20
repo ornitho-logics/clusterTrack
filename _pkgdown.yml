@@ -57,7 +57,6 @@ reference:
   - spatial_repair
   - local_cluster_ctdf
   - temporal_repair
-  - tail_repair
 
 - title: Spatial clustering backends
   desc: DTSCAN and time-aware DBSCAN.
