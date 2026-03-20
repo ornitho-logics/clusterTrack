@@ -7,7 +7,6 @@ locally cluster each putative region using DTSCAN via  sf_dtscan().
 enforce non-overlap in time by merging any clusters with
 overlapping time domains via temporal_repair().
 drop small clusters and run additional spatial repairs via spatial_repair()
-and tail_repair().
 optionally merge adjacent clusters within aggregate_dist via aggregate_ctdf().
 
 "><meta property="og:description" content="cluster_track that assigns a cluster id to each location in a ctdf by running a
@@ -18,7 +17,6 @@ locally cluster each putative region using DTSCAN via  sf_dtscan().
 enforce non-overlap in time by merging any clusters with
 overlapping time domains via temporal_repair().
 drop small clusters and run additional spatial repairs via spatial_repair()
-and tail_repair().
 optionally merge adjacent clusters within aggregate_dist via aggregate_ctdf().
 
 "><meta property="og:image" content="https://ornitho-logics.github.io/clusterTrack/logo.png"></head><body>
@@ -69,8 +67,7 @@ multi-step pipeline:</p><ol><li><p>identify temporally continuous putative regio
 <li><p>locally cluster each putative region using DTSCAN via  <code><a href="sf_dtscan.html">sf_dtscan()</a></code>.</p></li>
 <li><p>enforce non-overlap in time by merging any clusters with
 overlapping time domains via <code><a href="temporal_repair.html">temporal_repair()</a></code>.</p></li>
-<li><p>drop small clusters and run additional spatial repairs via <code><a href="spatial_repair.html">spatial_repair()</a></code>
-and <code><a href="tail_repair.html">tail_repair()</a></code>.</p></li>
+<li><p>drop small clusters and run additional spatial repairs via <code><a href="spatial_repair.html">spatial_repair()</a></code></p></li>
 <li><p>optionally merge adjacent clusters within <code>aggregate_dist</code> via <code><a href="aggregate_ctdf.html">aggregate_ctdf()</a></code>.</p></li>
 </ol></div>
 
@@ -108,7 +105,8 @@ so the sign is flipped internally; see <code><a href="sf_dtscan.html">sf_dtscan(
 
 
 <dt id="arg-trim">trim<a class="anchor" aria-label="anchor" href="#arg-trim"></a></dt>
-<dd><p>Numeric; passed to <code><a href="temporal_repair.html">temporal_repair()</a></code>. Maximum fraction trimmed from each</p></dd>
+<dd><p>Numeric; passed to <code><a href="temporal_repair.html">temporal_repair()</a></code>. Maximum fraction
+trimmed from each tail estimating each cluster's time domain.</p></dd>
 
 
 <dt id="arg-mincluster">minCluster<a class="anchor" aria-label="anchor" href="#arg-mincluster"></a></dt>
@@ -139,7 +137,7 @@ tail when estimating each cluster's time domain.</p></dd>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="as_ctdf.html">as_ctdf()</a></code>, <code><a href="slice_ctdf.html">slice_ctdf()</a></code>, <code><a href="spatial_repair.html">spatial_repair()</a></code>, <code><a href="local_cluster_ctdf.html">local_cluster_ctdf()</a></code>, <code><a href="sf_dtscan.html">sf_dtscan()</a></code>,
-<code><a href="temporal_repair.html">temporal_repair()</a></code>, <code><a href="tail_repair.html">tail_repair()</a></code>, <code><a href="aggregate_ctdf.html">aggregate_ctdf()</a></code></p></div>
+<code><a href="temporal_repair.html">temporal_repair()</a></code>, <code>()</code>, <code><a href="aggregate_ctdf.html">aggregate_ctdf()</a></code></p></div>
     </div>
 
     <div class="section level2">

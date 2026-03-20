@@ -30,8 +30,7 @@ and high-resolution GNSS tracks.
 
 3.  **Repair**  
     Spatially overlapping adjacent regions are merged, temporally
-    overlapping clusters are reconciled, and track tails can be trimmed
-    to reduce fragmentation and remove commuting segments.
+    overlapping clusters are reconciled.
 
 The final output is a set of temporally indexed spatial clusters stored
 directly in the input object.

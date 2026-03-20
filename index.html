@@ -75,7 +75,7 @@ The track is recursively split into temporally ordered candidate regions when th
 <li><p><strong>Local clustering</strong><br>
 Within each candidate region, local spatial clusters are detected using a Delaunay triangulation-based clustering method implemented in <code><a href="reference/sf_dtscan.html">sf_dtscan()</a></code>.</p></li>
 <li><p><strong>Repair</strong><br>
-Spatially overlapping adjacent regions are merged, temporally overlapping clusters are reconciled, and track tails can be trimmed to reduce fragmentation and remove commuting segments.</p></li>
+Spatially overlapping adjacent regions are merged, temporally overlapping clusters are reconciled.</p></li>
 </ol>
 <p>The final output is a set of temporally indexed spatial clusters stored directly in the input object.</p>
 </div>

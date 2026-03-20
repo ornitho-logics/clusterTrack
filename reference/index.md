@@ -39,8 +39,6 @@ Lower-level steps used by cluster_track().
   : Local clustering using DTSCAN
 - [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md)
   : Repair temporally overlapping putative clusters
-- [`tail_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/tail_repair.md)
-  : Repair putative clusters by trimming track tails
 
 ## Spatial clustering backends
 

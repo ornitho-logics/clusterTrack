@@ -18,8 +18,6 @@ by running a multi-step pipeline:
 
 5.  drop small clusters and run additional spatial repairs via
     [`spatial_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/spatial_repair.md)
-    and
-    [`tail_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/tail_repair.md).
 
 6.  optionally merge adjacent clusters within `aggregate_dist` via
     [`aggregate_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/aggregate_ctdf.md).
@@ -66,7 +64,8 @@ cluster_track(
 
   Numeric; passed to
   [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md).
-  Maximum fraction trimmed from each
+  Maximum fraction trimmed from each tail estimating each cluster's time
+  domain.
 
 - minCluster:
 
@@ -104,7 +103,7 @@ The function updates `ctdf` by reference and stores its parameters in
 [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md),
 [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md),
 [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md),
-[`tail_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/tail_repair.md),
+`()`,
 [`aggregate_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/aggregate_ctdf.md)
 
 ## Examples
