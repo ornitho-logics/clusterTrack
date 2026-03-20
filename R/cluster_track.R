@@ -45,8 +45,7 @@ plot.clusterTrack <- function(x, y = NULL, ...) {
 #' 4) enforce non-overlap in time by merging any clusters with
 #'    overlapping time domains via [temporal_repair()].
 #' 5) drop small clusters and run additional spatial repairs via [spatial_repair()]
-#'    and [tail_repair()].
-#' 5) optionally merge adjacent clusters within `aggregate_dist` via [aggregate_ctdf()].
+#' 6) optionally merge adjacent clusters within `aggregate_dist` via [aggregate_ctdf()].
 #'
 #' The function updates `ctdf` by reference and stores its parameters in
 #' `attr(ctdf, "cluster_params")`.
@@ -72,7 +71,7 @@ plot.clusterTrack <- function(x, y = NULL, ...) {
 #'
 #' @seealso
 #' [as_ctdf()], [slice_ctdf()], [spatial_repair()], [local_cluster_ctdf()], [sf_dtscan()],
-#' [temporal_repair()], [tail_repair()], [aggregate_ctdf()]
+#' [temporal_repair()],  [aggregate_ctdf()]
 #'
 
 #' @export
@@ -136,7 +135,6 @@ cluster_track <- function(
 
   .subset_by_minCluster(ctdf, minCluster = minCluster)
   spatial_repair(ctdf, time_contiguity = FALSE)
-  tail_repair(ctdf)
   temporal_repair(ctdf, trim = trim)
 
   # assign to cluster

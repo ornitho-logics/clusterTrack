@@ -25,7 +25,8 @@ Smaller values produce more compact clusters and often more unassigned points.
 Implementation detail: the underlying thresholds use an inverse z-score convention,
 so the sign is flipped internally; see \code{\link[=sf_dtscan]{sf_dtscan()}}  and \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}}.}
 
-\item{trim}{Numeric; passed to \code{\link[=temporal_repair]{temporal_repair()}}. Maximum fraction trimmed from each}
+\item{trim}{Numeric; passed to \code{\link[=temporal_repair]{temporal_repair()}}. Maximum fraction
+trimmed from each tail estimating each cluster's time domain.}
 
 \item{minCluster}{Integer; minimum number of points required to keep a putative cluster
 used when splitting candidate regions into movement segments.
@@ -50,7 +51,6 @@ multi-step pipeline:
 \item enforce non-overlap in time by merging any clusters with
 overlapping time domains via \code{\link[=temporal_repair]{temporal_repair()}}.
 \item drop small clusters and run additional spatial repairs via \code{\link[=spatial_repair]{spatial_repair()}}
-and \code{\link[=tail_repair]{tail_repair()}}.
 \item optionally merge adjacent clusters within \code{aggregate_dist} via \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}.
 }
 }
@@ -83,5 +83,5 @@ nola = as_ctdf(nola125a, time = "timestamp") |> cluster_track()
 }
 \seealso{
 \code{\link[=as_ctdf]{as_ctdf()}}, \code{\link[=slice_ctdf]{slice_ctdf()}}, \code{\link[=spatial_repair]{spatial_repair()}}, \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}}, \code{\link[=sf_dtscan]{sf_dtscan()}},
-\code{\link[=temporal_repair]{temporal_repair()}}, \code{\link[=tail_repair]{tail_repair()}}, \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}
+\code{\link[=temporal_repair]{temporal_repair()}}, \code{\link[=]{()}}, \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}
 }

@@ -1,6 +1,6 @@
 .zscore_inverse = function(v) {
   m = mean(v)
-  s = stats::sd(v)
+  s = sd(v)
   if (!is.finite(s) || s == 0) {
     return(rep.int(Inf, length(v)))
   }
@@ -49,17 +49,17 @@
   pts[, 1] = pts[, 1] - mean(pts[, 1])
   pts[, 2] = pts[, 2] - mean(pts[, 2])
 
-  tri = suppressWarnings(geometry::delaunayn(pts))
+  tri = delaunayn(pts) |> suppressWarnings()
   used = unique(as.vector(tri))
+
   if (length(used) < nrow(pts)) {
-    tri = suppressWarnings(geometry::delaunayn(pts, options = "Qt Qc Qz Qbb"))
+    tri = delaunayn(pts, options = "Qt Qc Qz Qbb") |> suppressWarnings()
     used = unique(as.vector(tri))
   }
+
   if (length(used) < nrow(pts)) {
-    tri = suppressWarnings(geometry::delaunayn(
-      pts,
-      options = "Qt Qc Qz Qbb QJ"
-    ))
+    tri = delaunayn(pts, options = "Qt Qc Qz Qbb QJ") |>
+      suppressWarnings()
   }
 
   tri
@@ -205,9 +205,9 @@
 # https://hdbscan.readthedocs.io/en/latest/how_hdbscan_works.html
 
 #' data("moons", package = "dbscan")
-#' m = sf::st_as_sf(moons, coords = c("X", "Y"))
-#' m$cluster = sf_dtscan(m)
-#' dbscan::hullplot(moons, m$cluster)
+#' x = sf::st_as_sf(moons, coords = c("X", "Y"))
+#' x$cluster = sf_dtscan(x)
+#' dbscan::hullplot(moons, x$cluster)
 
 sf_dtscan = function(
   x,
@@ -228,6 +228,7 @@ sf_dtscan = function(
     area_z_min = area_z_min,
     length_z_min = length_z_min
   )
+
   adj = .build_adjacency_list(
     kept_edges,
     n_sites = nrow(unique_sites)

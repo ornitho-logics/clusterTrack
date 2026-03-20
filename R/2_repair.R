@@ -19,7 +19,7 @@
     return(FALSE)
   }
 
-  xy = x[, sf::st_coordinates(location)]
+  xy = x[, st_coordinates(location)]
   xy = as.matrix(xy)
 
   y = as.integer(x$.putative_cluster == pc) + 1
@@ -208,104 +208,6 @@ temporal_repair <- function(ctdf, trim = 0.01) {
     on = .(.putative_cluster),
     .putative_cluster := new_putative_cluster
   ]
-
-  ctdf[,
-    .putative_cluster := .as_inorder_int(.putative_cluster)
-  ]
-}
-
-
-.tail_repair <- function(ctdf) {
-  x = ctdf[!is.na(.putative_cluster)]
-  x[, n := .N, by = .putative_cluster]
-  x = x[n > 1][, n := NULL]
-
-  o = x[,
-    {
-      tr =
-        st_as_sf(.SD) |>
-        mutate(location_prev = lag(location)) |>
-        dplyr::filter(!st_is_empty(location_prev)) |>
-        rowwise() |>
-        mutate(
-          track = rbind(
-            st_coordinates(location_prev),
-            st_coordinates(location)
-          ) |>
-            st_linestring() |>
-            list() |>
-            st_sfc()
-        ) |>
-        sf::st_set_geometry("track")
-
-      nc = st_crosses(tr) |> sapply(length)
-      list(ncrosses = nc, .id = .id[-1])
-    },
-    by = .putative_cluster
-  ]
-
-  o = o[,
-    {
-      any_cross = ncrosses > 0
-
-      if (!any(any_cross)) {
-        list(.i = .id)
-      } else {
-        core_seg = cummax(any_cross) & rev(cummax(rev(any_cross)))
-        i1 = which(core_seg)[1]
-        i2 = tail(which(core_seg), 1)
-
-        ids = .id
-        drop = !(seq_along(ids) >= i1 & seq_along(ids) <= i2)
-
-        list(.i = ids[drop])
-      }
-    },
-    by = .putative_cluster
-  ]
-
-  ctdf[.id %in% o$.i, .putative_cluster := NA]
-
-  # rm n = 1
-  x = ctdf[!is.na(.putative_cluster), .N, .putative_cluster][N <= 1]
-  ctdf[.putative_cluster %in% x$.putative_cluster, .putative_cluster := NA]
-
-  ctdf[, .putative_cluster := .as_inorder_int(.putative_cluster)]
-}
-
-#' Repair putative clusters by trimming track tails
-#'
-#' Removes leading and trailing "tail" portions of each `.putative_cluster` based on self-crossings
-#' of the within-cluster track. The intent is to keep only the locally revisited core of a cluster
-#'  and drop commuting legs at the both beginning and end.
-#'
-#' @details
-#' If the track has any self-crossing steps, the kept "core" is defined as the contiguous block of
-#' steps between the first and last crossing; all points outside this block are set to `NA` in
-#' `.putative_cluster`.
-#'
-#' @param ctdf A `ctdf` object.
-#'
-#' @return The input `ctdf`, invisibly, with `.putative_cluster` updated in-place.
-#'
-#' @example
-#'
-#'  data(mini_ruff)
-#' x = as_ctdf(mini_ruff)
-#' x = x[.id < 20][, .putative_cluster := 1]
-#' tail_repair(x)
-#'
-#' @export
-tail_repair <- function(ctdf) {
-  .check_ctdf(ctdf)
-
-  repeat {
-    n_prev = max(ctdf$.putative_cluster, na.rm = TRUE)
-
-    .tail_repair(ctdf)
-
-    if (max(ctdf$.putative_cluster, na.rm = TRUE) == n_prev) break
-  }
 
   ctdf[,
     .putative_cluster := .as_inorder_int(.putative_cluster)

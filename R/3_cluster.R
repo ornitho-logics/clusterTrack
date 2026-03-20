@@ -18,6 +18,13 @@
 #'
 #' @export
 #'
+#' data(mini_ruff)
+#' x = as_ctdf(mini_ruff)
+#' x = x[.id < 20][, .putative_cluster := 1]
+#' local_cluster_ctdf(x)
+#' x
+
+#'
 
 local_cluster_ctdf <- function(
   ctdf,
