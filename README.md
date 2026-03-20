@@ -20,7 +20,7 @@ The package works with both lower-precision telemetry data such as ARGOS and hig
    Within each candidate region, local spatial clusters are detected using a Delaunay triangulation-based clustering method implemented in `sf_dtscan()`.
 
 3. **Repair**  
-   Spatially overlapping adjacent regions are merged, temporally overlapping clusters are reconciled, and track tails can be trimmed to reduce fragmentation and remove commuting segments.
+   Spatially overlapping adjacent regions are merged, temporally overlapping clusters are reconciled.
 
 The final output is a set of temporally indexed spatial clusters stored directly in the input object.
 
