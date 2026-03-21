@@ -103,7 +103,6 @@ The function updates `ctdf` by reference and stores its parameters in
 [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md),
 [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md),
 [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md),
-`()`,
 [`aggregate_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/aggregate_ctdf.md)
 
 ## Examples

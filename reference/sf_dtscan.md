@@ -66,7 +66,7 @@ doi:10.3390/s19183926
 
 ``` r
 data("moons", package = "dbscan")
-m = sf::st_as_sf(moons, coords = c("X", "Y"))
-m$cluster = sf_dtscan(m)
-dbscan::hullplot(moons, m$cluster)
+x = sf::st_as_sf(moons, coords = c("X", "Y"))
+x$cluster = sf_dtscan(x)
+dbscan::hullplot(moons, x$cluster)
 ```
