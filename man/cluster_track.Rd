@@ -83,5 +83,5 @@ nola = as_ctdf(nola125a, time = "timestamp") |> cluster_track()
 }
 \seealso{
 \code{\link[=as_ctdf]{as_ctdf()}}, \code{\link[=slice_ctdf]{slice_ctdf()}}, \code{\link[=spatial_repair]{spatial_repair()}}, \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}}, \code{\link[=sf_dtscan]{sf_dtscan()}},
-\code{\link[=temporal_repair]{temporal_repair()}}, \code{\link[=]{()}}, \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}
+\code{\link[=temporal_repair]{temporal_repair()}},  \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}
 }

@@ -25,6 +25,14 @@ run \code{\link[=sf_dtscan]{sf_dtscan()}} on the points in that region to split 
 subclusters. The resulting labels are combined with the parent \code{.putative_cluster} id and
 written back to \code{.putative_cluster} in-place.
 }
+\examples{
+data(mini_ruff)
+x = as_ctdf(mini_ruff)
+x = x[.id < 20][, .putative_cluster := 1]
+local_cluster_ctdf(x)
+x
+
+}
 \seealso{
 \code{\link[=sf_dtscan]{sf_dtscan()}}
 }

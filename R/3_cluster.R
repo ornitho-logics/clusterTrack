@@ -18,6 +18,7 @@
 #'
 #' @export
 #'
+#' @examples
 #' data(mini_ruff)
 #' x = as_ctdf(mini_ruff)
 #' x = x[.id < 20][, .putative_cluster := 1]

@@ -39,9 +39,9 @@ pruned Delaunay edges from that seed; the cluster id is assigned to every visite
 }
 \examples{
 data("moons", package = "dbscan")
-m = sf::st_as_sf(moons, coords = c("X", "Y"))
-m$cluster = sf_dtscan(m)
-dbscan::hullplot(moons, m$cluster)
+x = sf::st_as_sf(moons, coords = c("X", "Y"))
+x$cluster = sf_dtscan(x)
+dbscan::hullplot(moons, x$cluster)
 }
 \references{
 Kim, J., & Cho, J. (2019). Delaunay triangulation-based spatial clustering technique for enhanced adjacent

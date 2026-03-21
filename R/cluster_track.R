@@ -120,7 +120,7 @@ cluster_track <- function(
 
   cli_alert_warning("Repairing[1]...")
 
-  spatial_repair(ctdf, time_contiguity = TRUE)
+  spatial_repair(ctdf, time_contiguity = FALSE) #TODO
 
   cli_alert("Local clustering.")
 
