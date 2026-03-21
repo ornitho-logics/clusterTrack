@@ -120,7 +120,7 @@ cluster_track <- function(
 
   cli_alert_warning("Repairing[1]...")
 
-  spatial_repair(ctdf, time_contiguity = FALSE) #TODO
+  spatial_repair(ctdf, time_contiguity = FALSE)
 
   cli_alert("Local clustering.")
 
@@ -133,9 +133,12 @@ cluster_track <- function(
 
   cli_alert_warning("Repairing[2]...")
 
-  .subset_by_minCluster(ctdf, minCluster = minCluster)
+  # tail_repair(ctdf) # TODO
+
   spatial_repair(ctdf, time_contiguity = FALSE)
+
   temporal_repair(ctdf, trim = trim)
+  .subset_by_minCluster(ctdf, minCluster = minCluster)
 
   # assign to cluster
   ctdf[, cluster := .putative_cluster]

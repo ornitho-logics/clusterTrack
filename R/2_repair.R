@@ -87,6 +87,78 @@
   }
 }
 
+
+.find_loose_ends <- function(x) {
+  seg = as_ctdf_track(x)
+
+  n = nrow(seg)
+  hits = st_intersects(seg)
+
+  statrk = rep(FALSE, n)
+  endtrk = rep(FALSE, n)
+
+  left = 1
+  right = n
+
+  repeat {
+    moved = FALSE
+
+    if (left > right) {
+      break
+    }
+
+    i = left
+    ignore_start = hits[[i]]
+    ignore_start = ignore_start[
+      ignore_start < right &
+        !(ignore_start %in% c(i - 1, i, i + 1))
+    ]
+
+    if (!length(ignore_start)) {
+      statrk[i] = TRUE
+      left = left + 1
+      moved = TRUE
+    }
+
+    if (left > right) {
+      break
+    }
+
+    i = right
+    ignore_end = hits[[i]]
+    ignore_end = ignore_end[
+      ignore_end > left &
+        !(ignore_end %in% c(i - 1, i, i + 1))
+    ]
+
+    if (!length(ignore_end)) {
+      endtrk[i] = TRUE
+      right = right - 1
+      moved = TRUE
+    }
+
+    if (!moved) break
+  }
+
+  o = data.table(
+    .id = seg$.id,
+    statrk = statrk,
+    endtrk = endtrk
+  )
+
+  o = rbind(
+    data.table(
+      .id = 1,
+      statrk = o[.id == 2, statrk],
+      endtrk = o[.id == 2, endtrk]
+    ),
+    o
+  )
+
+  o[, rmv := any(statrk, endtrk), by = .I]
+  o[, .(.id, rmv)]
+}
+
 #' Repair spatially overlapping adjacent putative clusters
 #'
 #' Iteratively merges temporally adjacent putative clusters whose convex hulls intersect.
@@ -113,6 +185,40 @@ spatial_repair <- function(ctdf, time_contiguity = TRUE) {
 
     if (max(ctdf$.putative_cluster, na.rm = TRUE) == n_prev) break
   }
+
+  ctdf[,
+    .putative_cluster := .as_inorder_int(.putative_cluster)
+  ]
+}
+
+
+#' Repair putative clusters by trimming track tails
+#'
+#' Removes leading and trailing "tail" portions of each `.putative_cluster` based on self-crossings
+#' of the within-cluster track. The function drops commuting legs at the both beginning and end of
+#' a cluster.
+#'
+#' @param ctdf A `ctdf` object.
+#'
+#' @return The input `ctdf`, invisibly, with `.putative_cluster` updated in-place.
+#'
+#' @example
+#'
+#' data(mini_ruff)
+#' x = as_ctdf(mini_ruff)
+#' x = x[.id < 20][, .putative_cluster := 1]
+#' tail_repair(x)
+#' @export
+tail_repair <- function(ctdf, nmin = 3) {
+  .check_ctdf(ctdf)
+
+  z = ctdf[!is.na(.putative_cluster)]
+  z = split(z, f = z$.putative_cluster)
+
+  o = lapply(z, .find_loose_ends) |> rbindlist()
+  o = o[(rmv)]
+
+  ctdf[.putative_cluster %in% o$rmv, .putative_cluster := NA]
 
   ctdf[,
     .putative_cluster := .as_inorder_int(.putative_cluster)
