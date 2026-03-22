@@ -95,6 +95,13 @@ DTSCAN and time-aware DBSCAN.
 - [`tdbscan()`](https://ornitho-logics.github.io/clusterTrack/reference/tdbscan.md)
   : tdbscan
 
+## Diagnostics and scoring
+
+Within- and between-cluster outlier scoring.
+
+- [`outliers()`](https://ornitho-logics.github.io/clusterTrack/reference/outliers.md)
+  : Score outliers in a ctdf using dbscan methods
+
 ## Datasets
 
 Example datasets shipped with the package.
