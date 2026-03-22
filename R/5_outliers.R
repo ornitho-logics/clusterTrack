@@ -54,17 +54,39 @@
   ]
 }
 
-#' Score outliers in a `ctdf`
+#' Score outliers within- and between clusters of a `ctdf`
 #'
-#' Computes outlier scores in a `ctdf`.
+#' Computes two point-level outlier scores for each observation assigned to a
+#' non-noise cluster in a `ctdf`:
+#' \itemize{
+#'   \item local outlier factor via [dbscan::lof()]
+#'   \item GLOSH via [dbscan::glosh()]
+#' }
 #'
-#' Outlier scores are computed independently within each cluster.
+#' Cluster-level geometry metrics are also computed for each non-noise cluster
+#' from the convex hull of `location`.
+#'
+#' Outlier scores and geometry metrics are computed independently within each
+#' cluster.
 #'
 #' @param ctdf A `ctdf` object.
-#' @param minPts Optional integer passed to [dbscan::lof()].
-#' @param k Optional integer passed to [dbscan::glosh()].
+#' @param minPts Optional integer passed to [dbscan::lof()]. If missing,
+#'   the default used by [dbscan::lof()] is applied.
+#' @param k Optional integer passed to [dbscan::glosh()]. If missing,
+#'   the default used by [dbscan::glosh()] is applied.
 #'
-#' @return A copy of `ctdf` with appended outlier score columns.
+#' @return
+#' A `ctdf` with the following appended columns:
+#' \describe{
+#'   \item{`outlier_lof`}{Local outlier factor score.}
+#'   \item{`outlier_glosh`}{GLOSH outlier score.}
+#'   \item{`shape_score`}{Cluster elongation score, computed as
+#'     `1 - width / length` from the minimum rotated rectangle of the convex
+#'     hull.}
+#'   \item{`convex_hull_area`}{Area of the cluster convex hull.}
+#' }
+#' Observations with `cluster <= 0` receive `NA` for the appended metrics.
+#'
 #' @export
 #'
 #' @examples
@@ -72,6 +94,7 @@
 #' x = as_ctdf(mini_ruff)
 #' x = cluster_track(x)
 #' z = outliers(x)
+#'
 outliers <- function(
   ctdf,
   minPts,
