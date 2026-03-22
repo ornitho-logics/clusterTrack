@@ -23,18 +23,6 @@ plot.clusterTrack <- function(x, y = NULL, ...) {
 }
 
 
-.subset_by_minCluster <- function(ctdf, minCluster) {
-  ctdf[
-    .putative_cluster %in%
-      ctdf[, .N, .putative_cluster][N <= minCluster]$.putative_cluster,
-    .putative_cluster := NA
-  ]
-  ctdf[,
-    .putative_cluster := .as_inorder_int(.putative_cluster)
-  ]
-}
-
-
 #' Cluster a movement track into spatiotemporal clusters
 #'
 #' `cluster_track` that assigns a `cluster` id to each location in a `ctdf` by running a
@@ -114,7 +102,7 @@ cluster_track <- function(
   cli_alert("Find putative cluster regions.")
 
   if (missing(deltaT)) {
-    deltaT = 1e+05
+    deltaT = NA
   }
   slice_ctdf(ctdf, deltaT = deltaT)
 
@@ -133,12 +121,13 @@ cluster_track <- function(
 
   cli_alert_warning("Repairing[2]...")
 
-  # tail_repair(ctdf) # TODO
-
   spatial_repair(ctdf, time_contiguity = FALSE)
 
   temporal_repair(ctdf, trim = trim)
+
+  # clean up
   .subset_by_minCluster(ctdf, minCluster = minCluster)
+  .drop_false_cluster(ctdf, minCluster = minCluster)
 
   # assign to cluster
   ctdf[, cluster := .putative_cluster]
@@ -154,11 +143,7 @@ cluster_track <- function(
     minCluster = minCluster,
     z_min = z_min,
     trim = trim,
-    deltaT = if (deltaT == 1e+05) {
-      deltaT = NA
-    } else {
-      deltaT
-    },
+    deltaT = deltaT,
     aggregate_dist = if (missing(aggregate_dist)) {
       aggregate_dist = NA
     } else {

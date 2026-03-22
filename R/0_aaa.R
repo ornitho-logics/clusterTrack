@@ -14,13 +14,18 @@
 #' @importFrom igraph graph_from_edgelist graph_from_data_frame set_edge_attr
 #' @importFrom igraph  subgraph_from_edges E components groups
 #'
-#' @importFrom dbscan hdbscan frNN  kNN kNNdist hullplot
+#' @importFrom dbscan hdbscan frNN  kNN kNNdist hullplot lof glosh
+#'
 #' @importFrom dplyr mutate ungroup rowwise lag select slice filter
 #'
 #' @importFrom forcats fct_inorder
+#'
 #' @importFrom units set_units
-#' @importFrom cli cli_alert cli_alert_warning cli_progress_bar cli_progress_update cli_progress_done pb_current pb_elapsed pb_spin
+#'
 #' @importFrom geometry delaunayn
+#'
+#' @importFrom cli cli_alert cli_alert_warning  pb_current pb_elapsed pb_spin
+#' @importFrom cli cli_progress_update cli_progress_done cli_progress_bar
 
 utils::globalVariables(
   c(

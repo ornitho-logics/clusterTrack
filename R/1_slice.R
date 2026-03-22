@@ -31,7 +31,7 @@
   nrow(o) > 1
 }
 
-.prepare_segs <- function(ctdf, deltaT) {
+.prepare_segs <- function(ctdf, deltaT = NA) {
   ctdf[, let(.move_seg = NA, .seg_id = NA)]
 
   segs =
@@ -43,14 +43,18 @@
 
   setDT(segs)
 
-  pruned_crosses = lapply(seq_along(crosses), function(i) {
-    j = crosses[[i]]
+  if (is.na(deltaT)) {
+    prepared_crosses = lapply(seq_along(crosses), function(i) {
+      j = crosses[[i]]
 
-    dfs = difftime(segs$start[j], segs$stop[i], units = "days") |> abs()
-    j[dfs <= deltaT] # keep only valid intersections within DT
-  })
+      dfs = difftime(segs$start[j], segs$stop[i], units = "days") |> abs()
+      j[dfs <= deltaT] # keep only valid intersections within DT
+    })
+  } else {
+    prepared_crosses = crosses
+  }
 
-  segs[, n_crosses := lengths(pruned_crosses)]
+  segs[, n_crosses := lengths(prepared_crosses)]
 
   segs[, any_cross := n_crosses > 0]
 
@@ -81,7 +85,7 @@
   ctdf[segs, .seg_id := i.seg_id]
 }
 
-.split_by_longest_movement <- function(ctdf, deltaT) {
+.split_by_longest_movement <- function(ctdf, deltaT = NA) {
   .prepare_segs(ctdf, deltaT = deltaT)
 
   split(ctdf[.move_seg == 0], by = ".seg_id")
@@ -123,7 +127,7 @@ slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
   ctdf[, .putative_cluster := NA]
 
   if (missing(deltaT)) {
-    deltaT = 1e+05
+    deltaT = NA
   }
 
   queue = list(ctdf)
