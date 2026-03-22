@@ -64,6 +64,11 @@ reference:
   - sf_dtscan
   - tdbscan
 
+- title: Diagnostics and scoring
+  desc: Within- and between-cluster outlier scoring.
+  contents:
+  - outliers
+
 - title: Datasets
   desc: Example datasets shipped with the package.
   contents:
