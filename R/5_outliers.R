@@ -1,17 +1,16 @@
 #' Compute cluster-wise local outlier factor scores with `dbscan::lof()`
 #'
 #' Uses [dbscan::lof()] to compute Local Outlier Factor (LOF) scores
-#' separately within each positive `cluster` of a `ctdf`, and writes the
-#' result into the `lof` column. Rows with `cluster == 0` are assigned `NA`.
+#' separately within each `cluster` of a `ctdf`, and writes the
+#' result into the `lof` column.
 #'
-#' @param ctdf A `ctdf` object containing `cluster`, `.id`, and `location`.
+#' @param ctdf A `ctdf` object .
 #' @param minPts Optional integer passed to [dbscan::lof()]. If `NULL`,
 #'   [dbscan::lof()] is called with its defaults.
 #'
-#' The function updates `ctdf` by reference by creating or replacing the `lof`
-#' column.
+#' The function updates `ctdf` by reference by updating the `lof` column.
 #'
-#' @seealso [dbscan::lof()], [cluster_track()]
+#' @seealso [dbscan::lof()], [cluster_track()].
 #'
 #' @export
 #'

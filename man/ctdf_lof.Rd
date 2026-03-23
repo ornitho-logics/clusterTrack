@@ -7,18 +7,17 @@
 ctdf_lof(ctdf, minPts = NULL)
 }
 \arguments{
-\item{ctdf}{A \code{ctdf} object containing \code{cluster}, \code{.id}, and \code{location}.}
+\item{ctdf}{A \code{ctdf} object .}
 
 \item{minPts}{Optional integer passed to \code{\link[dbscan:lof]{dbscan::lof()}}. If \code{NULL},
 \code{\link[dbscan:lof]{dbscan::lof()}} is called with its defaults.
 
-The function updates \code{ctdf} by reference by creating or replacing the \code{lof}
-column.}
+The function updates \code{ctdf} by reference by updating the \code{lof} column.}
 }
 \description{
 Uses \code{\link[dbscan:lof]{dbscan::lof()}} to compute Local Outlier Factor (LOF) scores
-separately within each positive \code{cluster} of a \code{ctdf}, and writes the
-result into the \code{lof} column. Rows with \code{cluster == 0} are assigned \code{NA}.
+separately within each \code{cluster} of a \code{ctdf}, and writes the
+result into the \code{lof} column.
 }
 \examples{
 data(mini_ruff)
@@ -28,5 +27,5 @@ x = ctdf_lof(x)
 head(x[, .(.id, cluster, lof)])
 }
 \seealso{
-\code{\link[dbscan:lof]{dbscan::lof()}}, \code{\link[=cluster_track]{cluster_track()}}
+\code{\link[dbscan:lof]{dbscan::lof()}}, \code{\link[=cluster_track]{cluster_track()}}.
 }
