@@ -1,38 +1,92 @@
-.outliers_lof <- function(ctdf, minPts = NULL) {
-  score_args = if (is.null(minPts)) list() else list(minPts = minPts)
+#' Compute cluster-wise local outlier factor scores with `dbscan::lof()`
+#'
+#' Uses [dbscan::lof()] to compute Local Outlier Factor (LOF) scores
+#' separately within each positive `cluster` of a `ctdf`, and writes the
+#' result into the `lof` column. Rows with `cluster == 0` are assigned `NA`.
+#'
+#' @param ctdf A `ctdf` object containing `cluster`, `.id`, and `location`.
+#' @param minPts Optional integer passed to [dbscan::lof()]. If `NULL`,
+#'   [dbscan::lof()] is called with its defaults.
+#'
+#' The function updates `ctdf` by reference by creating or replacing the `lof`
+#' column.
+#'
+#' @seealso [dbscan::lof()], [cluster_track()]
+#'
+#' @export
+#'
+#' @examples
+#' data(mini_ruff)
+#' x = as_ctdf(mini_ruff)
+#' cluster_track(x)
+#' x = ctdf_lof(x)
+#' head(x[, .(.id, cluster, lof)])
 
-  x = ctdf[cluster > 0]
+ctdf_lof <- function(ctdf, minPts = NULL) {
+  o = ctdf[
+    cluster > 0,
+    {
+      xy = sf::st_coordinates(location)
 
-  o = x[,
-    .(outlier_lof = {
-      xy = st_coordinates(.SD$location)
-      do.call(lof, c(list(x = xy), score_args))
-    }),
+      .(
+        .id = .id,
+        lof = if (is.null(minPts)) {
+          dbscan::lof(x = xy)
+        } else {
+          dbscan::lof(x = xy, minPts = minPts)
+        }
+      )
+    },
     by = cluster
   ]
 
-  cbind(x[, .(.id)], o)
-}
-
-.outliers_glosh <- function(ctdf, k = NULL) {
-  score_args = if (is.null(k)) list() else list(k = k)
-
-  x = ctdf[cluster > 0]
-
-  o = x[,
-    .(outlier_glosh = {
-      xy = st_coordinates(.SD$location)
-      do.call(glosh, c(list(x = xy), score_args))
-    }),
-    by = cluster
-  ]
-
-  cbind(x[, .(.id)], o)
-}
-
-
-.cluster_geometry_metrics <- function(ctdf) {
+  ctdf[, lof := NA_real_]
   ctdf[
+    o,
+    on = .(.id),
+    lof := i.lof
+  ]
+
+  ctdf
+}
+
+
+#' Summarise geometric elongation of clusters
+#'
+#' Computes shape descriptors for each `cluster` in a `ctdf`, based on
+#' the convex hull of its locations and the minimum rotated rectangle enclosing
+#' that hull.
+#'
+#' @param ctdf A `ctdf` object containing `cluster` and `location`.
+#'
+#' @details
+#' For each cluster, the function computes:
+#' \describe{
+#'   \item{`axis_length`}{Maximum edge length of the minimum rotated rectangle.}
+#'   \item{`convex_hull_area`}{Area of the cluster convex hull.}
+#'   \item{`z_axis_length`}{Scaled log axis length.}
+#'   \item{`z_log_shape_ratio`}{Scaled log ratio `axis_length^2 / convex_hull_area`.}
+#'   \item{`elongation`}{Combined score
+#'     `pmax(z_axis_length, 0) * pmax(z_log_shape_ratio, 0)`.}
+#' }
+#'
+#' Larger values indicate clusters that are both relatively large in one
+#' principal dimension and relatively elongated for their area.
+#'
+#' @return A `data.table` with one row per `cluster`.
+#'
+#' @seealso [summary.ctdf()], [cluster_track()]
+#'
+#' @export
+#'
+#' @examples
+#' data(mini_ruff)
+#' x = as_ctdf(mini_ruff)
+#' cluster_track(x)
+#' ctdf_elongation(x)
+
+ctdf_elongation <- function(ctdf) {
+  scores = ctdf[
     cluster > 0,
     {
       coh = sf::st_union(location) |>
@@ -40,78 +94,26 @@
 
       rect = sf::st_minimum_rotated_rectangle(coh)
       xy = sf::st_coordinates(rect)
+
       edges = sqrt(diff(xy[, "X"])^2 + diff(xy[, "Y"])^2)
 
-      width = min(edges)
-      length = max(edges)
-
       .(
-        shape_score = 1 - width / length,
-        convex_hull_area = as.numeric(sf::st_area(coh))
+        axis_length = max(edges),
+        convex_hull_area = sf::st_area(coh)
       )
     },
     by = cluster
   ]
-}
 
-#' Score outliers within- and between clusters of a `ctdf`
-#'
-#' Computes two point-level outlier scores for each observation assigned to a
-#' non-noise cluster in a `ctdf`:
-#' \itemize{
-#'   \item local outlier factor via [dbscan::lof()]
-#'   \item GLOSH via [dbscan::glosh()]
-#' }
-#'
-#' Cluster-level geometry metrics are also computed for each non-noise cluster
-#' from the convex hull of `location`.
-#'
-#' Outlier scores and geometry metrics are computed independently within each
-#' cluster.
-#'
-#' @param ctdf A `ctdf` object.
-#' @param minPts Optional integer passed to [dbscan::lof()]. If missing,
-#'   the default used by [dbscan::lof()] is applied.
-#' @param k Optional integer passed to [dbscan::glosh()]. If missing,
-#'   the default used by [dbscan::glosh()] is applied.
-#'
-#' @return
-#' A `ctdf` with the following appended columns:
-#' \describe{
-#'   \item{`outlier_lof`}{Local outlier factor score.}
-#'   \item{`outlier_glosh`}{GLOSH outlier score.}
-#'   \item{`shape_score`}{Cluster elongation score, computed as
-#'     `1 - width / length` from the minimum rotated rectangle of the convex
-#'     hull.}
-#'   \item{`convex_hull_area`}{Area of the cluster convex hull.}
-#' }
-#' Observations with `cluster <= 0` receive `NA` for the appended metrics.
-#'
-#' @export
-#'
-#' @examples
-#' data(mini_ruff)
-#' x = as_ctdf(mini_ruff)
-#' x = cluster_track(x)
-#' z = outliers(x)
-#'
-outliers <- function(
-  ctdf,
-  minPts,
-  k
-) {
-  .check_ctdf(ctdf)
+  scores[,
+    z_axis_length := scale(log(axis_length))
+  ]
+  scores[,
+    z_log_shape_ratio := scale(log(axis_length^2 / convex_hull_area))
+  ]
+  scores[,
+    elongation := pmax(z_axis_length, 0) * pmax(z_log_shape_ratio, 0)
+  ]
 
-  minPts2 = if (missing(minPts)) NULL else minPts
-  k2 = if (missing(k)) NULL else k
-
-  o_lof = .outliers_lof(ctdf, minPts = minPts2)
-  o_glosh = .outliers_glosh(ctdf, k = k2)
-  o_cl_geom = .cluster_geometry_metrics(ctdf)
-
-  o = merge(ctdf, o_lof, all.x = TRUE, by = c(".id", "cluster"), sort = FALSE)
-  o = merge(o, o_glosh, all.x = TRUE, by = c(".id", "cluster"), sort = FALSE)
-  o = merge(o, o_cl_geom, all.x = TRUE, by = "cluster", sort = FALSE)
-
-  o
+  scores
 }

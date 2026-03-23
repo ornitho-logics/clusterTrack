@@ -2,6 +2,7 @@
 #' @keywords internal
 reserved_ctdf_nams = c(
   "cluster",
+  "lof",
   ".id",
   ".move_seg",
   ".seg_id",
@@ -62,6 +63,7 @@ plot.ctdf <- function(x, y = NULL, ..., pch = 16) {
     add = TRUE,
     ...
   )
+
   plot(
     x[nrow(x), .(location)] |> st_as_sf(),
     col = "#ff0000",
@@ -144,6 +146,7 @@ as_ctdf.data.frame <- function(
   o[, .move_seg := NA_integer_]
   o[, .putative_cluster := NA_integer_]
   o[, cluster := NA_integer_]
+  o[, lof := NA_real_]
 
   o = st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
 
@@ -229,6 +232,7 @@ summary.ctdf <- function(object, ...) {
   .check_ctdf(object)
 
   # TODO: pre-cluster summary.
+  # TODO: add outlier measures.
 
   out =
     object[
