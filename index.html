@@ -63,22 +63,8 @@
 <div class="row">
   <main id="main" class="col-md-9"><p>clusterTrack <a href="https://ornitho-logics.github.io/clusterTrack/"><img src="reference/figures/logo.png" align="right" height="139" alt="clusterTrack website"></a></p>
 <p><code>clusterTrack</code> identifies spatiotemporally distinct use sites from animal telemetry tracks.</p>
-<p>The package is designed for relocation data in which animals alternate between local site use and movement, often under irregular sampling, location error, and repeated revisits to the same places. It combines temporal segmentation of the track, local spatial clustering, and iterative repair steps to recover use sites while limiting over-fragmentation.</p>
-<p>The package works with both lower-precision telemetry data such as ARGOS and high-resolution GNSS tracks.</p>
-<div class="section level2">
-<h2 id="main-idea">Main idea<a class="anchor" aria-label="anchor" href="#main-idea"></a>
-</h2>
-<p><code>clusterTrack</code> follows a multi-step workflow:</p>
-<ol style="list-style-type: decimal">
-<li><p><strong>Segmentation</strong><br>
-The track is recursively split into temporally ordered candidate regions when there is evidence for spatial heterogeneity.</p></li>
-<li><p><strong>Local clustering</strong><br>
-Within each candidate region, local spatial clusters are detected using a Delaunay triangulation-based clustering method implemented in <code><a href="reference/sf_dtscan.html">sf_dtscan()</a></code>.</p></li>
-<li><p><strong>Repair</strong><br>
-Spatially overlapping adjacent regions are merged, temporally overlapping clusters are reconciled.</p></li>
-</ol>
-<p>The final output is a set of temporally indexed spatial clusters stored directly in the input object.</p>
-</div>
+<p>The package is designed for relocation data where animals alternate between local site use and movement, often with irregular sampling, location error, and repeated returns to the same places. It combines temporal track segmentation, local spatial clustering, and iterative repair procedures to identify and label use sites.</p>
+<p><code>clusterTrack</code> works with both lower-precision telemetry data such as ARGOS and high-resolution GNSS tracks.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>

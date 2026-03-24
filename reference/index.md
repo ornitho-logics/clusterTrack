@@ -53,8 +53,14 @@ DTSCAN and time-aware DBSCAN.
 
 Within- and between-cluster outlier scoring.
 
-- [`outliers()`](https://ornitho-logics.github.io/clusterTrack/reference/outliers.md)
-  : Score outliers in a ctdf using dbscan methods
+- [`ctdf_lof()`](https://ornitho-logics.github.io/clusterTrack/reference/ctdf_lof.md)
+  :
+
+  Compute cluster-wise local outlier factor scores with
+  [`dbscan::lof()`](https://rdrr.io/pkg/dbscan/man/lof.html)
+
+- [`ctdf_elongation()`](https://ornitho-logics.github.io/clusterTrack/reference/ctdf_elongation.md)
+  : Summarise geometric elongation of clusters
 
 ## Datasets
 

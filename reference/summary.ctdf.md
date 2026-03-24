@@ -1,7 +1,8 @@
 # Summarise a ctdf by cluster
 
-Returns one row per `cluster` with start/stop times, tenure (days),
-convex‐hull centroid and row‐count.
+Returns one row per `cluster` with start and stop times, tenure in days,
+convex-hull centroid, row count, the 95th percentile of within-cluster
+`lof` scores, and a cluster elongation score.
 
 ## Usage
 
@@ -22,13 +23,30 @@ summary(object, ...)
 
 ## Value
 
-A `data.table` (and `data.frame`) of class
-c("summary_ctdf","data.table","data.frame").
+A `summary_ctdf` `data.table` .
+
+## Details
+
+`lof_q95` is the 95th percentile of lof scores within each cluster.
+Larger values indicate that the most extreme points in the cluster are
+more locally isolated relative to their neighbours, so this can be used
+as a summary of within-cluster outlier-ness.
+
+`elongation` is a geometric cluster-shape summary derived from the
+convex hull and its minimum rotated rectangle. Larger values indicate
+clusters that are both relatively long in one principal dimension and
+elongated for their area.
+
+## See also
+
+[`cluster_track()`](https://ornitho-logics.github.io/clusterTrack/reference/cluster_track.md),
+[`ctdf_lof()`](https://ornitho-logics.github.io/clusterTrack/reference/ctdf_lof.md),
+[`ctdf_elongation()`](https://ornitho-logics.github.io/clusterTrack/reference/ctdf_elongation.md)
 
 ## Examples
 
 ``` r
-#' data(mini_ruff)
+data(mini_ruff)
 ctdf = as_ctdf(mini_ruff)
 cluster_track(ctdf)
 #> → Find putative cluster regions.

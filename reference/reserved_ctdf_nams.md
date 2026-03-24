@@ -10,4 +10,4 @@ reserved_ctdf_nams
 
 ## Format
 
-An object of class `character` of length 5.
+An object of class `character` of length 6.
