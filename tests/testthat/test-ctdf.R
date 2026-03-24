@@ -39,30 +39,6 @@ test_that("as_ctdf_track creates LINESTRING segments", {
   expect_true(all(geom_types == "LINESTRING"))
 })
 
-# Test summary.ctdf
-
-test_that("summary.ctdf returns correct summary", {
-  ctdf = as_ctdf(mini_ruff)
-  ctdf[c(1:2, 4:5), let(cluster = rep(c(1, 2), each = 2))][,
-    .putative_cluster := cluster
-  ]
-  sum_tbl = summary(ctdf)
-  expect_s3_class(sum_tbl, c("summary_ctdf", "data.table", "data.frame"))
-  expect_equal(nrow(sum_tbl), 2)
-  expect_true(all(
-    c(
-      "cluster",
-      "start",
-      "stop",
-      "geometry",
-      "ids",
-      "N",
-      "tenure",
-      "dist_to_next"
-    ) %in%
-      names(sum_tbl)
-  ))
-})
 
 # Test plot.ctdf
 

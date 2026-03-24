@@ -7,7 +7,7 @@
 ctdf_elongation(ctdf)
 }
 \arguments{
-\item{ctdf}{A \code{ctdf} object containing \code{cluster} and \code{location}.}
+\item{ctdf}{A \code{ctdf} object.}
 }
 \value{
 A \code{data.table} with one row per \code{cluster}.
@@ -20,12 +20,13 @@ that hull.
 \details{
 For each cluster, the function computes:
 \describe{
-\item{\code{axis_length}}{Maximum edge length of the minimum rotated rectangle.}
 \item{\code{convex_hull_area}}{Area of the cluster convex hull.}
-\item{\code{z_axis_length}}{Scaled log axis length.}
-\item{\code{z_log_shape_ratio}}{Scaled log ratio \code{axis_length^2 / convex_hull_area}.}
-\item{\code{elongation}}{Combined score
-\code{pmax(z_axis_length, 0) * pmax(z_log_shape_ratio, 0)}.}
+\item{\code{log_axis_length}}{Log of the maximum edge length of the minimum rotated rectangle.}
+\item{\code{log_shape_ratio}}{Log ratio \code{axis_length^2 / convex_hull_area}.}
+\item{\code{elongation}}{Product of the standardised values of
+\code{axis_length} and \code{log_shape_ratio}. Clusters below average on either
+component receive a score of \code{0} so only above-average values on both components
+increase the score.}
 }
 
 Larger values indicate clusters that are both relatively large in one
@@ -35,8 +36,14 @@ principal dimension and relatively elongated for their area.
 data(mini_ruff)
 x = as_ctdf(mini_ruff)
 cluster_track(x)
-ctdf_elongation(x)
+o = ctdf_elongation(x)
+head(o)
+}
+\references{
+Chorley, R. J., Malm, D. E. G., & Pogorzelski, H. A. (1957).
+A new standard for estimating drainage basin shape.
+\emph{American Journal of Science}, 255, 138--141.
 }
 \seealso{
-\code{\link[=summary.ctdf]{summary.ctdf()}}, \code{\link[=cluster_track]{cluster_track()}}
+\code{\link[=summary.ctdf]{summary.ctdf()}}, \code{\link[=cluster_track]{cluster_track()}}, \code{\link[sf:geos_unary]{sf::st_minimum_rotated_rectangle()}}
 }

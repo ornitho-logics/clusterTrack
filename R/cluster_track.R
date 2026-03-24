@@ -133,6 +133,10 @@ cluster_track <- function(
   ctdf[, cluster := .putative_cluster]
   ctdf[is.na(cluster), cluster := 0]
 
+  # compute lof
+  cli_alert_warning("Compute lof scores...")
+  ctdf_lof(ctdf)
+
   if (!missing(aggregate_dist)) {
     aggregate_ctdf(ctdf, dist = aggregate_dist)
   }
