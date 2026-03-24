@@ -67,7 +67,8 @@ reference:
 - title: Diagnostics and scoring
   desc: Within- and between-cluster outlier scoring.
   contents:
-  - outliers
+  - ctdf_lof
+  - ctdf_elongation
 
 - title: Datasets
   desc: Example datasets shipped with the package.
