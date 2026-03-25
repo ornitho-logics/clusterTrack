@@ -21,3 +21,7 @@ docs
 docs/
 vignettes/*.html
 vignettes/*.pdf
+/R/Luke_eudot_map_v2.R
+~$*.docx
+cluster track_v2_new_BK_LEH.docx
+figure_3_ideas.pptx
