@@ -1240,6 +1240,272 @@ make_fig_map = function(
   )
 }
 
+# Circular timeline helpers mirror the Figure 2 gtime logic but wrap each
+# year into its own ring so one full rotation always represents one year.
+build_gtime_timeline_df = function(ctdf) {
+  timeline_df = data.table::copy(ctdf)[
+    cluster > 0,
+    .(
+      start = min(timestamp),
+      stop = max(timestamp)
+    ),
+    by = cluster
+  ][order(cluster)]
+
+  data.table::set(
+    timeline_df,
+    j = "Cluster",
+    value = factor(
+      timeline_df[["cluster"]],
+      levels = sort(unique(timeline_df[["cluster"]]))
+    )
+  )
+
+  timeline_df[]
+}
+
+split_timeline_span_by_year = function(
+  start,
+  stop,
+  cluster,
+  tz = "UTC",
+  min_arc_fraction = 1 / (366 * 24)
+) {
+  if (is.na(start) || is.na(stop) || stop < start) {
+    return(data.table::data.table())
+  }
+
+  start_year = as.integer(format(start, "%Y"))
+  stop_year = as.integer(format(stop, "%Y"))
+
+  data.table::rbindlist(
+    lapply(seq.int(start_year, stop_year), function(year) {
+      year_start = as.POSIXct(
+        sprintf("%04d-01-01 00:00:00", year),
+        tz = tz
+      )
+      next_year_start = as.POSIXct(
+        sprintf("%04d-01-01 00:00:00", year + 1),
+        tz = tz
+      )
+
+      segment_start = max(start, year_start)
+      segment_stop = min(stop, next_year_start)
+
+      if (segment_stop < segment_start) {
+        return(NULL)
+      }
+
+      year_seconds = as.numeric(
+        difftime(next_year_start, year_start, units = "secs")
+      )
+      theta_start = as.numeric(
+        difftime(segment_start, year_start, units = "secs")
+      ) / year_seconds
+      theta_stop = as.numeric(
+        difftime(segment_stop, year_start, units = "secs")
+      ) / year_seconds
+
+      if (!isTRUE(segment_stop > segment_start)) {
+        theta_stop = min(1, theta_start + min_arc_fraction)
+      }
+
+      data.table::data.table(
+        cluster = cluster,
+        year = year,
+        segment_start = segment_start,
+        segment_stop = segment_stop,
+        theta_start = theta_start,
+        theta_stop = theta_stop
+      )
+    }),
+    use.names = TRUE,
+    fill = TRUE
+  )
+}
+
+build_circular_gtime_df = function(ctdf) {
+  timeline_df = build_gtime_timeline_df(ctdf)
+
+  if (!nrow(timeline_df)) {
+    return(data.table::data.table())
+  }
+
+  tz = attr(timeline_df[["start"]], "tzone")
+  if (is.null(tz) || identical(tz, "")) {
+    tz = "UTC"
+  }
+
+  circular_df = data.table::rbindlist(
+    lapply(seq_len(nrow(timeline_df)), function(i) {
+      split_timeline_span_by_year(
+        start = timeline_df$start[i],
+        stop = timeline_df$stop[i],
+        cluster = timeline_df$cluster[i],
+        tz = tz
+      )
+    }),
+    use.names = TRUE,
+    fill = TRUE
+  )
+
+  if (!nrow(circular_df)) {
+    return(circular_df)
+  }
+
+  data.table::set(
+    circular_df,
+    j = "Cluster",
+    value = factor(
+      circular_df[["cluster"]],
+      levels = levels(timeline_df[["Cluster"]])
+    )
+  )
+
+  year_levels = sort(unique(circular_df[["year"]]))
+  data.table::set(
+    circular_df,
+    j = "year_id",
+    value = match(circular_df[["year"]], year_levels)
+  )
+  data.table::set(circular_df, j = "ymin", value = circular_df[["year_id"]] - 0.42)
+  data.table::set(circular_df, j = "ymax", value = circular_df[["year_id"]] + 0.42)
+
+  circular_df[]
+}
+
+build_circular_month_guides = function(reference_year = 2001) {
+  year_start = as.POSIXct(
+    sprintf("%04d-01-01 00:00:00", reference_year),
+    tz = "UTC"
+  )
+  next_year_start = as.POSIXct(
+    sprintf("%04d-01-01 00:00:00", reference_year + 1),
+    tz = "UTC"
+  )
+  year_seconds = as.numeric(
+    difftime(next_year_start, year_start, units = "secs")
+  )
+  month_starts = as.POSIXct(
+    sprintf("%04d-%02d-01 00:00:00", reference_year, 1:12),
+    tz = "UTC"
+  )
+  next_month_starts = c(month_starts[-1], next_year_start)
+
+  data.table::data.table(
+    month = month.abb,
+    theta_start = as.numeric(
+      difftime(month_starts, year_start, units = "secs")
+    ) / year_seconds,
+    theta_label = (
+      as.numeric(difftime(month_starts, year_start, units = "secs")) +
+        as.numeric(difftime(next_month_starts, year_start, units = "secs"))
+    ) / (2 * year_seconds)
+  )
+}
+
+make_circular_gtime = function(ctdf, title = NULL) {
+  circular_df = build_circular_gtime_df(ctdf)
+
+  if (!nrow(circular_df)) {
+    return(ggplot2::ggplot() + ggplot2::theme_void())
+  }
+
+  month_guides = build_circular_month_guides()
+  year_df = unique(circular_df[, .(year, year_id)])[order(year)]
+  max_year_id = max(year_df$year_id)
+
+  scf = viridis::scale_fill_viridis(
+    discrete = TRUE,
+    option = "turbo",
+    begin = 0.1,
+    end = 0.95
+  )
+  scc = viridis::scale_color_viridis(
+    discrete = TRUE,
+    option = "turbo",
+    begin = 0.1,
+    end = 0.95
+  )
+
+  ggplot2::ggplot(circular_df) +
+    ggplot2::geom_hline(
+      data = year_df,
+      ggplot2::aes(yintercept = year_id),
+      inherit.aes = FALSE,
+      color = scales::alpha("grey55", 0.28),
+      linewidth = 0.3
+    ) +
+    ggplot2::geom_vline(
+      data = month_guides,
+      ggplot2::aes(xintercept = theta_start),
+      inherit.aes = FALSE,
+      color = scales::alpha("grey45", 0.35),
+      linewidth = 0.25
+    ) +
+    ggplot2::geom_rect(
+      ggplot2::aes(
+        xmin = theta_start,
+        xmax = theta_stop,
+        ymin = ymin,
+        ymax = ymax,
+        fill = Cluster,
+        color = Cluster
+      ),
+      linewidth = 0.3,
+      alpha = 0.38
+    ) +
+    ggplot2::geom_text(
+      data = year_df,
+      ggplot2::aes(x = 0.015, y = year_id, label = year),
+      inherit.aes = FALSE,
+      hjust = 0,
+      color = "grey20",
+      size = 3
+    ) +
+    scf +
+    scc +
+    ggplot2::coord_polar(theta = "x", start = -pi / 2) +
+    ggplot2::scale_x_continuous(
+      limits = c(0, 1),
+      breaks = month_guides$theta_label,
+      labels = month_guides$month,
+      expand = c(0, 0)
+    ) +
+    ggplot2::scale_y_continuous(
+      limits = c(0.35, max_year_id + 0.8),
+      breaks = NULL,
+      expand = ggplot2::expansion(mult = c(0, 0))
+    ) +
+    ggplot2::labs(
+      title = title,
+      subtitle = "1 rotation = 1 year"
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      legend.position = "none",
+      panel.background = ggplot2::element_rect(fill = "white", color = NA),
+      plot.background = ggplot2::element_rect(fill = "white", color = NA),
+      panel.grid = ggplot2::element_blank(),
+      axis.ticks = ggplot2::element_blank(),
+      axis.title = ggplot2::element_blank(),
+      axis.text.y = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(color = "grey20", size = 8),
+      plot.title = ggplot2::element_text(
+        hjust = 0.5,
+        color = "grey15",
+        size = 10,
+        face = "bold"
+      ),
+      plot.subtitle = ggplot2::element_text(
+        hjust = 0.5,
+        color = "grey30",
+        size = 8
+      ),
+      plot.margin = ggplot2::margin(8, 8, 8, 8)
+    )
+}
+
 #endregion
 
 #region panels
@@ -1389,6 +1655,18 @@ gruff1 = gruff1_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2,
 gruff2 = gruff2_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
 glbdo = glbdo_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
 gnola = gnola_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
+
+# Keep the circular timelines separate for now so they can be reviewed before
+# being introduced into the figure3 patchwork layout.
+gruff1_gtime_circular = make_circular_gtime(ruff, title = "ruff1")
+gruff2_gtime_circular = make_circular_gtime(ruff2, title = "ruff2")
+glbdo_gtime_circular = make_circular_gtime(lbdo, title = "lbdo")
+
+gtime_circular = list(
+  ruff1 = gruff1_gtime_circular,
+  ruff2 = gruff2_gtime_circular,
+  lbdo = glbdo_gtime_circular
+)
 
 top_row_height = 1 / (3 * top_target_ratio + 0.06)
 bottom_row_height = 1 / bbox_ratio(gnola_map$extent)
