@@ -38,7 +38,7 @@ sapply(
 
 # Quick smoke test for the Esri relief path using the lbdo track in the
 # default lon/lat projection, without terrain reprojection or hydro layers.
-RUN_LBDO_RELIEF_TEST = TRUE
+RUN_LBDO_RELIEF_TEST = FALSE
 LBDO_RELIEF_TEST_PROJECTION = "laea" # one of: "wgs84", "laea", "aea"
 LBDO_RELIEF_TEST_ZOOM = 3
 LBDO_RELIEF_TEST_X_PAD = 0.15
@@ -697,18 +697,22 @@ panel_extent_from_points = function(
   points_sf,
   x_pad = 0.05,
   y_pad = 0.08,
-  target_ratio = NULL
+  target_ratio = NULL,
+  xmin_pad = x_pad,
+  xmax_pad = x_pad,
+  ymin_pad = y_pad,
+  ymax_pad = y_pad
 ) {
   bb = sf::st_bbox(points_sf)
-  x_pad_units = (bb[["xmax"]] - bb[["xmin"]]) * x_pad
-  y_pad_units = (bb[["ymax"]] - bb[["ymin"]]) * y_pad
+  x_span = bb[["xmax"]] - bb[["xmin"]]
+  y_span = bb[["ymax"]] - bb[["ymin"]]
 
   extent = sf::st_bbox(
     c(
-      xmin = bb[["xmin"]] - x_pad_units,
-      ymin = bb[["ymin"]] - y_pad_units,
-      xmax = bb[["xmax"]] + x_pad_units,
-      ymax = bb[["ymax"]] + y_pad_units
+      xmin = bb[["xmin"]] - x_span * xmin_pad,
+      ymin = bb[["ymin"]] - y_span * ymin_pad,
+      xmax = bb[["xmax"]] + x_span * xmax_pad,
+      ymax = bb[["ymax"]] + y_span * ymax_pad
     ),
     crs = sf::st_crs(points_sf)
   )
@@ -720,6 +724,41 @@ panel_extent_from_points = function(
   extent
 }
 
+extent_geom_to_wgs84 = function(extent_bb, densify_segments = 120) {
+  extent_geom = sf::st_as_sfc(extent_bb)
+
+  if (!isTRUE(sf::st_is_longlat(extent_geom))) {
+    bb = sf::st_bbox(extent_geom)
+    seg_length = min(
+      (bb[["xmax"]] - bb[["xmin"]]) / densify_segments,
+      (bb[["ymax"]] - bb[["ymin"]]) / densify_segments
+    )
+
+    if (is.finite(seg_length) && seg_length > 0) {
+      extent_geom = sf::st_segmentize(extent_geom, dfMaxLength = seg_length)
+    }
+  }
+
+  suppressWarnings(
+    extent_geom |>
+      sf::st_transform(4326) |>
+      sf::st_make_valid()
+  )
+}
+
+panel_ratio_in_crs = function(ctdf, plot_crs, x_pad, y_pad) {
+  ctdf_proj = data.table::copy(ctdf)
+  ctdf_proj = transform_sf_columns(ctdf_proj, plot_crs)
+
+  bbox_ratio(
+    panel_extent_from_points(
+      points_sf = sf::st_as_sf(ctdf_proj),
+      x_pad = x_pad,
+      y_pad = y_pad
+    )
+  )
+}
+
 prepare_relief_panel = function(
   ctdf,
   plot_crs,
@@ -727,8 +766,13 @@ prepare_relief_panel = function(
   y_pad = 0.12,
   request_x_pad = x_pad,
   request_y_pad = y_pad,
+  request_xmin_pad = request_x_pad,
+  request_xmax_pad = request_x_pad,
+  request_ymin_pad = request_y_pad,
+  request_ymax_pad = request_y_pad,
   target_ratio = NULL,
-  zoom = 4
+  zoom = 4,
+  fetch_relief = TRUE
 ) {
   ctdf = data.table::copy(ctdf)
   use_wgs84 = isTRUE(all.equal(plot_crs, sf::st_crs(4326)))
@@ -756,7 +800,11 @@ prepare_relief_panel = function(
     points_sf = points_plot,
     x_pad = request_x_pad,
     y_pad = request_y_pad,
-    target_ratio = NULL
+    target_ratio = NULL,
+    xmin_pad = request_xmin_pad,
+    xmax_pad = request_xmax_pad,
+    ymin_pad = request_ymin_pad,
+    ymax_pad = request_ymax_pad
   )
   map_extent = panel_extent_from_points(
     points_sf = points_plot,
@@ -769,12 +817,17 @@ prepare_relief_panel = function(
     points_plot = points_plot,
     track0_plot = track0_plot,
     request_extent = request_extent,
+    request_geoms_wgs84 = extent_geom_to_wgs84(request_extent),
     map_extent = map_extent,
-    relief = get_relief_basemap(
-      extent_geom = sf::st_as_sfc(request_extent),
-      plot_crs = plot_crs,
-      zoom = zoom
-    )
+    relief = if (fetch_relief) {
+      get_relief_basemap(
+        extent_geom = sf::st_as_sfc(request_extent),
+        plot_crs = plot_crs,
+        zoom = zoom
+      )
+    } else {
+      NULL
+    }
   )
 }
 
@@ -860,6 +913,30 @@ get_panel_hydro = function(request_geoms_wgs84, plot_crs, scale = 10) {
   list(rivers = rivers, lakes = lakes)
 }
 
+mask_relief_to_land = function(relief, request_geoms_wgs84, plot_crs, scale = 10) {
+  if (is.null(relief)) {
+    return(NULL)
+  }
+
+  land = physical_layer("land", scale = scale) |>
+    clip_layer_to_extent(request_geoms_wgs84)
+
+  if (nrow(land) == 0) {
+    return(relief)
+  }
+
+  land = suppressWarnings(sf::st_transform(land, plot_crs))
+
+  if (nrow(land) == 0) {
+    return(relief)
+  }
+
+  terra::mask(
+    relief,
+    terra::vect(land)
+  )
+}
+
 get_relief_basemap = function(extent_geom, plot_crs, zoom = 4) {
   if (!requireNamespace("maptiles", quietly = TRUE)) {
     return(NULL)
@@ -877,7 +954,7 @@ get_relief_basemap = function(extent_geom, plot_crs, zoom = 4) {
   )
 }
 
-map_background = function(relief = NULL) {
+map_background = function(relief = NULL, lakes = NULL, rivers = NULL) {
   p = ggplot2::ggplot() +
     ggplot2::theme(
       panel.background = ggplot2::element_rect(fill = "white", color = NA),
@@ -895,6 +972,25 @@ map_background = function(relief = NULL) {
       )
   }
 
+  if (!is.null(lakes) && nrow(lakes) > 0) {
+    p = p +
+      ggspatial::annotation_spatial(
+        lakes,
+        fill = scales::alpha("#d9e6f6", 0.88),
+        color = NA
+      )
+  }
+
+  if (!is.null(rivers) && nrow(rivers) > 0) {
+    p = p +
+      ggspatial::annotation_spatial(
+        rivers,
+        color = scales::alpha("#698ecf", 0.82),
+        alpha = 0.5,
+        linewidth = 0.16
+      )
+  }
+
   p
 }
 
@@ -906,12 +1002,17 @@ make_fig_map = function(
   y_pad = 0.12,
   request_x_pad = x_pad,
   request_y_pad = y_pad,
+  request_xmin_pad = request_x_pad,
+  request_xmax_pad = request_x_pad,
+  request_ymin_pad = request_y_pad,
+  request_ymax_pad = request_y_pad,
   target_ratio = NULL,
   terrain_zoom = 6,
   terrain_alpha = 0.5,
   min_shade = 0.58,
   disagg_factor = 1,
-  hydro_scale = 10
+  hydro_scale = 10,
+  basemap_override = NULL
 ) {
   plot_crs = sf::st_crs(crs)
   panel_base = prepare_relief_panel(
@@ -921,9 +1022,36 @@ make_fig_map = function(
     y_pad = y_pad,
     request_x_pad = request_x_pad,
     request_y_pad = request_y_pad,
+    request_xmin_pad = request_xmin_pad,
+    request_xmax_pad = request_xmax_pad,
+    request_ymin_pad = request_ymin_pad,
+    request_ymax_pad = request_ymax_pad,
     target_ratio = target_ratio,
-    zoom = terrain_zoom
+    zoom = terrain_zoom,
+    fetch_relief = is.null(basemap_override)
   )
+
+  if (is.null(basemap_override)) {
+    hydro = get_panel_hydro(
+      request_geoms_wgs84 = panel_base$request_geoms_wgs84,
+      plot_crs = plot_crs,
+      scale = hydro_scale
+    )
+    panel_base$relief = mask_relief_to_land(
+      relief = panel_base$relief,
+      request_geoms_wgs84 = panel_base$request_geoms_wgs84,
+      plot_crs = plot_crs,
+      scale = hydro_scale
+    )
+  } else {
+    if (!isTRUE(all.equal(basemap_override$crs, plot_crs))) {
+      stop("basemap_override CRS must match the panel CRS.")
+    }
+
+    hydro = basemap_override$hydro
+    panel_base$relief = basemap_override$relief
+  }
+
   ctdf = data.table::copy(ctdf)
   ctdf = transform_sf_columns(ctdf, plot_crs)
   data.table::set(ctdf, j = "Cluster", value = factor(ctdf[["cluster"]]))
@@ -977,7 +1105,9 @@ make_fig_map = function(
   list(
     plot =
       map_background(
-        relief = panel_base$relief
+        relief = panel_base$relief,
+        lakes = hydro$lakes,
+        rivers = hydro$rivers
       ) +
       ggspatial::annotation_spatial(
         sf::st_as_sf(ctdf[cluster == 0]),
@@ -1004,7 +1134,12 @@ make_fig_map = function(
       ggspatial::annotation_scale(height = grid::unit(0.15, "cm"), location = scloc) +
       tt +
       coord_from_bbox(panel_base$map_extent),
-    extent = panel_base$map_extent
+    extent = panel_base$map_extent,
+    basemap = list(
+      crs = plot_crs,
+      relief = panel_base$relief,
+      hydro = hydro
+    )
   )
 }
 
@@ -1025,8 +1160,8 @@ make_fig3_panel_crs = function(x) {
   )
 }
 
-ruff_crs = make_fig3_panel_crs(ruff)
 ruff2_crs = make_fig3_panel_crs(ruff2)
+ruff_crs = ruff2_crs
 lbdo_crs = make_fig3_panel_crs(lbdo)
 nola_crs = make_fig3_panel_crs(nola)
 
@@ -1036,8 +1171,8 @@ top_specs = list(
   list(
     ctdf = lbdo,
     crs = lbdo_crs,
-    x_pad = LBDO_RELIEF_TEST_X_PAD,
-    y_pad = LBDO_RELIEF_TEST_Y_PAD
+    x_pad = 0.10,
+    y_pad = 0.10
   )
 )
 
@@ -1047,13 +1182,11 @@ top_target_ratio = max(
     vapply(
       top_specs,
       function(spec) {
-        bbox_ratio(
-          track_extent_in_crs(
-            spec$ctdf,
-            sf::st_crs(spec$crs),
-            x_pad = spec$x_pad,
-            y_pad = spec$y_pad
-          )
+        panel_ratio_in_crs(
+          ctdf = spec$ctdf,
+          plot_crs = sf::st_crs(spec$crs),
+          x_pad = spec$x_pad,
+          y_pad = spec$y_pad
         )
       },
       numeric(1)
@@ -1062,19 +1195,6 @@ top_target_ratio = max(
 )
 
 ### make maps ----
-gruff1_map = make_fig_map(
-  ruff,
-  crs = ruff_crs,
-  scloc = "br",
-  x_pad = 0.06,
-  y_pad = 0.10,
-  target_ratio = top_target_ratio,
-  terrain_zoom = 4,
-  terrain_alpha = 0.56,
-  min_shade = 0.55,
-  disagg_factor = 1
-)
-
 gruff2_map = make_fig_map(
   ruff2,
   crs = ruff2_crs,
@@ -1088,14 +1208,33 @@ gruff2_map = make_fig_map(
   disagg_factor = 1
 )
 
+gruff1_map = make_fig_map(
+  ruff,
+  crs = ruff_crs,
+  scloc = "br",
+  x_pad = 0.06,
+  y_pad = 0.10,
+  request_ymax_pad = 0.18,
+  target_ratio = top_target_ratio,
+  terrain_zoom = 4,
+  terrain_alpha = 0.56,
+  min_shade = 0.55,
+  disagg_factor = 1,
+  request_x_pad = 0.12,
+  request_y_pad = 0.1,
+  basemap_override = gruff2_map$basemap
+)
+
 glbdo_map =
   make_fig_map(
   lbdo,
   crs = lbdo_crs,
   scloc = "bl",
-  x_pad = LBDO_RELIEF_TEST_X_PAD,
-  y_pad = LBDO_RELIEF_TEST_Y_PAD,
-  target_ratio = NULL,
+  x_pad = 0.01,
+  y_pad = 0.10,
+  request_x_pad = 0.12,
+  request_y_pad = 0.1,
+  target_ratio = 0.89,
   terrain_zoom = LBDO_RELIEF_TEST_ZOOM,
   terrain_alpha = 0.56,
   min_shade = 0.55,
@@ -1123,7 +1262,7 @@ top_row =
   patchwork::wrap_plots(gruff1, gruff2, glbdo, ncol = 3) +
   patchwork::plot_layout(widths = c(1, 1, 1))
 
-top_row_height = 1 / (3 * top_target_ratio)
+top_row_height = 1 / (3 * top_target_ratio + 0.06)
 bottom_row_height = 1 / bbox_ratio(gnola_map$extent)
 row_heights = c(top_row_height, bottom_row_height)
 
