@@ -764,6 +764,10 @@ prepare_relief_panel = function(
   plot_crs,
   x_pad = 0.08,
   y_pad = 0.12,
+  xmin_pad = x_pad,
+  xmax_pad = x_pad,
+  ymin_pad = y_pad,
+  ymax_pad = y_pad,
   request_x_pad = x_pad,
   request_y_pad = y_pad,
   request_xmin_pad = request_x_pad,
@@ -810,7 +814,11 @@ prepare_relief_panel = function(
     points_sf = points_plot,
     x_pad = x_pad,
     y_pad = y_pad,
-    target_ratio = target_ratio
+    target_ratio = target_ratio,
+    xmin_pad = xmin_pad,
+    xmax_pad = xmax_pad,
+    ymin_pad = ymin_pad,
+    ymax_pad = ymax_pad
   )
 
   list(
@@ -901,6 +909,8 @@ get_panel_hydro = function(request_geoms_wgs84, plot_crs, scale = 10) {
     clip_layer_to_extent(request_geoms_wgs84)
   lakes = physical_layer("lakes", scale = scale) |>
     clip_layer_to_extent(request_geoms_wgs84)
+  coast = physical_layer("coastline", scale = scale) |>
+    clip_layer_to_extent(request_geoms_wgs84)
 
   if (nrow(rivers) > 0) {
     rivers = suppressWarnings(sf::st_transform(rivers, plot_crs))
@@ -910,7 +920,11 @@ get_panel_hydro = function(request_geoms_wgs84, plot_crs, scale = 10) {
     lakes = suppressWarnings(sf::st_transform(lakes, plot_crs))
   }
 
-  list(rivers = rivers, lakes = lakes)
+  if (nrow(coast) > 0) {
+    coast = suppressWarnings(sf::st_transform(coast, plot_crs))
+  }
+
+  list(rivers = rivers, lakes = lakes, coast = coast)
 }
 
 mask_relief_to_land = function(relief, request_geoms_wgs84, plot_crs, scale = 10) {
@@ -954,7 +968,22 @@ get_relief_basemap = function(extent_geom, plot_crs, zoom = 4) {
   )
 }
 
-map_background = function(relief = NULL, lakes = NULL, rivers = NULL) {
+map_background = function(
+  relief = NULL,
+  lakes = NULL,
+  rivers = NULL,
+  coast = NULL,
+  show_lakes = TRUE,
+  show_rivers = TRUE,
+  show_coast = TRUE,
+  lake_fill = "#d9e6f6",
+  lake_alpha = 0.88,
+  river_color = "#698ecf",
+  river_alpha = 0.82,
+  river_linewidth = 0.16,
+  coast_color = "grey70",
+  coast_alpha = 0.6
+) {
   p = ggplot2::ggplot() +
     ggplot2::theme(
       panel.background = ggplot2::element_rect(fill = "white", color = NA),
@@ -972,22 +1001,30 @@ map_background = function(relief = NULL, lakes = NULL, rivers = NULL) {
       )
   }
 
-  if (!is.null(lakes) && nrow(lakes) > 0) {
+  if (show_lakes && !is.null(lakes) && nrow(lakes) > 0) {
     p = p +
       ggspatial::annotation_spatial(
         lakes,
-        fill = scales::alpha("#d9e6f6", 0.88),
+        fill = scales::alpha(lake_fill, lake_alpha),
         color = NA
       )
   }
 
-  if (!is.null(rivers) && nrow(rivers) > 0) {
+  if (show_rivers && !is.null(rivers) && nrow(rivers) > 0) {
     p = p +
       ggspatial::annotation_spatial(
         rivers,
-        color = scales::alpha("#698ecf", 0.82),
-        alpha = 0.5,
-        linewidth = 0.16
+        color = scales::alpha(river_color, river_alpha),
+        linewidth = river_linewidth
+      )
+  }
+
+  if (show_coast && !is.null(coast) && nrow(coast) > 0) {
+    p = p +
+      ggspatial::annotation_spatial(
+        coast,
+        color = scales::alpha(coast_color, coast_alpha),
+        linewidth = 0.22
       )
   }
 
@@ -1000,6 +1037,10 @@ make_fig_map = function(
   scloc = "br",
   x_pad = 0.08,
   y_pad = 0.12,
+  xmin_pad = x_pad,
+  xmax_pad = x_pad,
+  ymin_pad = y_pad,
+  ymax_pad = y_pad,
   request_x_pad = x_pad,
   request_y_pad = y_pad,
   request_xmin_pad = request_x_pad,
@@ -1012,7 +1053,30 @@ make_fig_map = function(
   min_shade = 0.58,
   disagg_factor = 1,
   hydro_scale = 10,
-  basemap_override = NULL
+  basemap_override = NULL,
+  show_lakes = TRUE,
+  show_rivers = TRUE,
+  show_coast = TRUE,
+  lake_fill = "#d9e6f6",
+  lake_alpha = 0.88,
+  river_color = "#698ecf",
+  river_alpha = 0.82,
+  river_linewidth = 0.16,
+  coast_color = "grey70",
+  coast_alpha = 0.6,
+  noncluster_point_alpha = 0.5,
+  noncluster_point_color = "grey30",
+  noncluster_point_shape = 21,
+  noncluster_point_fill = "grey30",
+  noncluster_point_size = 1,
+  cluster_point_alpha = 0.35,
+  cluster_point_color = "white",
+  cluster_point_shape = 21,
+  cluster_point_fill = NULL,
+  cluster_point_size = 2,
+  track_line_linewidth = 0.2,
+  track_line_color = "grey30",
+  track_line_alpha = 0.5
 ) {
   plot_crs = sf::st_crs(crs)
   panel_base = prepare_relief_panel(
@@ -1020,6 +1084,10 @@ make_fig_map = function(
     plot_crs = plot_crs,
     x_pad = x_pad,
     y_pad = y_pad,
+    xmin_pad = xmin_pad,
+    xmax_pad = xmax_pad,
+    ymin_pad = ymin_pad,
+    ymax_pad = ymax_pad,
     request_x_pad = request_x_pad,
     request_y_pad = request_y_pad,
     request_xmin_pad = request_xmin_pad,
@@ -1061,8 +1129,38 @@ make_fig_map = function(
   } else {
     ggspatial::layer_spatial(
       panel_base$track0_plot,
-      linewidth = 0.2,
-      alpha = 0.5
+      color = track_line_color,
+      linewidth = track_line_linewidth,
+      alpha = track_line_alpha
+    )
+  }
+
+  noncluster_point_layer = ggspatial::annotation_spatial(
+    sf::st_as_sf(ctdf[cluster == 0]),
+    alpha = noncluster_point_alpha,
+    color = noncluster_point_color,
+    fill = noncluster_point_fill,
+    shape = noncluster_point_shape,
+    size = noncluster_point_size
+  )
+
+  cluster_point_layer = if (is.null(cluster_point_fill)) {
+    ggspatial::layer_spatial(
+      sf::st_as_sf(ctdf[cluster > 0]),
+      ggplot2::aes(fill = Cluster),
+      color = cluster_point_color,
+      shape = cluster_point_shape,
+      alpha = cluster_point_alpha,
+      size = cluster_point_size
+    )
+  } else {
+    ggspatial::layer_spatial(
+      sf::st_as_sf(ctdf[cluster > 0]),
+      fill = cluster_point_fill,
+      color = cluster_point_color,
+      shape = cluster_point_shape,
+      alpha = cluster_point_alpha,
+      size = cluster_point_size
     )
   }
 
@@ -1107,28 +1205,27 @@ make_fig_map = function(
       map_background(
         relief = panel_base$relief,
         lakes = hydro$lakes,
-        rivers = hydro$rivers
+        rivers = hydro$rivers,
+        coast = hydro$coast,
+        show_lakes = show_lakes,
+        show_rivers = show_rivers,
+        show_coast = show_coast,
+        lake_fill = lake_fill,
+        lake_alpha = lake_alpha,
+        river_color = river_color,
+        river_alpha = river_alpha,
+        river_linewidth = river_linewidth,
+        coast_color = coast_color,
+        coast_alpha = coast_alpha
       ) +
-      ggspatial::annotation_spatial(
-        sf::st_as_sf(ctdf[cluster == 0]),
-        alpha = 0.5,
-        color = "grey30",
-        size = 2
-      ) +
+      noncluster_point_layer +
       track0_layer +
       ggspatial::annotation_spatial(
         sf::st_as_sf(ss[, .(Cluster, site_poly)]),
         ggplot2::aes(fill = Cluster, color = Cluster),
         alpha = 0.3
       ) +
-      ggspatial::layer_spatial(
-        sf::st_as_sf(ctdf[cluster > 0]),
-        ggplot2::aes(fill = Cluster),
-        color = "white",
-        shape = 21,
-        alpha = 0.35,
-        size = 2
-      ) +
+      cluster_point_layer +
       scf +
       scc +
       ggspatial::annotation_scale(height = grid::unit(0.15, "cm"), location = scloc) +
@@ -1205,7 +1302,15 @@ gruff2_map = make_fig_map(
   terrain_zoom = 4,
   terrain_alpha = 0.56,
   min_shade = 0.55,
-  disagg_factor = 1
+  disagg_factor = 1,
+  lake_fill = "#5d84c7",
+  lake_alpha = 0.2,
+  river_color = "#5d84c7",
+  river_alpha = 0.2,
+  coast_color = "grey80",
+  noncluster_point_alpha = 0.5,
+  noncluster_point_color = "grey40",
+  noncluster_point_shape = 16
 )
 
 gruff1_map = make_fig_map(
@@ -1222,7 +1327,15 @@ gruff1_map = make_fig_map(
   disagg_factor = 1,
   request_x_pad = 0.12,
   request_y_pad = 0.1,
-  basemap_override = gruff2_map$basemap
+  basemap_override = gruff2_map$basemap,
+  lake_fill = "#5d84c7",
+  lake_alpha = 0.2,
+  river_color = "#5d84c7",
+  river_alpha = 0.2,
+  coast_color = "grey80",
+  noncluster_point_alpha = 0.5,
+  noncluster_point_color = "grey40",
+  noncluster_point_shape = 19
 )
 
 glbdo_map =
@@ -1230,27 +1343,46 @@ glbdo_map =
   lbdo,
   crs = lbdo_crs,
   scloc = "bl",
-  x_pad = 0.01,
-  y_pad = 0.10,
-  request_x_pad = 0.12,
-  request_y_pad = 0.1,
-  target_ratio = 0.89,
-  terrain_zoom = LBDO_RELIEF_TEST_ZOOM,
+  ymax_pad = 0.03,
+  ymin_pad = 0.1,
+  xmax_pad = 0.1,
+  xmin_pad = 0.19,
+  # y_pad = 0.1,
+  request_xmin_pad = 0.22,
+  request_xmax_pad = 0.22,
+  request_ymin_pad = 0.22,
+  request_ymax_pad = 0.034,
+  target_ratio = top_target_ratio,
+  terrain_zoom = 4,
   terrain_alpha = 0.56,
   min_shade = 0.55,
-  disagg_factor = 1
+  disagg_factor = 1,
+  lake_fill = "#5d84c7",
+  lake_alpha = 0.2,
+  river_color = "#5d84c7",
+  river_alpha = 0.2,
+  coast_color = "grey80",
+  noncluster_point_alpha = 0.5,
+  noncluster_point_color = "grey40",
+  noncluster_point_shape = 19
 )
 
-gnola_map = make_fig_map(
+gnola_map =
+  make_fig_map(
   nola,
   crs = nola_crs,
-  scloc = "br",
+  scloc = "tl",
   x_pad = 0.20,
   y_pad = 0.20,
-  terrain_zoom = 9,
+  terrain_zoom = 10,
   terrain_alpha = 0.52,
   min_shade = 0.58,
-  disagg_factor = 2
+  disagg_factor = 2,
+  show_lakes = FALSE,
+  show_rivers = FALSE,
+  noncluster_point_alpha = 0.5,
+  noncluster_point_color = "grey40",
+  noncluster_point_shape = 19
 )
 
 gruff1 = gruff1_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
@@ -1258,21 +1390,32 @@ gruff2 = gruff2_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2,
 glbdo = glbdo_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
 gnola = gnola_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
 
-top_row =
-  patchwork::wrap_plots(gruff1, gruff2, glbdo, ncol = 3) +
-  patchwork::plot_layout(widths = c(1, 1, 1))
-
 top_row_height = 1 / (3 * top_target_ratio + 0.06)
 bottom_row_height = 1 / bbox_ratio(gnola_map$extent)
 row_heights = c(top_row_height, bottom_row_height)
+figure3_gap_width = 0.0 / top_target_ratio
+
+figure3_layout = "
+A#B#G
+NNNNN
+"
 
 gg =
-  patchwork::wrap_plots(top_row, gnola, ncol = 1) +
-  patchwork::plot_layout(heights = row_heights) +
-  patchwork::plot_annotation(tag_levels = "a") &
-  ggplot2::theme(
-    plot.tag.position = c(0.02, 0.95)
-  )
+  patchwork::wrap_plots(
+    A = gruff1,
+    B = gruff2,
+    G = glbdo,
+    N = patchwork::free(gnola),
+    design = figure3_layout
+  ) +
+  patchwork::plot_layout(
+    widths = c(1, -0.11, 1, -0.11, 1),
+    heights = row_heights
+  )# +
+  # patchwork::plot_annotation(tag_levels = "a") &
+  # ggplot2::theme(
+  #   plot.tag.position = c(0.02, 0.95)
+  # )
 
 output_dir = if (dir.exists(here::here("MANUSCRIPT"))) {
   here::here("MANUSCRIPT")
