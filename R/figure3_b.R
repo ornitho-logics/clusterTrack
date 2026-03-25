@@ -7,6 +7,8 @@ sapply(
     "terra",
     "elevatr",
     "rnaturalearth",
+    "maptiles",
+    "tidyterra",
     "ggspatial",
     "ggplot2",
     "patchwork",
@@ -33,6 +35,172 @@ sapply(
 # nola = as_ctdf(nola125a, time = "timestamp") |> cluster_track()
 
 #endregion
+
+# Quick smoke test for the Esri relief path using the lbdo track in the
+# default lon/lat projection, without terrain reprojection or hydro layers.
+RUN_LBDO_RELIEF_TEST = TRUE
+LBDO_RELIEF_TEST_PROJECTION = "laea" # one of: "wgs84", "laea", "aea"
+LBDO_RELIEF_TEST_ZOOM = 3
+LBDO_RELIEF_TEST_X_PAD = 0.15
+LBDO_RELIEF_TEST_Y_PAD = 0.15
+LBDO_RELIEF_TEST_LON0 = NULL
+LBDO_RELIEF_TEST_LAT0 = NULL
+LBDO_RELIEF_TEST_AEA_LAT1 = NULL
+LBDO_RELIEF_TEST_AEA_LAT2 = NULL
+LBDO_RELIEF_TEST_AEA_LAT1_PROP = 0.10
+LBDO_RELIEF_TEST_AEA_LAT2_PROP = 0.70
+
+make_relief_panel_crs = function(
+  x,
+  projection = "laea",
+  lon0 = NULL,
+  lat0 = NULL,
+  aea_lat1 = NULL,
+  aea_lat2 = NULL,
+  aea_lat1_prop = 0.10,
+  aea_lat2_prop = 0.70
+) {
+  geom_wgs84 = sf::st_as_sf(x) |>
+    sf::st_transform(4326)
+  bb = sf::st_bbox(geom_wgs84)
+
+  lon0 = if (is.null(lon0)) {
+    mean(c(bb[["xmin"]], bb[["xmax"]]))
+  } else {
+    lon0
+  }
+  lat0 = if (is.null(lat0)) {
+    mean(c(bb[["ymin"]], bb[["ymax"]]))
+  } else {
+    lat0
+  }
+
+  lat_span = bb[["ymax"]] - bb[["ymin"]]
+  lat1 = if (is.null(aea_lat1)) {
+    bb[["ymin"]] + lat_span * aea_lat1_prop
+  } else {
+    aea_lat1
+  }
+  lat2 = if (is.null(aea_lat2)) {
+    bb[["ymin"]] + lat_span * aea_lat2_prop
+  } else {
+    aea_lat2
+  }
+
+  switch(
+    projection,
+    wgs84 = sf::st_crs(4326),
+    laea = sf::st_crs(
+      sprintf(
+        "+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs",
+        lat0,
+        lon0
+      )
+    ),
+    aea = sf::st_crs(
+      sprintf(
+        "+proj=aea +lat_1=%s +lat_2=%s +lat_0=%s +lon_0=%s +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs",
+        lat1,
+        lat2,
+        lat0,
+        lon0
+      )
+    ),
+    stop("Unknown relief projection: ", projection)
+  )
+}
+
+make_lbdo_relief_test_crs = function(x) {
+  make_relief_panel_crs(
+    x,
+    projection = LBDO_RELIEF_TEST_PROJECTION,
+    lon0 = LBDO_RELIEF_TEST_LON0,
+    lat0 = LBDO_RELIEF_TEST_LAT0,
+    aea_lat1 = LBDO_RELIEF_TEST_AEA_LAT1,
+    aea_lat2 = LBDO_RELIEF_TEST_AEA_LAT2,
+    aea_lat1_prop = LBDO_RELIEF_TEST_AEA_LAT1_PROP,
+    aea_lat2_prop = LBDO_RELIEF_TEST_AEA_LAT2_PROP
+  )
+}
+
+if (
+  RUN_LBDO_RELIEF_TEST &&
+  requireNamespace("maptiles", quietly = TRUE) &&
+  requireNamespace("tidyterra", quietly = TRUE)
+) {
+  lbdo_test = if (exists("lbdo", inherits = FALSE)) {
+    data.table::copy(lbdo)
+  } else {
+    data(lbdo66862)
+    as_ctdf(lbdo66862, time = "locationDate") |> cluster_track()
+  }
+
+  lbdo_points_wgs84 = sf::st_as_sf(lbdo_test) |>
+    sf::st_transform(4326)
+  lbdo_track_wgs84 = sf::st_as_sf(lbdo_test |> as_ctdf_track()) |>
+    sf::st_transform(4326)
+  lbdo_test_crs = make_lbdo_relief_test_crs(lbdo_test)
+
+  lbdo_points_test = if (isTRUE(all.equal(lbdo_test_crs, sf::st_crs(4326)))) {
+    lbdo_points_wgs84
+  } else {
+    sf::st_transform(lbdo_points_wgs84, lbdo_test_crs)
+  }
+  lbdo_track_test = if (isTRUE(all.equal(lbdo_test_crs, sf::st_crs(4326)))) {
+    lbdo_track_wgs84
+  } else {
+    sf::st_transform(lbdo_track_wgs84, lbdo_test_crs)
+  }
+
+  lbdo_bb = sf::st_bbox(lbdo_points_test)
+  lbdo_x_pad = (lbdo_bb[["xmax"]] - lbdo_bb[["xmin"]]) * LBDO_RELIEF_TEST_X_PAD
+  lbdo_y_pad = (lbdo_bb[["ymax"]] - lbdo_bb[["ymin"]]) * LBDO_RELIEF_TEST_Y_PAD
+  lbdo_extent = sf::st_as_sfc(
+    sf::st_bbox(
+      c(
+        xmin = lbdo_bb[["xmin"]] - lbdo_x_pad,
+        ymin = lbdo_bb[["ymin"]] - lbdo_y_pad,
+        xmax = lbdo_bb[["xmax"]] + lbdo_x_pad,
+        ymax = lbdo_bb[["ymax"]] + lbdo_y_pad
+      ),
+      crs = sf::st_crs(lbdo_points_test)
+    )
+  )
+
+  lbdo_relief = tryCatch(
+    maptiles::get_tiles(
+      x = lbdo_extent,
+      provider = "Esri.WorldShadedRelief",
+      zoom = LBDO_RELIEF_TEST_ZOOM,
+      crop = TRUE,
+      project = !isTRUE(all.equal(lbdo_test_crs, sf::st_crs(4326)))
+    ),
+    error = function(e) NULL
+  )
+
+  if (!is.null(lbdo_relief)) {
+    print(
+      ggplot2::ggplot() +
+        tidyterra::geom_spatraster_rgb(
+          data = lbdo_relief,
+          r = 1,
+          g = 2,
+          b = 3,
+          interpolate = TRUE
+        ) +
+        ggspatial::layer_spatial(lbdo_track_test, color = "grey20", linewidth = 0.3, alpha = 0.8) +
+        ggspatial::annotation_spatial(lbdo_points_test, color = "grey20", size = 1.2, alpha = 0.45) +
+        ggplot2::coord_sf(
+          xlim = c(lbdo_bb[["xmin"]] - lbdo_x_pad, lbdo_bb[["xmax"]] + lbdo_x_pad),
+          ylim = c(lbdo_bb[["ymin"]] - lbdo_y_pad, lbdo_bb[["ymax"]] + lbdo_y_pad),
+          crs = lbdo_test_crs,
+          default_crs = lbdo_test_crs,
+          expand = FALSE
+        ) +
+        ggplot2::theme_void()
+    )
+  }
+}
 
 #region helpers
 
@@ -369,6 +537,18 @@ coord_from_geom = function(x, x_prop = 0, y_prop = x_prop) {
   )
 }
 
+coord_from_bbox = function(bb) {
+  bb_crs = sf::st_crs(bb)
+
+  ggplot2::coord_sf(
+    xlim = c(bb[["xmin"]], bb[["xmax"]]),
+    ylim = c(bb[["ymin"]], bb[["ymax"]]),
+    crs = bb_crs,
+    default_crs = bb_crs,
+    expand = FALSE
+  )
+}
+
 transform_sf_columns = function(x, target_crs) {
   geom_cols = names(x)[vapply(x, inherits, logical(1), what = "sfc")]
 
@@ -447,6 +627,54 @@ make_local_lcc_crs = function(x) {
   )
 }
 
+make_local_aea_crs = function(
+  x,
+  lat1_prop = 0.10,
+  lat2_prop = 0.70
+) {
+  geom_wgs84 = sf::st_as_sf(x) |>
+    sf::st_transform(4326)
+  bb = sf::st_bbox(geom_wgs84)
+
+  lon0 = mean(c(bb[["xmin"]], bb[["xmax"]]))
+  lat0 = mean(c(bb[["ymin"]], bb[["ymax"]]))
+  lat_span = bb[["ymax"]] - bb[["ymin"]]
+
+  lat1 = bb[["ymin"]] + lat_span * lat1_prop
+  lat2 = bb[["ymin"]] + lat_span * lat2_prop
+
+  if (!is.finite(lat_span) || lat_span <= 0 || abs(lat2 - lat1) < 1) {
+    lat1 = lat0 - 5
+    lat2 = lat0 + 5
+  }
+
+  lat1 = pmax(lat1, -89)
+  lat2 = pmin(lat2, 89)
+
+  sprintf(
+    "+proj=aea +lat_1=%s +lat_2=%s +lat_0=%s +lon_0=%s +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs",
+    lat1,
+    lat2,
+    lat0,
+    lon0
+  )
+}
+
+make_local_laea_crs = function(x) {
+  geom_wgs84 = sf::st_as_sf(x) |>
+    sf::st_transform(4326)
+  bb = sf::st_bbox(geom_wgs84)
+
+  lon0 = mean(c(bb[["xmin"]], bb[["xmax"]]))
+  lat0 = mean(c(bb[["ymin"]], bb[["ymax"]]))
+
+  sprintf(
+    "+proj=laea +lat_0=%s +lon_0=%s +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs",
+    lat0,
+    lon0
+  )
+}
+
 track_extent_in_crs = function(
   ctdf,
   plot_crs,
@@ -463,6 +691,91 @@ track_extent_in_crs = function(
   }
 
   extent
+}
+
+panel_extent_from_points = function(
+  points_sf,
+  x_pad = 0.05,
+  y_pad = 0.08,
+  target_ratio = NULL
+) {
+  bb = sf::st_bbox(points_sf)
+  x_pad_units = (bb[["xmax"]] - bb[["xmin"]]) * x_pad
+  y_pad_units = (bb[["ymax"]] - bb[["ymin"]]) * y_pad
+
+  extent = sf::st_bbox(
+    c(
+      xmin = bb[["xmin"]] - x_pad_units,
+      ymin = bb[["ymin"]] - y_pad_units,
+      xmax = bb[["xmax"]] + x_pad_units,
+      ymax = bb[["ymax"]] + y_pad_units
+    ),
+    crs = sf::st_crs(points_sf)
+  )
+
+  if (!is.null(target_ratio)) {
+    extent = set_bbox_aspect(extent, target_ratio = target_ratio)
+  }
+
+  extent
+}
+
+prepare_relief_panel = function(
+  ctdf,
+  plot_crs,
+  x_pad = 0.08,
+  y_pad = 0.12,
+  request_x_pad = x_pad,
+  request_y_pad = y_pad,
+  target_ratio = NULL,
+  zoom = 4
+) {
+  ctdf = data.table::copy(ctdf)
+  use_wgs84 = isTRUE(all.equal(plot_crs, sf::st_crs(4326)))
+
+  points_wgs84 = sf::st_as_sf(ctdf) |>
+    sf::st_transform(4326)
+  points_plot = if (use_wgs84) {
+    points_wgs84
+  } else {
+    suppressWarnings(sf::st_transform(points_wgs84, plot_crs))
+  }
+
+  track0_plot = NULL
+  if (any(ctdf[["cluster"]] == 0, na.rm = TRUE)) {
+    track0_wgs84 = sf::st_as_sf(ctdf[cluster == 0] |> as_ctdf_track()) |>
+      sf::st_transform(4326)
+    track0_plot = if (use_wgs84) {
+      track0_wgs84
+    } else {
+      suppressWarnings(sf::st_transform(track0_wgs84, plot_crs))
+    }
+  }
+
+  request_extent = panel_extent_from_points(
+    points_sf = points_plot,
+    x_pad = request_x_pad,
+    y_pad = request_y_pad,
+    target_ratio = NULL
+  )
+  map_extent = panel_extent_from_points(
+    points_sf = points_plot,
+    x_pad = x_pad,
+    y_pad = y_pad,
+    target_ratio = target_ratio
+  )
+
+  list(
+    points_plot = points_plot,
+    track0_plot = track0_plot,
+    request_extent = request_extent,
+    map_extent = map_extent,
+    relief = get_relief_basemap(
+      extent_geom = sf::st_as_sfc(request_extent),
+      plot_crs = plot_crs,
+      zoom = zoom
+    )
+  )
 }
 
 physical_layer = local({
@@ -547,46 +860,38 @@ get_panel_hydro = function(request_geoms_wgs84, plot_crs, scale = 10) {
   list(rivers = rivers, lakes = lakes)
 }
 
-map_background = function(terrain, rivers, lakes, extent_geom = NULL) {
+get_relief_basemap = function(extent_geom, plot_crs, zoom = 4) {
+  if (!requireNamespace("maptiles", quietly = TRUE)) {
+    return(NULL)
+  }
+
+  tryCatch(
+    maptiles::get_tiles(
+      x = extent_geom,
+      provider = "Esri.WorldShadedRelief",
+      zoom = zoom,
+      crop = TRUE,
+      project = !isTRUE(all.equal(plot_crs, sf::st_crs(4326)))
+    ),
+    error = function(e) NULL
+  )
+}
+
+map_background = function(relief = NULL) {
   p = ggplot2::ggplot() +
     ggplot2::theme(
       panel.background = ggplot2::element_rect(fill = "white", color = NA),
       plot.background = ggplot2::element_rect(fill = "white", color = NA)
     )
 
-  if (!is.null(extent_geom)) {
+  if (!is.null(relief)) {
     p = p +
-      ggspatial::layer_spatial(extent_geom, fill = NA, color = NA)
-  }
-
-  if (!is.null(terrain)) {
-    p = p +
-      ggplot2::annotation_raster(
-        raster = terrain$image,
-        xmin = terrain$xmin,
-        xmax = terrain$xmax,
-        ymin = terrain$ymin,
-        ymax = terrain$ymax,
+      tidyterra::geom_spatraster_rgb(
+        data = relief,
+        r = 1,
+        g = 2,
+        b = 3,
         interpolate = TRUE
-      )
-  }
-
-  if (nrow(lakes) > 0) {
-    p = p +
-      ggspatial::annotation_spatial(
-        lakes,
-        fill = scales::alpha("#698ecf", 0.5),
-        color = NA
-      )
-  }
-
-  if (nrow(rivers) > 0) {
-    p = p +
-      ggspatial::annotation_spatial(
-        rivers,
-        color = scales::alpha("#698ecf", 0.8),
-        alpha = 0.7,
-        linewidth = 0.16
       )
   }
 
@@ -599,6 +904,8 @@ make_fig_map = function(
   scloc = "br",
   x_pad = 0.08,
   y_pad = 0.12,
+  request_x_pad = x_pad,
+  request_y_pad = y_pad,
   target_ratio = NULL,
   terrain_zoom = 6,
   terrain_alpha = 0.5,
@@ -606,38 +913,30 @@ make_fig_map = function(
   disagg_factor = 1,
   hydro_scale = 10
 ) {
-  request_geoms_wgs84 = panel_request_geoms_wgs84(
-    ctdf,
-    x_pad = x_pad,
-    y_pad = y_pad
-  )
   plot_crs = sf::st_crs(crs)
-  ctdf = data.table::copy(ctdf)
-  ctdf = transform_sf_columns(ctdf, plot_crs)
-  data.table::set(ctdf, j = "Cluster", value = factor(ctdf[["cluster"]]))
-
-  map_extent = track_extent_in_crs(
+  panel_base = prepare_relief_panel(
     ctdf = ctdf,
     plot_crs = plot_crs,
     x_pad = x_pad,
     y_pad = y_pad,
-    target_ratio = target_ratio
+    request_x_pad = request_x_pad,
+    request_y_pad = request_y_pad,
+    target_ratio = target_ratio,
+    zoom = terrain_zoom
   )
+  ctdf = data.table::copy(ctdf)
+  ctdf = transform_sf_columns(ctdf, plot_crs)
+  data.table::set(ctdf, j = "Cluster", value = factor(ctdf[["cluster"]]))
 
-  hydro = get_panel_hydro(
-    request_geoms_wgs84 = request_geoms_wgs84,
-    plot_crs = plot_crs,
-    scale = hydro_scale
-  )
-  terrain = make_terrain_annotation(
-    request_geoms_wgs84 = request_geoms_wgs84,
-    bbox_proj = map_extent,
-    target_crs = plot_crs,
-    zoom = terrain_zoom,
-    terrain_alpha = terrain_alpha,
-    min_shade = min_shade,
-    disagg_factor = disagg_factor
-  )
+  track0_layer = if (is.null(panel_base$track0_plot)) {
+    NULL
+  } else {
+    ggspatial::layer_spatial(
+      panel_base$track0_plot,
+      linewidth = 0.2,
+      alpha = 0.5
+    )
+  }
 
   ss = summarise_ctdf(ctdf)
   ss = transform_sf_columns(ss, plot_crs)
@@ -678,10 +977,7 @@ make_fig_map = function(
   list(
     plot =
       map_background(
-        terrain = terrain,
-        rivers = hydro$rivers,
-        lakes = hydro$lakes,
-        extent_geom = sf::st_as_sfc(map_extent)
+        relief = panel_base$relief
       ) +
       ggspatial::annotation_spatial(
         sf::st_as_sf(ctdf[cluster == 0]),
@@ -689,11 +985,7 @@ make_fig_map = function(
         color = "grey30",
         size = 2
       ) +
-      ggspatial::layer_spatial(
-        sf::st_as_sf(ctdf[cluster == 0] |> as_ctdf_track()),
-        linewidth = 0.2,
-        alpha = 0.5
-      ) +
+      track0_layer +
       ggspatial::annotation_spatial(
         sf::st_as_sf(ss[, .(Cluster, site_poly)]),
         ggplot2::aes(fill = Cluster, color = Cluster),
@@ -711,8 +1003,8 @@ make_fig_map = function(
       scc +
       ggspatial::annotation_scale(height = grid::unit(0.15, "cm"), location = scloc) +
       tt +
-      coord_from_geom(sf::st_as_sfc(map_extent)),
-    extent = map_extent
+      coord_from_bbox(panel_base$map_extent),
+    extent = panel_base$map_extent
   )
 }
 
@@ -720,15 +1012,33 @@ make_fig_map = function(
 
 #region panels
 
-ruff_crs = make_local_lcc_crs(ruff)
-ruff2_crs = make_local_lcc_crs(ruff2)
-lbdo_crs = make_local_lcc_crs(lbdo)
-nola_crs = make_local_lcc_crs(nola)
+make_fig3_panel_crs = function(x) {
+  make_relief_panel_crs(
+    x,
+    projection = LBDO_RELIEF_TEST_PROJECTION,
+    lon0 = LBDO_RELIEF_TEST_LON0,
+    lat0 = LBDO_RELIEF_TEST_LAT0,
+    aea_lat1 = LBDO_RELIEF_TEST_AEA_LAT1,
+    aea_lat2 = LBDO_RELIEF_TEST_AEA_LAT2,
+    aea_lat1_prop = LBDO_RELIEF_TEST_AEA_LAT1_PROP,
+    aea_lat2_prop = LBDO_RELIEF_TEST_AEA_LAT2_PROP
+  )
+}
+
+ruff_crs = make_fig3_panel_crs(ruff)
+ruff2_crs = make_fig3_panel_crs(ruff2)
+lbdo_crs = make_fig3_panel_crs(lbdo)
+nola_crs = make_fig3_panel_crs(nola)
 
 top_specs = list(
   list(ctdf = ruff, crs = ruff_crs, x_pad = 0.06, y_pad = 0.10),
   list(ctdf = ruff2, crs = ruff2_crs, x_pad = 0.06, y_pad = 0.10),
-  list(ctdf = lbdo, crs = lbdo_crs, x_pad = 0.12, y_pad = 0.10)
+  list(
+    ctdf = lbdo,
+    crs = lbdo_crs,
+    x_pad = LBDO_RELIEF_TEST_X_PAD,
+    y_pad = LBDO_RELIEF_TEST_Y_PAD
+  )
 )
 
 top_target_ratio = max(
@@ -752,15 +1062,14 @@ top_target_ratio = max(
 )
 
 ### make maps ----
-gruff1_map =
-  make_fig_map(
+gruff1_map = make_fig_map(
   ruff,
   crs = ruff_crs,
   scloc = "br",
   x_pad = 0.06,
   y_pad = 0.10,
   target_ratio = top_target_ratio,
-  terrain_zoom = 7,
+  terrain_zoom = 4,
   terrain_alpha = 0.56,
   min_shade = 0.55,
   disagg_factor = 1
@@ -773,21 +1082,21 @@ gruff2_map = make_fig_map(
   x_pad = 0.06,
   y_pad = 0.10,
   target_ratio = top_target_ratio,
-  terrain_zoom = 7,
+  terrain_zoom = 4,
   terrain_alpha = 0.56,
   min_shade = 0.55,
   disagg_factor = 1
 )
 
-# glbdo_map =
+glbdo_map =
   make_fig_map(
   lbdo,
   crs = lbdo_crs,
   scloc = "bl",
-  x_pad = 0.35,
-  y_pad = 0.20,
-  target_ratio = top_target_ratio,
-  terrain_zoom = 4,
+  x_pad = LBDO_RELIEF_TEST_X_PAD,
+  y_pad = LBDO_RELIEF_TEST_Y_PAD,
+  target_ratio = NULL,
+  terrain_zoom = LBDO_RELIEF_TEST_ZOOM,
   terrain_alpha = 0.56,
   min_shade = 0.55,
   disagg_factor = 1
