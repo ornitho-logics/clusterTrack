@@ -1148,6 +1148,11 @@ make_fig_map = function(
     Cluster = ss$Cluster,
     geometry = ss$site_poly_center
   )
+  cluster_centers_sf = repel_cluster_centers(
+    cluster_centers_sf[cluster_centers_sf$cluster > 0, ],
+    map_extent = panel_base$map_extent,
+    point_size = cluster_point_size
+  )
 
   track0_layer = if (is.null(panel_base$track0_plot)) {
     NULL
@@ -1195,7 +1200,7 @@ make_fig_map = function(
       sf::st_coordinates()
   )
 
-  tt = ggplot2::theme_bw() +
+  tt = ggplot2::theme_bw(base_family = "Lato") +
     ggplot2::theme(
       legend.position = "none",
       panel.background = ggplot2::element_rect(fill = "white", color = NA),
@@ -1241,11 +1246,6 @@ make_fig_map = function(
       ) +
       noncluster_point_layer +
       track0_layer +
-      ggspatial::annotation_spatial(
-        sf::st_as_sf(ss[, .(Cluster, site_poly)]),
-        ggplot2::aes(fill = Cluster, color = Cluster),
-        alpha = 0.3
-      ) +
       cluster_point_layer +
       scf +
       scc +
@@ -1255,6 +1255,7 @@ make_fig_map = function(
         line_width = scalebar_line_width,
         height = scalebar_height,
         text_cex = scalebar_text_cex,
+        text_family = "Lato",
         tick_height = scalebar_tick_height
       ) +
       tt +
@@ -1266,6 +1267,79 @@ make_fig_map = function(
       hydro = hydro
     )
   )
+}
+
+repel_cluster_centers = function(
+  points_sf,
+  map_extent,
+  point_size,
+  padding_factor = 1.02,
+  max_iter = 250,
+  anchor_strength = 0.08
+) {
+  if (nrow(points_sf) < 2) {
+    return(points_sf)
+  }
+
+  coords = sf::st_coordinates(points_sf)
+  original_coords = coords
+  x_limits = c(map_extent[["xmin"]], map_extent[["xmax"]])
+  y_limits = c(map_extent[["ymin"]], map_extent[["ymax"]])
+  span_ref = min(diff(x_limits), diff(y_limits))
+
+  if (!is.finite(span_ref) || !isTRUE(span_ref > 0)) {
+    return(points_sf)
+  }
+
+  min_sep = span_ref * point_size * 0.0175 * padding_factor
+  n_points = nrow(coords)
+
+  for (iter in seq_len(max_iter)) {
+    displacement = matrix(0, nrow = n_points, ncol = 2)
+    max_overlap = 0
+
+    for (i in seq_len(n_points - 1)) {
+      for (j in seq.int(i + 1, n_points)) {
+        dx = coords[j, 1] - coords[i, 1]
+        dy = coords[j, 2] - coords[i, 2]
+        dist = sqrt(dx ^ 2 + dy ^ 2)
+
+        if (dist < min_sep) {
+          overlap = min_sep - dist
+          max_overlap = max(max_overlap, overlap)
+
+          if (!isTRUE(dist > 0)) {
+            angle = (i + j) * pi / n_points
+            ux = cos(angle)
+            uy = sin(angle)
+          } else {
+            ux = dx / dist
+            uy = dy / dist
+          }
+
+          shift = overlap / 2
+          displacement[i, ] = displacement[i, ] - c(ux, uy) * shift
+          displacement[j, ] = displacement[j, ] + c(ux, uy) * shift
+        }
+      }
+    }
+
+    coords = coords + displacement
+    coords = coords + anchor_strength * (original_coords - coords)
+    coords[, 1] = pmin(pmax(coords[, 1], x_limits[1]), x_limits[2])
+    coords[, 2] = pmin(pmax(coords[, 2], y_limits[1]), y_limits[2])
+
+    if (max_overlap < span_ref * 1e-5) {
+      break
+    }
+  }
+
+  sf::st_geometry(points_sf) = sf::st_sfc(
+    lapply(seq_len(nrow(coords)), function(i) sf::st_point(coords[i, ])),
+    crs = sf::st_crs(points_sf)
+  )
+
+  points_sf
 }
 
 # Circular timeline helpers mirror the Figure 2 gtime logic but wrap each
@@ -1290,6 +1364,14 @@ build_gtime_timeline_df = function(ctdf) {
   )
 
   timeline_df[]
+}
+
+get_ctdf_start_timestamp = function(ctdf) {
+  if (!nrow(ctdf) || !"timestamp" %in% names(ctdf)) {
+    return(as.POSIXct(NA))
+  }
+
+  min(ctdf[["timestamp"]], na.rm = TRUE)
 }
 
 split_timeline_span_by_year = function(
@@ -1845,6 +1927,88 @@ build_spiral_background_circle = function(radius, n = 360) {
   )
 }
 
+build_spiral_month_ticks = function(
+  radius,
+  tick_length = 0.12,
+  tick_gap = 0.15,
+  start_angle = pi / 2,
+  months = 1:12
+) {
+  months = sort(unique(as.integer(months)))
+  months = months[is.finite(months) & months >= 1 & months <= 12]
+  if (!length(months)) {
+    return(data.table::data.table())
+  }
+
+  month_guides = build_circular_month_guides()
+  month_guides = month_guides[months]
+  month_guides[, angle_start := start_angle - 2 * pi * theta_start]
+  month_guides[, `:=`(
+    x = (radius + tick_gap) * cos(angle_start),
+    y = (radius + tick_gap) * sin(angle_start),
+    xend = (radius + tick_gap + tick_length) * cos(angle_start),
+    yend = (radius + tick_gap + tick_length) * sin(angle_start)
+  )]
+
+  month_guides[]
+}
+
+build_spiral_direction_arrow = function(
+  start_timestamp,
+  year_levels,
+  inner_radius = 1.15,
+  ring_spacing = 0.92,
+  samples_per_year = 720,
+  duration_months = 2,
+  radius_offset = 0.12
+) {
+  if (is.na(start_timestamp) || !isTRUE(duration_months > 0)) {
+    return(data.table::data.table())
+  }
+
+  tz = attr(start_timestamp, "tzone")
+  if (is.null(tz) || identical(tz, "")) {
+    tz = "UTC"
+  }
+
+  end_timestamp = seq(
+    from = as.POSIXct(start_timestamp, tz = tz),
+    by = sprintf("%d months", duration_months),
+    length.out = 2
+  )[2]
+  arrow_year_levels = seq.int(
+    min(c(
+      year_levels,
+      as.integer(format(start_timestamp, "%Y")),
+      as.integer(format(end_timestamp, "%Y"))
+    )),
+    max(c(
+      year_levels,
+      as.integer(format(start_timestamp, "%Y")),
+      as.integer(format(end_timestamp, "%Y"))
+    ))
+  )
+
+  arrow_df = timestamps_to_spiral_coords(
+    timestamps = sample_gtime_segment_timestamps(
+      start = start_timestamp,
+      stop = end_timestamp,
+      samples_per_year = samples_per_year
+    ),
+    year_levels = arrow_year_levels,
+    inner_radius = inner_radius,
+    ring_spacing = ring_spacing
+  )
+
+  arrow_df[, radius := pmax(radius - radius_offset, inner_radius * 0.2)]
+  arrow_df[, `:=`(
+    x = radius * cos(angle),
+    y = radius * sin(angle)
+  )]
+
+  arrow_df[]
+}
+
 make_spiral_gtime = function(
   ctdf,
   title = NULL,
@@ -1857,7 +2021,19 @@ make_spiral_gtime = function(
   calendar_line_months = c(1, 3, 5, 7, 9, 11),
   calendar_line_color = scales::alpha("white", 0.74),
   calendar_line_linewidth = 0.45,
-  calendar_line_length = NULL
+  calendar_line_length = NULL,
+  show_calendar_lines = TRUE,
+  show_month_ticks = FALSE,
+  month_tick_color = scales::alpha("grey45", 0.7),
+  month_tick_linewidth = 0.25,
+  month_tick_length = NULL,
+  month_tick_months = 1:12,
+  show_background_circle = TRUE,
+  show_direction_arrow = TRUE,
+  direction_arrow_months = 2,
+  direction_arrow_color = "black",
+  direction_arrow_linewidth = 0.3,
+  direction_arrow_offset = NULL
 ) {
   if (!is.null(segment_linewidth)) {
     segment_width = segment_linewidth
@@ -1902,13 +2078,17 @@ make_spiral_gtime = function(
       ring_spacing = ring_spacing
     )
   }
-  calendar_lines = build_spiral_calendar_lines(
-    year_levels = year_levels,
-    inner_radius = inner_radius,
-    ring_spacing = ring_spacing,
-    months = calendar_line_months,
-    line_length = calendar_line_length
-  )
+  calendar_lines = if (isTRUE(show_calendar_lines)) {
+    build_spiral_calendar_lines(
+      year_levels = year_levels,
+      inner_radius = inner_radius,
+      ring_spacing = ring_spacing,
+      months = calendar_line_months,
+      line_length = calendar_line_length
+    )
+  } else {
+    data.table::data.table()
+  }
 
   scc = viridis::scale_color_viridis(
     discrete = TRUE,
@@ -1919,33 +2099,13 @@ make_spiral_gtime = function(
 
   background_fill = NA
 
-  x_values = c(
-    spiral_df$x,
-    connector_df$x,
-    guide_path$x,
-    month_guides$x,
-    month_guides$xend,
-    calendar_lines$x,
-    calendar_lines$xend
-  )
-  y_values = c(
-    spiral_df$y,
-    connector_df$y,
-    guide_path$y,
-    month_guides$y,
-    month_guides$yend,
-    calendar_lines$y,
-    calendar_lines$yend
-  )
-
-  if (!bare) {
-    x_values = c(x_values, month_guides$xlab, year_labels$x)
-    y_values = c(y_values, month_guides$ylab, year_labels$y)
-  }
-
   plot_padding = max(
     0.14,
-    calendar_line_length * 0.7,
+    if (isTRUE(show_calendar_lines)) {
+      calendar_line_length * 0.7
+    } else {
+      0
+    },
     ring_spacing * 0.12
   )
   if (!bare) {
@@ -1953,15 +2113,124 @@ make_spiral_gtime = function(
   }
   background_radii = c(
     sqrt(spiral_df$x ^ 2 + spiral_df$y ^ 2),
-    sqrt(connector_df$x ^ 2 + connector_df$y ^ 2),
-    sqrt(guide_path$x ^ 2 + guide_path$y ^ 2),
-    sqrt(month_guides$xend ^ 2 + month_guides$yend ^ 2),
-    sqrt(calendar_lines$x ^ 2 + calendar_lines$y ^ 2),
-    sqrt(calendar_lines$xend ^ 2 + calendar_lines$yend ^ 2)
+    sqrt(connector_df$x ^ 2 + connector_df$y ^ 2)
   )
-  background_circle = build_spiral_background_circle(
-    radius = max(background_radii, na.rm = TRUE) + max(0.05, plot_padding * 0.22)
+  if (!bare) {
+    background_radii = c(
+      background_radii,
+      sqrt(calendar_lines$x ^ 2 + calendar_lines$y ^ 2),
+      sqrt(calendar_lines$xend ^ 2 + calendar_lines$yend ^ 2),
+      sqrt(guide_path$x ^ 2 + guide_path$y ^ 2),
+      sqrt(month_guides$xend ^ 2 + month_guides$yend ^ 2)
+    )
+  }
+  background_circle = if (isTRUE(show_background_circle)) {
+    build_spiral_background_circle(
+      radius = if (bare) {
+        max(background_radii, na.rm = TRUE) + 0.015
+      } else {
+        max(background_radii, na.rm = TRUE) + max(0.01, plot_padding * 0.02)
+      }
+    )
+  } else {
+    data.table::data.table()
+  }
+  if (is.null(month_tick_length)) {
+    month_tick_length = max(0.08, ring_spacing * 0.12)
+  }
+  month_ticks = if (isTRUE(show_month_ticks) && isTRUE(bare)) {
+    build_spiral_month_ticks(
+      radius = max(
+        c(
+          sqrt(spiral_df$x ^ 2 + spiral_df$y ^ 2),
+          sqrt(connector_df$x ^ 2 + connector_df$y ^ 2)
+        ),
+        na.rm = TRUE
+      ),
+      tick_length = month_tick_length,
+      months = month_tick_months
+    )
+  } else {
+    data.table::data.table()
+  }
+  dataset_start_timestamp = get_ctdf_start_timestamp(ctdf)
+  spiral_start_year_levels = seq.int(
+    min(c(year_levels, as.integer(format(dataset_start_timestamp, "%Y")))),
+    max(c(year_levels, as.integer(format(dataset_start_timestamp, "%Y"))))
   )
+  spiral_start_point = timestamps_to_spiral_coords(
+    timestamps = as.POSIXct(dataset_start_timestamp, origin = "1970-01-01", tz = attr(dataset_start_timestamp, "tzone")),
+    year_levels = spiral_start_year_levels,
+    inner_radius = inner_radius,
+    ring_spacing = ring_spacing
+  )[, .(x, y)]
+  if (!nrow(spiral_start_point) || anyNA(spiral_start_point$x) || anyNA(spiral_start_point$y)) {
+    spiral_start_point = spiral_df[order(timestamp, segment_id)][1, .(x, y)]
+  }
+  if (is.null(direction_arrow_offset)) {
+    direction_arrow_offset = max(0.08, ring_spacing * (0.08 + 0.025 * segment_width))
+  }
+  direction_arrow_df = if (isTRUE(show_direction_arrow)) {
+    build_spiral_direction_arrow(
+      start_timestamp = dataset_start_timestamp,
+      year_levels = year_levels,
+      inner_radius = inner_radius,
+      ring_spacing = ring_spacing,
+      samples_per_year = samples_per_year,
+      duration_months = direction_arrow_months,
+      radius_offset = direction_arrow_offset
+    )
+  } else {
+    data.table::data.table()
+  }
+  if (nrow(direction_arrow_df) && !anyNA(direction_arrow_df[1, .(x, y)])) {
+    spiral_start_point = direction_arrow_df[1, .(x, y)]
+  }
+  coord_x_values = c(
+    spiral_df$x,
+    connector_df$x,
+    calendar_lines$x,
+    calendar_lines$xend,
+    month_ticks$x,
+    month_ticks$xend,
+    direction_arrow_df$x,
+    spiral_start_point$x,
+    background_circle$x
+  )
+  coord_y_values = c(
+    spiral_df$y,
+    connector_df$y,
+    calendar_lines$y,
+    calendar_lines$yend,
+    month_ticks$y,
+    month_ticks$yend,
+    direction_arrow_df$y,
+    spiral_start_point$y,
+    background_circle$y
+  )
+  if (!bare) {
+    coord_x_values = c(
+      coord_x_values,
+      guide_path$x,
+      month_guides$x,
+      month_guides$xend,
+      month_guides$xlab,
+      year_labels$x
+    )
+    coord_y_values = c(
+      coord_y_values,
+      guide_path$y,
+      month_guides$y,
+      month_guides$yend,
+      month_guides$ylab,
+      year_labels$y
+    )
+  }
+  coord_padding = if (bare) {
+    0
+  } else {
+    plot_padding
+  }
 
   p = ggplot2::ggplot()
 
@@ -1985,19 +2254,23 @@ make_spiral_gtime = function(
   }
 
   p = p +
-    ggplot2::geom_polygon(
-      data = background_circle,
-      ggplot2::aes(x = x, y = y),
-      inherit.aes = FALSE,
-      fill = "white",
-      color = NA
-    ) +
+    {
+      if (nrow(background_circle)) {
+        ggplot2::geom_polygon(
+          data = background_circle,
+          ggplot2::aes(x = x, y = y),
+          inherit.aes = FALSE,
+          fill = "white",
+          color = NA
+        )
+      }
+    } +
     ggplot2::geom_path(
       data = connector_df,
       ggplot2::aes(x = x, y = y, group = connector_id),
       inherit.aes = FALSE,
-      color = scales::alpha("black", 0.72),
-      linewidth = 0.5,
+      color = "grey30",#scales::alpha("grey30", 0.72),
+      linewidth = 0.3,
       lineend = "round",
       linejoin = "round"
     ) +
@@ -2020,22 +2293,64 @@ make_spiral_gtime = function(
       linejoin = "mitre",
       alpha = 0.88
     ) +
-    ggplot2::geom_segment(
-      data = calendar_lines,
-      ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
+    {
+      if (nrow(calendar_lines)) {
+        ggplot2::geom_segment(
+          data = calendar_lines,
+          ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
+          inherit.aes = FALSE,
+          color = calendar_line_color,
+          linewidth = calendar_line_linewidth,
+          lineend = "butt",
+          alpha = 0.95
+        )
+      }
+    } +
+    {
+      if (nrow(month_ticks)) {
+        ggplot2::geom_segment(
+          data = month_ticks,
+          ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
+          inherit.aes = FALSE,
+          color = month_tick_color,
+          linewidth = month_tick_linewidth,
+          lineend = "butt",
+          alpha = 0.95
+        )
+      }
+    } +
+    {
+      if (nrow(direction_arrow_df)) {
+        ggplot2::geom_path(
+          data = direction_arrow_df,
+          ggplot2::aes(x = x, y = y),
+          inherit.aes = FALSE,
+          color = direction_arrow_color,
+          linewidth = direction_arrow_linewidth,
+          lineend = "round",
+          arrow = grid::arrow(
+            type = "closed",
+            length = grid::unit(0.04, "inches")
+          )
+        )
+      }
+    } +
+    ggplot2::geom_point(
+      data = spiral_start_point,
+      ggplot2::aes(x = x, y = y),
       inherit.aes = FALSE,
-      color = calendar_line_color,
-      linewidth = calendar_line_linewidth,
-      lineend = "butt",
-      alpha = 0.95
+      color = "white",
+      fill = "black",
+      size = 1,
+      shape = 21
     ) +
     scc +
     ggplot2::coord_equal(
-      xlim = range(x_values, na.rm = TRUE) + c(-plot_padding, plot_padding),
-      ylim = range(y_values, na.rm = TRUE) + c(-plot_padding, plot_padding),
+      xlim = range(coord_x_values, na.rm = TRUE) + c(-coord_padding, coord_padding),
+      ylim = range(coord_y_values, na.rm = TRUE) + c(-coord_padding, coord_padding),
       clip = "off"
     ) +
-    ggplot2::theme_void() +
+    ggplot2::theme_void(base_family = "Lato") +
     ggplot2::theme(
       legend.position = "none",
       panel.background = ggplot2::element_rect(fill = background_fill, color = NA),
@@ -2061,14 +2376,16 @@ make_spiral_gtime = function(
         ggplot2::aes(x = xlab, y = ylab, label = month),
         inherit.aes = FALSE,
         color = "grey20",
-        size = 3
+        size = 3,
+        family = "Lato"
       ) +
       ggplot2::geom_text(
         data = year_labels,
         ggplot2::aes(x = x, y = y, label = year),
         inherit.aes = FALSE,
         color = "grey20",
-        size = 3
+        size = 3,
+        family = "Lato"
       ) +
       ggplot2::labs(
         title = title,
@@ -2079,8 +2396,127 @@ make_spiral_gtime = function(
   p
 }
 
-# Add an inset using panel-relative center coordinates where x/y in [0, 1]
-# denote the inset center within the target panel.
+make_linear_gtime = function(ctdf, title = NULL) {
+  timeline_df = build_gtime_timeline_df(ctdf)
+
+  if (!nrow(timeline_df)) {
+    return(ggplot2::ggplot() + ggplot2::theme_void())
+  }
+
+  timeline_df[, cluster_id := as.integer(Cluster)]
+
+  connector_df = timeline_df[
+    order(cluster_id),
+    .(
+      x = stop,
+      xend = data.table::shift(start, type = "lead"),
+      y = cluster_id,
+      yend = data.table::shift(cluster_id, type = "lead")
+    )
+  ][!is.na(xend)]
+  dataset_start_timestamp = get_ctdf_start_timestamp(ctdf)
+  start_cluster = data.table::copy(ctdf)[order(timestamp)][1, cluster]
+  start_cluster_id = if (
+    is.finite(start_cluster) &&
+    isTRUE(start_cluster > 0) &&
+    start_cluster %in% timeline_df$cluster
+  ) {
+    timeline_df[cluster == start_cluster, cluster_id][1]
+  } else {
+    timeline_df$cluster_id[1]
+  }
+  start_point_df = data.table::data.table(
+    x = dataset_start_timestamp,
+    y = start_cluster_id
+  )
+  label_rows = unique(c(1L, ceiling((nrow(timeline_df)) / 2), nrow(timeline_df)))
+  y_breaks = timeline_df$cluster_id[label_rows]
+  y_labels = timeline_df$cluster[label_rows]
+
+  scf = viridis::scale_fill_viridis(
+    discrete = TRUE,
+    option = "turbo",
+    begin = 0.1,
+    end = 0.95
+  )
+  scc = viridis::scale_color_viridis(
+    discrete = TRUE,
+    option = "turbo",
+    begin = 0.1,
+    end = 0.95
+  )
+
+  ggplot2::ggplot(timeline_df) +
+    ggplot2::geom_rect(
+      ggplot2::aes(
+        xmin = start,
+        xmax = stop,
+        ymin = cluster_id - 0.32,
+        ymax = cluster_id + 0.32,
+        fill = Cluster,
+        color = NA
+      ),
+      linewidth = 0.3,
+      alpha = 1
+    ) +
+    ggplot2::geom_segment(
+      data = connector_df,
+      ggplot2::aes(x = x, xend = xend, y = y, yend = yend),
+      inherit.aes = FALSE,
+      color = "grey35",
+      linewidth = 0.2,
+      alpha = 0.5
+    ) +
+    ggplot2::geom_point(
+      data = start_point_df,
+      ggplot2::aes(x = x, y = y),
+      inherit.aes = FALSE,
+      color = "white",
+      fill = "black",
+      size = 1,
+      shape = 21
+    ) +
+    scf +
+    scc +
+    ggplot2::scale_x_datetime(
+      date_labels = "%b",
+      expand = ggplot2::expansion(mult = c(0.015, 0.03))
+    ) +
+    ggplot2::scale_y_continuous(
+      breaks = y_breaks,
+      labels = y_labels,
+      limits = c(0.5, max(timeline_df$cluster_id) + 0.5),
+      expand = ggplot2::expansion(mult = c(0.02, 0.06))
+    ) +
+    ggplot2::theme_bw(base_family = "Lato") +
+    ggplot2::theme(
+      legend.position = "none",
+      panel.background = ggplot2::element_rect(fill = "white", color = NA),
+      plot.background = ggplot2::element_rect(fill = NA, color = NA),
+      panel.grid.major.y = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
+      panel.grid.major.x = ggplot2::element_line(
+        color = scales::alpha("grey60", 0.2),
+        linewidth = 0.25
+      ),
+      axis.ticks = ggplot2::element_blank(),
+      axis.title.x = ggplot2::element_blank(),
+      axis.title.y = ggplot2::element_text(color = "grey20", size = 7),
+      axis.text.x = ggplot2::element_text(color = "grey20", size = 6),
+      axis.text.y = ggplot2::element_text(color = "grey20", size = 6),
+      plot.title = ggplot2::element_text(
+        hjust = 0.5,
+        color = "grey15",
+        size = 8,
+        face = "bold"
+      ),
+      plot.margin = ggplot2::margin(1.5, 1.5, 1.5, 1.5)
+    ) +
+    ggplot2::labs(title = title, y = "cluster")
+}
+
+# Add an inset using panel-relative center coordinates. Values outside [0, 1]
+# are allowed so an inset can intentionally sit beyond the panel frame.
 add_centered_inset = function(
   base_plot,
   inset_plot,
@@ -2091,13 +2527,13 @@ add_centered_inset = function(
   height = size,
   align_to = "panel"
 ) {
-  width = max(min(width, 1), 0)
-  height = max(min(height, 1), 0)
+  width = max(width, 0)
+  height = max(height, 0)
 
-  left = max(0, x - width / 2)
-  right = min(1, x + width / 2)
-  bottom = max(0, y - height / 2)
-  top = min(1, y + height / 2)
+  left = x - width / 2
+  right = x + width / 2
+  bottom = y - height / 2
+  top = y + height / 2
 
   base_plot +
     patchwork::inset_element(
@@ -2195,7 +2631,7 @@ sf_polygons_to_df = function(x, keep_cols = character()) {
   )
 }
 
-make_globe_inset = function(focus_bbox) {
+make_globe_inset = function(focus_bbox, globe_center_lonlat = c(25, 38)) {
   world = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
   focus_bbox_wgs84 = sf::st_as_sfc(focus_bbox) |>
     sf::st_transform(4326)
@@ -2206,8 +2642,8 @@ make_globe_inset = function(focus_bbox) {
   )
   globe_crs = sprintf(
     "+proj=ortho +lon_0=%s +lat_0=%s +x_0=0 +y_0=0",
-    focus_lonlat[1],
-    focus_lonlat[2]
+    globe_center_lonlat[1],
+    globe_center_lonlat[2]
   )
 
   earth_radius = 6378137
@@ -2306,7 +2742,7 @@ make_globe_inset = function(focus_bbox) {
       shape = 21,
       size = 1.5,
       stroke = 0.45,
-      fill = "#a53a35",
+      fill = "black",
       color = "white",
       alpha = 0.95
     ) +
@@ -2400,7 +2836,7 @@ gruff2_map = make_fig_map(
   coast_color = "grey80",
   noncluster_point_alpha = 0.5,
   noncluster_point_color = "grey40",
-  noncluster_point_shape = 16
+  noncluster_point_shape = 16, cluster_point_alpha = 1
 )
 
 gruff1_map = make_fig_map(
@@ -2425,7 +2861,7 @@ gruff1_map = make_fig_map(
   coast_color = "grey80",
   noncluster_point_alpha = 0.5,
   noncluster_point_color = "grey40",
-  noncluster_point_shape = 19
+  noncluster_point_shape = 16, cluster_point_alpha = 1
 )
 
 glbdo_map =
@@ -2454,7 +2890,7 @@ glbdo_map =
   coast_color = "grey80",
   noncluster_point_alpha = 0.5,
   noncluster_point_color = "grey40",
-  noncluster_point_shape = 19
+  noncluster_point_shape = 16, cluster_point_alpha = 1
 )
 
 gnola_map =
@@ -2473,7 +2909,7 @@ gnola_map =
   show_rivers = FALSE,
   noncluster_point_alpha = 0.5,
   noncluster_point_color = "grey40",
-  noncluster_point_shape = 19
+  noncluster_point_shape = 16, cluster_point_alpha = 1
 )
 
 gruff1 = gruff1_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
@@ -2481,13 +2917,14 @@ gruff2 = gruff2_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2,
 glbdo = glbdo_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
 gnola = gnola_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
 nola_globe_inset = make_globe_inset(gnola_map$extent)
+nola_gtime_inset_spec = list(x = 0.43, y = 0.2, width = 0.3, height = 0.4)
 
 # Panel-relative inset centers and sizes for the spiral overlays. `x = 0.5`
 # and `y = 0.5` place the spiral in the middle of the map panel.
 spiral_inset_specs = list(
-  ruff1 = list(x = 0.20, y = 0.8, size = 0.4, segment_width = 2),
-  ruff2 = list(x = 0.20, y = 0.8, size = 0.4, segment_width = 2),
-  lbdo = list(x = 0.20, y = 0.35, size = 0.4, segment_width = 2)
+  ruff1 = list(x = 0.17, y = 0.85, size = 0.3, segment_width = 2),
+  ruff2 = list(x = 0.22, y = 0.81, size = 0.4, segment_width = 2),
+  lbdo = list(x = 0.20, y = 0.3, size = 0.4, segment_width = 2)
 )
 
 # Keep the circular timelines separate for now so they can be reviewed before
@@ -2505,29 +2942,24 @@ gtime_circular = list(
 gruff1_gtime_spiral = make_spiral_gtime(
   ruff,
   title = "ruff1",
-  bare = TRUE,
-  calendar_line_color = "black",
-  calendar_line_linewidth = 0.2,
-  calendar_line_length = 0.5,
-  segment_width = spiral_inset_specs$ruff1$segment_width,
+  bare = TRUE, show_calendar_lines = FALSE, show_month_ticks = TRUE,
+  segment_width = spiral_inset_specs$ruff1$segment_width, month_tick_length = 0.1,
+  direction_arrow_offset = 0.3, show_background_circle = FALSE, month_tick_months = c(5, 6, 7)
 )
 gruff2_gtime_spiral = make_spiral_gtime(
   ruff2,
   title = "ruff2",
-  bare = TRUE,
-  calendar_line_color = "black",
-  calendar_line_linewidth = 0.2,
-  calendar_line_length = 0.5,
-  segment_width = spiral_inset_specs$ruff2$segment_width
+  bare = TRUE, show_calendar_lines = FALSE,
+  show_month_ticks = TRUE, month_tick_length = 0.15,
+  segment_width = spiral_inset_specs$ruff2$segment_width,
+  direction_arrow_offset = 0.5, month_tick_months = c(6:11)
 )
 glbdo_gtime_spiral = make_spiral_gtime(
   lbdo,
   title = "lbdo",
-  bare = TRUE,
-  calendar_line_color = "black",
-  calendar_line_linewidth = 0.2,
-  calendar_line_length = 0.5,
+  bare = TRUE, show_calendar_lines = FALSE, show_month_ticks = TRUE, month_tick_length = 0.2,
   segment_width = spiral_inset_specs$lbdo$segment_width,
+  direction_arrow_offset = 0.6, show_background_circle = FALSE, direction_arrow_months = 3
 )
 
 gtime_spiral = list(
@@ -2535,6 +2967,8 @@ gtime_spiral = list(
   ruff2 = gruff2_gtime_spiral,
   lbdo = glbdo_gtime_spiral
 )
+
+gnola_gtime_linear = make_linear_gtime(nola)
 
 gruff1 = add_centered_inset(
   gruff1,
@@ -2567,6 +3001,14 @@ gnola = gnola +
     align_to = "panel",
     clip = FALSE
   )
+gnola = add_centered_inset(
+  gnola,
+  gnola_gtime_linear,
+  x = nola_gtime_inset_spec$x,
+  y = nola_gtime_inset_spec$y,
+  width = nola_gtime_inset_spec$width,
+  height = nola_gtime_inset_spec$height
+)
 
 top_row_height = 1 / (3 * top_target_ratio + 0.06)
 bottom_row_height = 1 / bbox_ratio(gnola_map$extent)
