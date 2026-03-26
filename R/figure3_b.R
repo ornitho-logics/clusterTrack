@@ -1140,6 +1140,14 @@ make_fig_map = function(
   ctdf = data.table::copy(ctdf)
   ctdf = transform_sf_columns(ctdf, plot_crs)
   data.table::set(ctdf, j = "Cluster", value = factor(ctdf[["cluster"]]))
+  ss = summarise_ctdf(ctdf)
+  ss = transform_sf_columns(ss, plot_crs)
+  data.table::set(ss, j = "Cluster", value = factor(ss[["cluster"]]))
+  cluster_centers_sf = sf::st_sf(
+    cluster = ss$cluster,
+    Cluster = ss$Cluster,
+    geometry = ss$site_poly_center
+  )
 
   track0_layer = if (is.null(panel_base$track0_plot)) {
     NULL
@@ -1163,7 +1171,7 @@ make_fig_map = function(
 
   cluster_point_layer = if (is.null(cluster_point_fill)) {
     ggspatial::layer_spatial(
-      sf::st_as_sf(ctdf[cluster > 0]),
+      cluster_centers_sf[cluster_centers_sf$cluster > 0, ],
       ggplot2::aes(fill = Cluster),
       color = cluster_point_color,
       shape = cluster_point_shape,
@@ -1172,7 +1180,7 @@ make_fig_map = function(
     )
   } else {
     ggspatial::layer_spatial(
-      sf::st_as_sf(ctdf[cluster > 0]),
+      cluster_centers_sf[cluster_centers_sf$cluster > 0, ],
       fill = cluster_point_fill,
       color = cluster_point_color,
       shape = cluster_point_shape,
@@ -1180,10 +1188,6 @@ make_fig_map = function(
       size = cluster_point_size
     )
   }
-
-  ss = summarise_ctdf(ctdf)
-  ss = transform_sf_columns(ss, plot_crs)
-  data.table::set(ss, j = "Cluster", value = factor(ss[["cluster"]]))
   ss = cbind(
     ss,
     sf::st_as_sf(ss$site_poly_center) |>
@@ -1832,6 +1836,15 @@ build_spiral_year_labels = function(
   )
 }
 
+build_spiral_background_circle = function(radius, n = 360) {
+  theta = seq(0, 2 * pi, length.out = n + 1)
+
+  data.table::data.table(
+    x = radius * cos(theta),
+    y = radius * sin(theta)
+  )
+}
+
 make_spiral_gtime = function(
   ctdf,
   title = NULL,
@@ -1904,11 +1917,7 @@ make_spiral_gtime = function(
     end = 0.95
   )
 
-  background_fill = if (bare) {
-    NA
-  } else {
-    "white"
-  }
+  background_fill = NA
 
   x_values = c(
     spiral_df$x,
@@ -1942,6 +1951,17 @@ make_spiral_gtime = function(
   if (!bare) {
     plot_padding = plot_padding + 0.12
   }
+  background_radii = c(
+    sqrt(spiral_df$x ^ 2 + spiral_df$y ^ 2),
+    sqrt(connector_df$x ^ 2 + connector_df$y ^ 2),
+    sqrt(guide_path$x ^ 2 + guide_path$y ^ 2),
+    sqrt(month_guides$xend ^ 2 + month_guides$yend ^ 2),
+    sqrt(calendar_lines$x ^ 2 + calendar_lines$y ^ 2),
+    sqrt(calendar_lines$xend ^ 2 + calendar_lines$yend ^ 2)
+  )
+  background_circle = build_spiral_background_circle(
+    radius = max(background_radii, na.rm = TRUE) + max(0.05, plot_padding * 0.22)
+  )
 
   p = ggplot2::ggplot()
 
@@ -1965,6 +1985,13 @@ make_spiral_gtime = function(
   }
 
   p = p +
+    ggplot2::geom_polygon(
+      data = background_circle,
+      ggplot2::aes(x = x, y = y),
+      inherit.aes = FALSE,
+      fill = "white",
+      color = NA
+    ) +
     ggplot2::geom_path(
       data = connector_df,
       ggplot2::aes(x = x, y = y, group = connector_id),
@@ -2277,7 +2304,7 @@ make_globe_inset = function(focus_bbox) {
       data = focus_point_df,
       ggplot2::aes(x = x, y = y),
       shape = 21,
-      size = 2.6,
+      size = 1.5,
       stroke = 0.45,
       fill = "#a53a35",
       color = "white",
@@ -2533,9 +2560,9 @@ glbdo = add_centered_inset(
 gnola = gnola +
   patchwork::inset_element(
     nola_globe_inset,
-    left = 0.885,
-    bottom = 0.77,
-    right = 0.988,
+    left = 0.8,
+    bottom = 0.3,
+    right = 1.1,
     top = 0.985,
     align_to = "panel",
     clip = FALSE
@@ -2556,7 +2583,7 @@ gg =
     A = gruff1,
     B = gruff2,
     G = glbdo,
-    N = patchwork::free(gnola),
+    N = gnola,
     design = figure3_layout
   ) +
   patchwork::plot_layout(
