@@ -1076,7 +1076,13 @@ make_fig_map = function(
   cluster_point_size = 2,
   track_line_linewidth = 0.2,
   track_line_color = "grey30",
-  track_line_alpha = 0.5
+  track_line_alpha = 0.5,
+  scalebar_height = grid::unit(0.12, "cm"),
+  scalebar_text_cex = 0.56,
+  scalebar_tick_height = 0.48,
+  scalebar_line_width = 0.8,
+  scalebar_width_hint = 0.25,
+  scalebar_distance_km = NULL
 ) {
   plot_crs = sf::st_crs(crs)
   panel_base = prepare_relief_panel(
@@ -1118,6 +1124,17 @@ make_fig_map = function(
 
     hydro = basemap_override$hydro
     panel_base$relief = basemap_override$relief
+  }
+
+  if (!is.null(scalebar_distance_km)) {
+    map_width = panel_base$map_extent[["xmax"]] - panel_base$map_extent[["xmin"]]
+
+    if (is.finite(map_width) && isTRUE(map_width > 0)) {
+      scalebar_width_hint = min(
+        0.95,
+        max(0.02, (scalebar_distance_km * 1000) / map_width)
+      )
+    }
   }
 
   ctdf = data.table::copy(ctdf)
@@ -1228,7 +1245,14 @@ make_fig_map = function(
       cluster_point_layer +
       scf +
       scc +
-      ggspatial::annotation_scale(height = grid::unit(0.15, "cm"), location = scloc) +
+      ggspatial::annotation_scale(
+        location = scloc,
+        width_hint = scalebar_width_hint,
+        line_width = scalebar_line_width,
+        height = scalebar_height,
+        text_cex = scalebar_text_cex,
+        tick_height = scalebar_tick_height
+      ) +
       tt +
       coord_from_bbox(panel_base$map_extent),
     extent = panel_base$map_extent,
@@ -1506,6 +1530,779 @@ make_circular_gtime = function(ctdf, title = NULL) {
     )
 }
 
+# Spiral helpers keep time continuous across year boundaries, so occupancy
+# spans that cross from December into January stay joined on the plot.
+sample_gtime_segment_timestamps = function(
+  start,
+  stop,
+  samples_per_year = 720,
+  min_duration_secs = 3600
+) {
+  tz = attr(start, "tzone")
+  if (is.null(tz) || identical(tz, "")) {
+    tz = "UTC"
+  }
+
+  if (is.na(start) || is.na(stop)) {
+    return(as.POSIXct(character(), tz = tz))
+  }
+
+  if (!isTRUE(stop > start)) {
+    stop = start + min_duration_secs
+  }
+
+  duration_years = as.numeric(
+    difftime(stop, start, units = "secs")
+  ) / (365.25 * 24 * 3600)
+  n_points = max(2, ceiling(duration_years * samples_per_year) + 1)
+
+  as.POSIXct(
+    seq(from = as.numeric(start), to = as.numeric(stop), length.out = n_points),
+    origin = "1970-01-01",
+    tz = tz
+  )
+}
+
+timestamps_to_spiral_coords = function(
+  timestamps,
+  year_levels,
+  inner_radius = 1.15,
+  ring_spacing = 0.92,
+  start_angle = pi / 2
+) {
+  if (!length(timestamps)) {
+    return(data.table::data.table())
+  }
+
+  tz = attr(timestamps, "tzone")
+  if (is.null(tz) || identical(tz, "")) {
+    tz = "UTC"
+  }
+
+  years = as.integer(format(timestamps, "%Y"))
+  year_id = match(years, year_levels)
+  year_start = as.POSIXct(
+    sprintf("%04d-01-01 00:00:00", years),
+    tz = tz
+  )
+  next_year_start = as.POSIXct(
+    sprintf("%04d-01-01 00:00:00", years + 1),
+    tz = tz
+  )
+  year_fraction = as.numeric(
+    difftime(timestamps, year_start, units = "secs")
+  ) / as.numeric(
+    difftime(next_year_start, year_start, units = "secs")
+  )
+
+  spiral_fraction = (year_id - 1) + year_fraction
+  angle = start_angle - 2 * pi * year_fraction
+  radius = inner_radius + spiral_fraction * ring_spacing
+
+  data.table::data.table(
+    timestamp = timestamps,
+    year = years,
+    year_id = year_id,
+    year_fraction = year_fraction,
+    spiral_fraction = spiral_fraction,
+    angle = angle,
+    radius = radius,
+    x = radius * cos(angle),
+    y = radius * sin(angle)
+  )
+}
+
+build_spiral_gtime_df = function(
+  ctdf,
+  inner_radius = 1.15,
+  ring_spacing = 0.92,
+  samples_per_year = 720
+) {
+  timeline_df = build_gtime_timeline_df(ctdf)
+
+  if (!nrow(timeline_df)) {
+    return(data.table::data.table())
+  }
+
+  year_levels = seq.int(
+    min(as.integer(format(timeline_df$start, "%Y"))),
+    max(as.integer(format(timeline_df$stop, "%Y")))
+  )
+
+  spiral_df = data.table::rbindlist(
+    lapply(seq_len(nrow(timeline_df)), function(i) {
+      timestamps = sample_gtime_segment_timestamps(
+        start = timeline_df$start[i],
+        stop = timeline_df$stop[i],
+        samples_per_year = samples_per_year
+      )
+
+      coords = timestamps_to_spiral_coords(
+        timestamps = timestamps,
+        year_levels = year_levels,
+        inner_radius = inner_radius,
+        ring_spacing = ring_spacing
+      )
+
+      coords[, `:=`(
+        cluster = timeline_df$cluster[i],
+        Cluster = timeline_df$Cluster[i],
+        segment_id = i
+      )]
+
+      coords[]
+    }),
+    use.names = TRUE,
+    fill = TRUE
+  )
+
+  spiral_df[]
+}
+
+build_spiral_connector_df = function(
+  ctdf,
+  inner_radius = 1.15,
+  ring_spacing = 0.92,
+  samples_per_year = 720
+) {
+  timeline_df = build_gtime_timeline_df(ctdf)
+
+  if (nrow(timeline_df) < 2) {
+    return(data.table::data.table())
+  }
+
+  timeline_df = data.table::copy(timeline_df)[order(start, stop, cluster)]
+  year_levels = seq.int(
+    min(as.integer(format(timeline_df$start, "%Y"))),
+    max(as.integer(format(timeline_df$stop, "%Y")))
+  )
+
+  connector_df = data.table::rbindlist(
+    lapply(seq_len(nrow(timeline_df) - 1), function(i) {
+      connector_start = timeline_df$stop[i]
+      connector_stop = timeline_df$start[i + 1]
+
+      # Skip overlaps; only draw the gap that connects one colored segment to
+      # the next chronological segment, matching the Figure 2 timeline logic.
+      if (
+        is.na(connector_start) ||
+        is.na(connector_stop) ||
+        !isTRUE(connector_stop > connector_start)
+      ) {
+        return(NULL)
+      }
+
+      coords = timestamps_to_spiral_coords(
+        timestamps = sample_gtime_segment_timestamps(
+          start = connector_start,
+          stop = connector_stop,
+          samples_per_year = samples_per_year
+        ),
+        year_levels = year_levels,
+        inner_radius = inner_radius,
+        ring_spacing = ring_spacing
+      )
+
+      coords[, connector_id := i]
+      coords[]
+    }),
+    use.names = TRUE,
+    fill = TRUE
+  )
+
+  connector_df[]
+}
+
+build_spiral_reference_path = function(
+  n_years,
+  inner_radius = 1.15,
+  ring_spacing = 0.92,
+  points_per_year = 720,
+  start_angle = pi / 2
+) {
+  spiral_fraction = seq(
+    0,
+    n_years,
+    length.out = n_years * points_per_year + 1
+  )
+  year_fraction = spiral_fraction %% 1
+  angle = start_angle - 2 * pi * year_fraction
+  radius = inner_radius + spiral_fraction * ring_spacing
+
+  data.table::data.table(
+    spiral_fraction = spiral_fraction,
+    x = radius * cos(angle),
+    y = radius * sin(angle)
+  )
+}
+
+build_spiral_month_spokes = function(
+  year_levels,
+  inner_radius = 1.15,
+  ring_spacing = 0.92,
+  start_angle = pi / 2
+) {
+  month_guides = build_circular_month_guides()
+  outer_radius = inner_radius + length(year_levels) * ring_spacing
+
+  month_guides[, angle_start := start_angle - 2 * pi * theta_start]
+  month_guides[, angle_label := start_angle - 2 * pi * theta_label]
+  month_guides[, `:=`(
+    x = inner_radius * cos(angle_start),
+    y = inner_radius * sin(angle_start),
+    xend = outer_radius * cos(angle_start),
+    yend = outer_radius * sin(angle_start),
+    xlab = (outer_radius + 0.42) * cos(angle_label),
+    ylab = (outer_radius + 0.42) * sin(angle_label)
+  )]
+
+  month_guides[]
+}
+
+estimate_spiral_calendar_line_length = function(segment_width, ring_spacing) {
+  # Approximate a line length in spiral data units from the rendered stroke width.
+  estimated_band_width = ring_spacing * (0.085 + 0.042 * segment_width)
+  max(ring_spacing * 0.12, estimated_band_width * 1.2)
+}
+
+build_spiral_calendar_lines = function(
+  year_levels,
+  inner_radius = 1.15,
+  ring_spacing = 0.92,
+  start_angle = pi / 2,
+  months = c(1, 3, 5, 7, 9, 11),
+  line_length = 0.25
+) {
+  months = sort(unique(as.integer(months)))
+  months = months[is.finite(months) & months >= 1 & months <= 12]
+
+  if (!length(year_levels) || !length(months) || !isTRUE(line_length > 0)) {
+    return(data.table::data.table())
+  }
+
+  data.table::rbindlist(
+    lapply(seq_along(year_levels), function(year_id) {
+      year = year_levels[year_id]
+      year_start = as.POSIXct(
+        sprintf("%04d-01-01 00:00:00", year),
+        tz = "UTC"
+      )
+      next_year_start = as.POSIXct(
+        sprintf("%04d-01-01 00:00:00", year + 1),
+        tz = "UTC"
+      )
+      month_starts = as.POSIXct(
+        sprintf("%04d-%02d-01 00:00:00", year, months),
+        tz = "UTC"
+      )
+      year_fraction = as.numeric(
+        difftime(month_starts, year_start, units = "secs")
+      ) / as.numeric(
+        difftime(next_year_start, year_start, units = "secs")
+      )
+      angle = start_angle - 2 * pi * year_fraction
+      radius = inner_radius + ((year_id - 1) + year_fraction) * ring_spacing
+
+      data.table::data.table(
+        year = year,
+        month = months,
+        x = (radius - line_length / 2) * cos(angle),
+        y = (radius - line_length / 2) * sin(angle),
+        xend = (radius + line_length / 2) * cos(angle),
+        yend = (radius + line_length / 2) * sin(angle)
+      )
+    }),
+    use.names = TRUE,
+    fill = TRUE
+  )
+}
+
+build_spiral_year_labels = function(
+  year_levels,
+  inner_radius = 1.15,
+  ring_spacing = 0.92,
+  start_angle = pi / 2
+) {
+  radius = inner_radius + ((seq_along(year_levels) - 1) * ring_spacing) - 0.12
+
+  data.table::data.table(
+    year = year_levels,
+    x = radius * cos(start_angle),
+    y = radius * sin(start_angle)
+  )
+}
+
+make_spiral_gtime = function(
+  ctdf,
+  title = NULL,
+  inner_radius = 1.15,
+  ring_spacing = 0.92,
+  samples_per_year = 720,
+  segment_width = 4.6,
+  segment_linewidth = NULL,
+  bare = FALSE,
+  calendar_line_months = c(1, 3, 5, 7, 9, 11),
+  calendar_line_color = scales::alpha("white", 0.74),
+  calendar_line_linewidth = 0.45,
+  calendar_line_length = NULL
+) {
+  if (!is.null(segment_linewidth)) {
+    segment_width = segment_linewidth
+  }
+
+  spiral_df = build_spiral_gtime_df(
+    ctdf = ctdf,
+    inner_radius = inner_radius,
+    ring_spacing = ring_spacing,
+    samples_per_year = samples_per_year
+  )
+
+  if (!nrow(spiral_df)) {
+    return(ggplot2::ggplot() + ggplot2::theme_void())
+  }
+
+  connector_df = build_spiral_connector_df(
+    ctdf = ctdf,
+    inner_radius = inner_radius,
+    ring_spacing = ring_spacing,
+    samples_per_year = samples_per_year
+  )
+  year_levels = sort(unique(spiral_df$year))
+  guide_path = build_spiral_reference_path(
+    n_years = length(year_levels),
+    inner_radius = inner_radius,
+    ring_spacing = ring_spacing
+  )
+  month_guides = build_spiral_month_spokes(
+    year_levels = year_levels,
+    inner_radius = inner_radius,
+    ring_spacing = ring_spacing
+  )
+  year_labels = build_spiral_year_labels(
+    year_levels = year_levels,
+    inner_radius = inner_radius,
+    ring_spacing = ring_spacing
+  )
+  if (is.null(calendar_line_length)) {
+    calendar_line_length = estimate_spiral_calendar_line_length(
+      segment_width = segment_width,
+      ring_spacing = ring_spacing
+    )
+  }
+  calendar_lines = build_spiral_calendar_lines(
+    year_levels = year_levels,
+    inner_radius = inner_radius,
+    ring_spacing = ring_spacing,
+    months = calendar_line_months,
+    line_length = calendar_line_length
+  )
+
+  scc = viridis::scale_color_viridis(
+    discrete = TRUE,
+    option = "turbo",
+    begin = 0.1,
+    end = 0.95
+  )
+
+  background_fill = if (bare) {
+    NA
+  } else {
+    "white"
+  }
+
+  x_values = c(
+    spiral_df$x,
+    connector_df$x,
+    guide_path$x,
+    month_guides$x,
+    month_guides$xend,
+    calendar_lines$x,
+    calendar_lines$xend
+  )
+  y_values = c(
+    spiral_df$y,
+    connector_df$y,
+    guide_path$y,
+    month_guides$y,
+    month_guides$yend,
+    calendar_lines$y,
+    calendar_lines$yend
+  )
+
+  if (!bare) {
+    x_values = c(x_values, month_guides$xlab, year_labels$x)
+    y_values = c(y_values, month_guides$ylab, year_labels$y)
+  }
+
+  plot_padding = max(
+    0.14,
+    calendar_line_length * 0.7,
+    ring_spacing * 0.12
+  )
+  if (!bare) {
+    plot_padding = plot_padding + 0.12
+  }
+
+  p = ggplot2::ggplot()
+
+  if (!bare) {
+    p = p +
+      ggplot2::geom_path(
+      data = guide_path,
+      ggplot2::aes(x = x, y = y),
+      inherit.aes = FALSE,
+      color = scales::alpha("grey55", 0.32),
+      linewidth = 0.35,
+      lineend = "round"
+      ) +
+      ggplot2::geom_segment(
+        data = month_guides,
+        ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
+        inherit.aes = FALSE,
+        color = scales::alpha("grey45", 0.34),
+        linewidth = 0.25
+      )
+  }
+
+  p = p +
+    ggplot2::geom_path(
+      data = connector_df,
+      ggplot2::aes(x = x, y = y, group = connector_id),
+      inherit.aes = FALSE,
+      color = scales::alpha("black", 0.72),
+      linewidth = 0.5,
+      lineend = "round",
+      linejoin = "round"
+    ) +
+    ggplot2::geom_path(
+      data = spiral_df,
+      ggplot2::aes(x = x, y = y, group = segment_id),
+      inherit.aes = FALSE,
+      color = "white",
+      linewidth = segment_width + 1.1,
+      lineend = "butt",
+      linejoin = "mitre",
+      alpha = 0.92
+    ) +
+    ggplot2::geom_path(
+      data = spiral_df,
+      ggplot2::aes(x = x, y = y, color = Cluster, group = segment_id),
+      inherit.aes = FALSE,
+      linewidth = segment_width,
+      lineend = "butt",
+      linejoin = "mitre",
+      alpha = 0.88
+    ) +
+    ggplot2::geom_segment(
+      data = calendar_lines,
+      ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
+      inherit.aes = FALSE,
+      color = calendar_line_color,
+      linewidth = calendar_line_linewidth,
+      lineend = "butt",
+      alpha = 0.95
+    ) +
+    scc +
+    ggplot2::coord_equal(
+      xlim = range(x_values, na.rm = TRUE) + c(-plot_padding, plot_padding),
+      ylim = range(y_values, na.rm = TRUE) + c(-plot_padding, plot_padding),
+      clip = "off"
+    ) +
+    ggplot2::theme_void() +
+    ggplot2::theme(
+      legend.position = "none",
+      panel.background = ggplot2::element_rect(fill = background_fill, color = NA),
+      plot.background = ggplot2::element_rect(fill = background_fill, color = NA),
+      plot.title = ggplot2::element_text(
+        hjust = 0.5,
+        color = "grey15",
+        size = 10,
+        face = "bold"
+      ),
+      plot.subtitle = ggplot2::element_text(
+        hjust = 0.5,
+        color = "grey30",
+        size = 8
+      ),
+      plot.margin = ggplot2::margin(0, 0, 0, 0)
+    )
+
+  if (!bare) {
+    p = p +
+      ggplot2::geom_text(
+        data = month_guides,
+        ggplot2::aes(x = xlab, y = ylab, label = month),
+        inherit.aes = FALSE,
+        color = "grey20",
+        size = 3
+      ) +
+      ggplot2::geom_text(
+        data = year_labels,
+        ggplot2::aes(x = x, y = y, label = year),
+        inherit.aes = FALSE,
+        color = "grey20",
+        size = 3
+      ) +
+      ggplot2::labs(
+        title = title,
+        subtitle = "1 rotation = 1 year"
+      )
+  }
+
+  p
+}
+
+# Add an inset using panel-relative center coordinates where x/y in [0, 1]
+# denote the inset center within the target panel.
+add_centered_inset = function(
+  base_plot,
+  inset_plot,
+  x = 0.5,
+  y = 0.5,
+  size = 0.3,
+  width = size,
+  height = size,
+  align_to = "panel"
+) {
+  width = max(min(width, 1), 0)
+  height = max(min(height, 1), 0)
+
+  left = max(0, x - width / 2)
+  right = min(1, x + width / 2)
+  bottom = max(0, y - height / 2)
+  top = min(1, y + height / 2)
+
+  base_plot +
+    patchwork::inset_element(
+      inset_plot,
+      left = left,
+      bottom = bottom,
+      right = right,
+      top = top,
+      align_to = align_to,
+      clip = FALSE
+    )
+}
+
+# Translating sf objects with `+ c(dx, dy)` drops the CRS, so restore it
+# immediately for any derived inset geometry.
+shift_sf = function(x, dx = 0, dy = 0) {
+  geom_crs = sf::st_crs(x)
+  sf::st_geometry(x) = sf::st_geometry(x) + c(dx, dy)
+  sf::st_geometry(x) = sf::st_set_crs(sf::st_geometry(x), geom_crs)
+  x
+}
+
+make_globe_overlay = function(n = 420, color_hex, alpha_fun) {
+  xs = seq(-1, 1, length.out = n)
+  ys = seq(1, -1, length.out = n)
+  grid = expand.grid(x = xs, y = ys)
+  radius = sqrt(grid$x ^ 2 + grid$y ^ 2)
+  alpha = alpha_fun(grid$x, grid$y, radius)
+  alpha[!is.finite(alpha)] = 0
+  alpha[radius > 1] = 0
+
+  rgb_base = grDevices::col2rgb(color_hex) / 255
+  rgba = grDevices::rgb(
+    rgb_base[1],
+    rgb_base[2],
+    rgb_base[3],
+    alpha = pmin(pmax(alpha, 0), 1)
+  )
+  rgba[radius > 1] = "#FFFFFF00"
+
+  grDevices::as.raster(matrix(rgba, nrow = n, ncol = n, byrow = TRUE))
+}
+
+sf_polygons_to_df = function(x, keep_cols = character()) {
+  if (!nrow(x)) {
+    return(data.table::data.table())
+  }
+
+  geom_crs = sf::st_crs(x)
+
+  data.table::rbindlist(
+    lapply(seq_len(nrow(x)), function(i) {
+      geom = sf::st_geometry(x)[[i]]
+
+      if (isTRUE(sf::st_is_empty(geom))) {
+        return(NULL)
+      }
+
+      poly_parts = suppressWarnings(
+        sf::st_cast(sf::st_sfc(geom, crs = geom_crs), "POLYGON")
+      )
+
+      if (!length(poly_parts)) {
+        return(NULL)
+      }
+
+      data.table::rbindlist(
+        lapply(seq_along(poly_parts), function(j) {
+          coords = sf::st_coordinates(poly_parts[j])
+          level_cols = setdiff(colnames(coords), c("X", "Y"))
+          ring_id = if (length(level_cols)) {
+            coords[, level_cols[length(level_cols)]]
+          } else {
+            rep(1, nrow(coords))
+          }
+
+          out = data.table::data.table(
+            x = coords[, "X"],
+            y = coords[, "Y"],
+            group = paste(i, j, ring_id, sep = "_")
+          )
+
+          for (col in keep_cols) {
+            out[[col]] = x[[col]][i]
+          }
+
+          out[]
+        }),
+        use.names = TRUE,
+        fill = TRUE
+      )
+    }),
+    use.names = TRUE,
+    fill = TRUE
+  )
+}
+
+make_globe_inset = function(focus_bbox) {
+  world = rnaturalearth::ne_countries(scale = "medium", returnclass = "sf")
+  focus_bbox_wgs84 = sf::st_as_sfc(focus_bbox) |>
+    sf::st_transform(4326)
+  focus_center = sf::st_bbox(focus_bbox_wgs84)
+  focus_lonlat = c(
+    mean(c(focus_center[["xmin"]], focus_center[["xmax"]])),
+    mean(c(focus_center[["ymin"]], focus_center[["ymax"]]))
+  )
+  globe_crs = sprintf(
+    "+proj=ortho +lon_0=%s +lat_0=%s +x_0=0 +y_0=0",
+    focus_lonlat[1],
+    focus_lonlat[2]
+  )
+
+  earth_radius = 6378137
+  globe_circle = sf::st_sfc(sf::st_point(c(0, 0)), crs = globe_crs) |>
+    sf::st_buffer(earth_radius)
+
+  world_ortho = suppressWarnings(sf::st_transform(world, globe_crs))
+  world_ortho = world_ortho[!sf::st_is_empty(world_ortho), ]
+
+  focus_point = sf::st_sfc(sf::st_point(focus_lonlat), crs = 4326) |>
+    sf::st_transform(globe_crs)
+
+  shadow_specs = data.frame(
+    expand = c(0.055, 0.035, 0.015),
+    alpha = c(0.03, 0.05, 0.08)
+  )
+  shadow_layers = lapply(seq_len(nrow(shadow_specs)), function(i) {
+    shadow = sf::st_sf(
+      alpha = shadow_specs$alpha[i],
+      geometry = sf::st_buffer(globe_circle, earth_radius * shadow_specs$expand[i])
+    )
+    shift_sf(
+      shadow,
+      dx = earth_radius * 0.08,
+      dy = -earth_radius * 0.11
+    )
+  })
+  shadow_sf = do.call(rbind, shadow_layers)
+  sf::st_crs(shadow_sf) = globe_crs
+  shadow_df = sf_polygons_to_df(shadow_sf, keep_cols = "alpha")
+  globe_circle_df = sf_polygons_to_df(sf::st_sf(geometry = globe_circle))
+  world_df = sf_polygons_to_df(world_ortho)
+  focus_point_df = data.frame(
+    x = sf::st_coordinates(focus_point)[1, "X"],
+    y = sf::st_coordinates(focus_point)[1, "Y"]
+  )
+
+  globe_shade = make_globe_overlay(
+    color_hex = "#87939d",
+    alpha_fun = function(x, y, radius) {
+      rim = pmax(0, (radius - 0.58) / 0.42)
+      0.12 * exp(-(((x - 0.44) / 0.78) ^ 2 + ((y + 0.32) / 0.6) ^ 2)) +
+        0.14 * rim ^ 1.8
+    }
+  )
+  globe_highlight = make_globe_overlay(
+    color_hex = "#ffffff",
+    alpha_fun = function(x, y, radius) {
+      0.38 * exp(-(((x + 0.22) / 1.05) ^ 2 + ((y - 0.28) / 0.95) ^ 2))
+    }
+  )
+
+  ggplot2::ggplot() +
+    ggplot2::geom_polygon(
+      data = shadow_df,
+      ggplot2::aes(x = x, y = y, group = group, alpha = alpha),
+      fill = "#535c65",
+      color = NA,
+      show.legend = FALSE
+    ) +
+    ggplot2::scale_alpha_identity() +
+    ggplot2::geom_polygon(
+      data = globe_circle_df,
+      ggplot2::aes(x = x, y = y, group = group),
+      fill = "#dce7ef",
+      color = NA,
+      linewidth = 0,
+      inherit.aes = FALSE
+    ) +
+    ggplot2::geom_polygon(
+      data = world_df,
+      ggplot2::aes(x = x, y = y, group = group),
+      fill = "#b6bac0",
+      color = NA,
+      inherit.aes = FALSE
+    ) +
+    ggplot2::annotation_raster(
+      raster = globe_shade,
+      xmin = -earth_radius,
+      xmax = earth_radius,
+      ymin = -earth_radius,
+      ymax = earth_radius,
+      interpolate = TRUE
+    ) +
+    ggplot2::annotation_raster(
+      raster = globe_highlight,
+      xmin = -earth_radius,
+      xmax = earth_radius,
+      ymin = -earth_radius,
+      ymax = earth_radius,
+      interpolate = TRUE
+    ) +
+    ggplot2::geom_point(
+      data = focus_point_df,
+      ggplot2::aes(x = x, y = y),
+      shape = 21,
+      size = 2.6,
+      stroke = 0.45,
+      fill = "#a53a35",
+      color = "white",
+      alpha = 0.95
+    ) +
+    ggplot2::geom_path(
+      data = globe_circle_df,
+      ggplot2::aes(x = x, y = y, group = group),
+      color = "#b8c2ca",
+      linewidth = 0,
+      inherit.aes = FALSE
+    ) +
+    ggplot2::coord_equal(
+      xlim = c(-earth_radius * 1.12, earth_radius * 1.15),
+      ylim = c(-earth_radius * 1.18, earth_radius * 1.12),
+      expand = FALSE,
+      clip = "off"
+    ) +
+    ggplot2::theme_void() +
+    ggplot2::theme(
+      panel.background = ggplot2::element_rect(fill = NA, color = NA),
+      plot.background = ggplot2::element_rect(fill = NA, color = NA)
+    )
+}
+
 #endregion
 
 #region panels
@@ -1640,6 +2437,7 @@ gnola_map =
   scloc = "tl",
   x_pad = 0.20,
   y_pad = 0.20,
+  scalebar_distance_km = 50,
   terrain_zoom = 10,
   terrain_alpha = 0.52,
   min_shade = 0.58,
@@ -1655,6 +2453,15 @@ gruff1 = gruff1_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2,
 gruff2 = gruff2_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
 glbdo = glbdo_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
 gnola = gnola_map$plot + ggplot2::theme(plot.margin = ggplot2::margin(2, 2, 2, 2))
+nola_globe_inset = make_globe_inset(gnola_map$extent)
+
+# Panel-relative inset centers and sizes for the spiral overlays. `x = 0.5`
+# and `y = 0.5` place the spiral in the middle of the map panel.
+spiral_inset_specs = list(
+  ruff1 = list(x = 0.20, y = 0.8, size = 0.4, segment_width = 2),
+  ruff2 = list(x = 0.20, y = 0.8, size = 0.4, segment_width = 2),
+  lbdo = list(x = 0.20, y = 0.35, size = 0.4, segment_width = 2)
+)
 
 # Keep the circular timelines separate for now so they can be reviewed before
 # being introduced into the figure3 patchwork layout.
@@ -1667,6 +2474,72 @@ gtime_circular = list(
   ruff2 = gruff2_gtime_circular,
   lbdo = glbdo_gtime_circular
 )
+
+gruff1_gtime_spiral = make_spiral_gtime(
+  ruff,
+  title = "ruff1",
+  bare = TRUE,
+  calendar_line_color = "black",
+  calendar_line_linewidth = 0.2,
+  calendar_line_length = 0.5,
+  segment_width = spiral_inset_specs$ruff1$segment_width,
+)
+gruff2_gtime_spiral = make_spiral_gtime(
+  ruff2,
+  title = "ruff2",
+  bare = TRUE,
+  calendar_line_color = "black",
+  calendar_line_linewidth = 0.2,
+  calendar_line_length = 0.5,
+  segment_width = spiral_inset_specs$ruff2$segment_width
+)
+glbdo_gtime_spiral = make_spiral_gtime(
+  lbdo,
+  title = "lbdo",
+  bare = TRUE,
+  calendar_line_color = "black",
+  calendar_line_linewidth = 0.2,
+  calendar_line_length = 0.5,
+  segment_width = spiral_inset_specs$lbdo$segment_width,
+)
+
+gtime_spiral = list(
+  ruff1 = gruff1_gtime_spiral,
+  ruff2 = gruff2_gtime_spiral,
+  lbdo = glbdo_gtime_spiral
+)
+
+gruff1 = add_centered_inset(
+  gruff1,
+  gruff1_gtime_spiral,
+  x = spiral_inset_specs$ruff1$x,
+  y = spiral_inset_specs$ruff1$y,
+  size = spiral_inset_specs$ruff1$size
+)
+gruff2 = add_centered_inset(
+  gruff2,
+  gruff2_gtime_spiral,
+  x = spiral_inset_specs$ruff2$x,
+  y = spiral_inset_specs$ruff2$y,
+  size = spiral_inset_specs$ruff2$size
+)
+glbdo = add_centered_inset(
+  glbdo,
+  glbdo_gtime_spiral,
+  x = spiral_inset_specs$lbdo$x,
+  y = spiral_inset_specs$lbdo$y,
+  size = spiral_inset_specs$lbdo$size
+)
+gnola = gnola +
+  patchwork::inset_element(
+    nola_globe_inset,
+    left = 0.885,
+    bottom = 0.77,
+    right = 0.988,
+    top = 0.985,
+    align_to = "panel",
+    clip = FALSE
+  )
 
 top_row_height = 1 / (3 * top_target_ratio + 0.06)
 bottom_row_height = 1 / bbox_ratio(gnola_map$extent)
