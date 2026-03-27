@@ -2396,7 +2396,15 @@ make_spiral_gtime = function(
   p
 }
 
-make_linear_gtime = function(ctdf, title = NULL) {
+make_linear_gtime = function(
+  ctdf,
+  title = NULL,
+  start_marker_y_offset = 1.2,
+  show_start_arrow = TRUE,
+  start_arrow_days = 10,
+  start_arrow_color = "black",
+  start_arrow_linewidth = 0.3
+) {
   timeline_df = build_gtime_timeline_df(ctdf)
 
   if (!nrow(timeline_df)) {
@@ -2425,13 +2433,37 @@ make_linear_gtime = function(ctdf, title = NULL) {
   } else {
     timeline_df$cluster_id[1]
   }
+  start_marker_y = start_cluster_id + start_marker_y_offset
   start_point_df = data.table::data.table(
     x = dataset_start_timestamp,
-    y = start_cluster_id
+    y = start_marker_y
   )
+  start_arrow_df = if (
+    isTRUE(show_start_arrow) &&
+    !is.na(dataset_start_timestamp) &&
+    isTRUE(start_arrow_days > 0)
+  ) {
+    data.table::data.table(
+      x = dataset_start_timestamp,
+      xend = seq(
+        from = dataset_start_timestamp,
+        by = sprintf("%d days", start_arrow_days),
+        length.out = 2
+      )[2],
+      y = start_marker_y,
+      yend = start_marker_y
+    )
+  } else {
+    data.table::data.table()
+  }
   label_rows = unique(c(1L, ceiling((nrow(timeline_df)) / 2), nrow(timeline_df)))
   y_breaks = timeline_df$cluster_id[label_rows]
   y_labels = timeline_df$cluster[label_rows]
+  y_upper_limit = max(
+    timeline_df$cluster_id + 0.5,
+    start_marker_y + 0.18,
+    na.rm = TRUE
+  )
 
   scf = viridis::scale_fill_viridis(
     discrete = TRUE,
@@ -2467,6 +2499,22 @@ make_linear_gtime = function(ctdf, title = NULL) {
       linewidth = 0.2,
       alpha = 0.5
     ) +
+    {
+      if (nrow(start_arrow_df)) {
+        ggplot2::geom_segment(
+          data = start_arrow_df,
+          ggplot2::aes(x = x, xend = xend, y = y, yend = yend),
+          inherit.aes = FALSE,
+          color = start_arrow_color,
+          linewidth = start_arrow_linewidth,
+          lineend = "round",
+          arrow = grid::arrow(
+            type = "closed",
+            length = grid::unit(0.04, "inches")
+          )
+        )
+      }
+    } +
     ggplot2::geom_point(
       data = start_point_df,
       ggplot2::aes(x = x, y = y),
@@ -2485,7 +2533,7 @@ make_linear_gtime = function(ctdf, title = NULL) {
     ggplot2::scale_y_continuous(
       breaks = y_breaks,
       labels = y_labels,
-      limits = c(0.5, max(timeline_df$cluster_id) + 0.5),
+      limits = c(0.5, y_upper_limit),
       expand = ggplot2::expansion(mult = c(0.02, 0.06))
     ) +
     ggplot2::theme_bw(base_family = "Lato") +
@@ -2968,7 +3016,7 @@ gtime_spiral = list(
   lbdo = glbdo_gtime_spiral
 )
 
-gnola_gtime_linear = make_linear_gtime(nola)
+gnola_gtime_linear = make_linear_gtime(nola, )
 
 gruff1 = add_centered_inset(
   gruff1,
