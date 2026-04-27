@@ -10,3 +10,5 @@
 ^\.github$
 ^vignettes$
 ^dev$
+^\.positai$
+^\.claude$
