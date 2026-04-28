@@ -96,6 +96,7 @@ both relatively long in one principal dimension and elongated for their area.</p
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Repairing[1]...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> → Local clustering.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Repairing[2]...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #BBBB00;">!</span> Compute lof scores...</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ctdf</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    cluster               start                stop                geometry</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt;              &lt;POSc&gt;              &lt;POSc&gt;             &lt;sfc_POINT&gt;</span>
@@ -103,12 +104,12 @@ both relatively long in one principal dimension and elongated for their area.</p
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2:       2 2015-06-01 06:30:05 2015-06-03 01:29:59 POINT (2864460 7442170)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3:       3 2015-06-03 06:21:09 2015-06-05 12:26:39 POINT (2941186 7429251)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4:       4 2015-06-05 16:45:33 2015-06-08 19:05:21 POINT (2866074 7441004)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        ids     N         tenure  dist_to_next</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     &lt;char&gt; &lt;int&gt;     &lt;difftime&gt;       &lt;units&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:    5-16    12 0.4319792 days 128371.32 [m]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:   20-83    58 1.7915972 days  77806.00 [m]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:  91-176    68 2.2538194 days  76025.75 [m]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: 184-276    87 3.0970833 days        NA [m]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     lof_q95     ids     N         tenure  dist_to_next elongation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;num&gt;  &lt;char&gt; &lt;int&gt;     &lt;difftime&gt;       &lt;units&gt;      &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: 3.332760    5-16    12 0.4319792 days 128371.32 [m]          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: 2.005698   20-83    58 1.7915972 days  77806.00 [m]          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: 2.463458  91-176    68 2.2538194 days  76025.75 [m]          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: 2.030185 184-276    87 3.0970833 days        NA [m]          0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

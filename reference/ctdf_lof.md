@@ -40,8 +40,16 @@ cluster_track(x)
 #> ! Repairing[1]...
 #> → Local clustering.
 #> ! Repairing[2]...
+#> ! Compute lof scores...
 x = ctdf_lof(x)
-#> Error in ctdf_lof(x): could not find function "ctdf_lof"
 head(x[, .(.id, cluster, lof)])
-#> Error in eval(jsub, SDenv, parent.frame()): object 'lof' not found
+#> Key: <.id>
+#>      .id cluster      lof
+#>    <int>   <int>    <num>
+#> 1:     1       0       NA
+#> 2:     2       0       NA
+#> 3:     3       0       NA
+#> 4:     4       0       NA
+#> 5:     5       1 1.315277
+#> 6:     6       1 1.184660
 ```

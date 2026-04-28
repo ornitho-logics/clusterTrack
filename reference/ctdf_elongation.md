@@ -68,8 +68,19 @@ cluster_track(x)
 #> ! Repairing[1]...
 #> → Local clustering.
 #> ! Repairing[2]...
+#> ! Compute lof scores...
 o = ctdf_elongation(x)
-#> Error in ctdf_elongation(x): could not find function "ctdf_elongation"
 head(o)
-#> Error: object 'o' not found
+#>    cluster axis_length convex_hull_area log_axis_length         log_shape_ratio
+#>      <int>       <num>          <units>           <num>                 <units>
+#> 1:       1    17706.40   54669211 [m^2]        9.781682 1.746552 [ln(re 1 m-2)]
+#> 2:       2    20378.79   98142821 [m^2]        9.922250 1.442566 [ln(re 1 m-2)]
+#> 3:       3    23526.12  155042745 [m^2]       10.065867 1.272522 [ln(re 1 m-2)]
+#> 4:       4    23615.77  146762134 [m^2]       10.069670 1.335016 [ln(re 1 m-2)]
+#>    elongation
+#>         <num>
+#> 1:          0
+#> 2:          0
+#> 3:          0
+#> 4:          0
 ```

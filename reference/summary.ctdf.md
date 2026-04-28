@@ -53,6 +53,7 @@ cluster_track(ctdf)
 #> ! Repairing[1]...
 #> → Local clustering.
 #> ! Repairing[2]...
+#> ! Compute lof scores...
 summary(ctdf)
 #>    cluster               start                stop                geometry
 #>      <int>              <POSc>              <POSc>             <sfc_POINT>
@@ -60,11 +61,11 @@ summary(ctdf)
 #> 2:       2 2015-06-01 06:30:05 2015-06-03 01:29:59 POINT (2864460 7442170)
 #> 3:       3 2015-06-03 06:21:09 2015-06-05 12:26:39 POINT (2941186 7429251)
 #> 4:       4 2015-06-05 16:45:33 2015-06-08 19:05:21 POINT (2866074 7441004)
-#>        ids     N         tenure  dist_to_next
-#>     <char> <int>     <difftime>       <units>
-#> 1:    5-16    12 0.4319792 days 128371.32 [m]
-#> 2:   20-83    58 1.7915972 days  77806.00 [m]
-#> 3:  91-176    68 2.2538194 days  76025.75 [m]
-#> 4: 184-276    87 3.0970833 days        NA [m]
+#>     lof_q95     ids     N         tenure  dist_to_next elongation
+#>       <num>  <char> <int>     <difftime>       <units>      <num>
+#> 1: 3.332760    5-16    12 0.4319792 days 128371.32 [m]          0
+#> 2: 2.005698   20-83    58 1.7915972 days  77806.00 [m]          0
+#> 3: 2.463458  91-176    68 2.2538194 days  76025.75 [m]          0
+#> 4: 2.030185 184-276    87 3.0970833 days        NA [m]          0
 
 ```

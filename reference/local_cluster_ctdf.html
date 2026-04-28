@@ -95,92 +95,92 @@ written back to <code>.putative_cluster</code> in-place.</p>
 <span class="r-in"><span><span class="va">x</span> <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="va">.id</span> <span class="op">&lt;</span> <span class="fl">20</span><span class="op">]</span><span class="op">[</span>, <span class="va">.putative_cluster</span> <span class="op">:=</span> <span class="fl">1</span><span class="op">]</span></span></span>
 <span class="r-in"><span><span class="fu">local_cluster_ctdf</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               timestamp                location cluster   .id .move_seg .seg_id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  &lt;POSc&gt;             &lt;sfc_POINT&gt;   &lt;int&gt; &lt;int&gt;     &lt;int&gt;   &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1: 2015-05-31 14:33:09 POINT (2768520 7462407)      NA     1        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2: 2015-05-31 15:12:44 POINT (2754196 7461678)      NA     2        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3: 2015-05-31 16:41:01 POINT (2750888 7456491)      NA     3        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4: 2015-05-31 16:50:30 POINT (2763441 7456126)      NA     4        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5: 2015-05-31 17:43:18 POINT (2735106 7438659)      NA     5        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6: 2015-05-31 18:20:13 POINT (2733011 7442926)      NA     6        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7: 2015-05-31 18:29:54 POINT (2736923 7441750)      NA     7        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8: 2015-05-31 21:39:40 POINT (2730516 7440352)      NA     8        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9: 2015-05-31 23:16:09 POINT (2731106 7440057)      NA     9        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10: 2015-06-01 00:40:46 POINT (2728589 7444029)      NA    10        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11: 2015-06-01 00:54:55 POINT (2734721 7442191)      NA    11        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12: 2015-06-01 02:25:38 POINT (2738852 7442338)      NA    12        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13: 2015-06-01 02:32:32 POINT (2738948 7442264)      NA    13        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14: 2015-06-01 02:33:30 POINT (2738005 7441235)      NA    14        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15: 2015-06-01 03:23:38 POINT (2746202 7441014)      NA    15        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16: 2015-06-01 04:05:21 POINT (2737081 7443735)      NA    16        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17: 2015-06-01 04:14:45 POINT (2717859 7445205)      NA    17        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18: 2015-06-01 04:45:02 POINT (2722075 7445131)      NA    18        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19: 2015-06-01 05:06:36 POINT (2819856 7454370)      NA    19        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     .putative_cluster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               timestamp                location cluster   lof   .id .move_seg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  &lt;POSc&gt;             &lt;sfc_POINT&gt;   &lt;int&gt; &lt;num&gt; &lt;int&gt;     &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1: 2015-05-31 14:33:09 POINT (2768520 7462407)      NA    NA     1        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2: 2015-05-31 15:12:44 POINT (2754196 7461678)      NA    NA     2        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3: 2015-05-31 16:41:01 POINT (2750888 7456491)      NA    NA     3        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4: 2015-05-31 16:50:30 POINT (2763441 7456126)      NA    NA     4        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5: 2015-05-31 17:43:18 POINT (2735106 7438659)      NA    NA     5        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6: 2015-05-31 18:20:13 POINT (2733011 7442926)      NA    NA     6        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7: 2015-05-31 18:29:54 POINT (2736923 7441750)      NA    NA     7        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8: 2015-05-31 21:39:40 POINT (2730516 7440352)      NA    NA     8        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9: 2015-05-31 23:16:09 POINT (2731106 7440057)      NA    NA     9        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10: 2015-06-01 00:40:46 POINT (2728589 7444029)      NA    NA    10        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11: 2015-06-01 00:54:55 POINT (2734721 7442191)      NA    NA    11        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12: 2015-06-01 02:25:38 POINT (2738852 7442338)      NA    NA    12        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13: 2015-06-01 02:32:32 POINT (2738948 7442264)      NA    NA    13        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14: 2015-06-01 02:33:30 POINT (2738005 7441235)      NA    NA    14        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15: 2015-06-01 03:23:38 POINT (2746202 7441014)      NA    NA    15        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16: 2015-06-01 04:05:21 POINT (2737081 7443735)      NA    NA    16        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17: 2015-06-01 04:14:45 POINT (2717859 7445205)      NA    NA    17        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18: 2015-06-01 04:45:02 POINT (2722075 7445131)      NA    NA    18        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19: 2015-06-01 05:06:36 POINT (2819856 7454370)      NA    NA    19        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     .seg_id .putative_cluster</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;int&gt;             &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:      NA                NA</span>
 <span class="r-in"><span><span class="va">x</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;.id&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               timestamp                location cluster   .id .move_seg .seg_id</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  &lt;POSc&gt;             &lt;sfc_POINT&gt;   &lt;int&gt; &lt;int&gt;     &lt;int&gt;   &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1: 2015-05-31 14:33:09 POINT (2768520 7462407)      NA     1        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2: 2015-05-31 15:12:44 POINT (2754196 7461678)      NA     2        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3: 2015-05-31 16:41:01 POINT (2750888 7456491)      NA     3        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4: 2015-05-31 16:50:30 POINT (2763441 7456126)      NA     4        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5: 2015-05-31 17:43:18 POINT (2735106 7438659)      NA     5        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6: 2015-05-31 18:20:13 POINT (2733011 7442926)      NA     6        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7: 2015-05-31 18:29:54 POINT (2736923 7441750)      NA     7        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8: 2015-05-31 21:39:40 POINT (2730516 7440352)      NA     8        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9: 2015-05-31 23:16:09 POINT (2731106 7440057)      NA     9        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10: 2015-06-01 00:40:46 POINT (2728589 7444029)      NA    10        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11: 2015-06-01 00:54:55 POINT (2734721 7442191)      NA    11        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12: 2015-06-01 02:25:38 POINT (2738852 7442338)      NA    12        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13: 2015-06-01 02:32:32 POINT (2738948 7442264)      NA    13        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14: 2015-06-01 02:33:30 POINT (2738005 7441235)      NA    14        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15: 2015-06-01 03:23:38 POINT (2746202 7441014)      NA    15        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16: 2015-06-01 04:05:21 POINT (2737081 7443735)      NA    16        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17: 2015-06-01 04:14:45 POINT (2717859 7445205)      NA    17        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18: 2015-06-01 04:45:02 POINT (2722075 7445131)      NA    18        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19: 2015-06-01 05:06:36 POINT (2819856 7454370)      NA    19        NA      NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     .putative_cluster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  5:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  6:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  7:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  8:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  9:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16:                 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18:                NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19:                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               timestamp                location cluster   lof   .id .move_seg</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  &lt;POSc&gt;             &lt;sfc_POINT&gt;   &lt;int&gt; &lt;num&gt; &lt;int&gt;     &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1: 2015-05-31 14:33:09 POINT (2768520 7462407)      NA    NA     1        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2: 2015-05-31 15:12:44 POINT (2754196 7461678)      NA    NA     2        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3: 2015-05-31 16:41:01 POINT (2750888 7456491)      NA    NA     3        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4: 2015-05-31 16:50:30 POINT (2763441 7456126)      NA    NA     4        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5: 2015-05-31 17:43:18 POINT (2735106 7438659)      NA    NA     5        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6: 2015-05-31 18:20:13 POINT (2733011 7442926)      NA    NA     6        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7: 2015-05-31 18:29:54 POINT (2736923 7441750)      NA    NA     7        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8: 2015-05-31 21:39:40 POINT (2730516 7440352)      NA    NA     8        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9: 2015-05-31 23:16:09 POINT (2731106 7440057)      NA    NA     9        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10: 2015-06-01 00:40:46 POINT (2728589 7444029)      NA    NA    10        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11: 2015-06-01 00:54:55 POINT (2734721 7442191)      NA    NA    11        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12: 2015-06-01 02:25:38 POINT (2738852 7442338)      NA    NA    12        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13: 2015-06-01 02:32:32 POINT (2738948 7442264)      NA    NA    13        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14: 2015-06-01 02:33:30 POINT (2738005 7441235)      NA    NA    14        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15: 2015-06-01 03:23:38 POINT (2746202 7441014)      NA    NA    15        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16: 2015-06-01 04:05:21 POINT (2737081 7443735)      NA    NA    16        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17: 2015-06-01 04:14:45 POINT (2717859 7445205)      NA    NA    17        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18: 2015-06-01 04:45:02 POINT (2722075 7445131)      NA    NA    18        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19: 2015-06-01 05:06:36 POINT (2819856 7454370)      NA    NA    19        NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     .seg_id .putative_cluster</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       &lt;int&gt;             &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  3:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  4:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  5:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  6:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  7:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  8:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  9:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16:      NA                 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18:      NA                NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19:      NA                NA</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

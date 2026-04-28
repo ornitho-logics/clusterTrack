@@ -18,6 +18,7 @@ ARGOS and high-resolution GNSS tracks.
 You can install the development version from GitHub with:
 
 ``` r
+
 remotes::install_github('ornitho-logics/clusterTrack')
 remotes::install_github('ornitho-logics/clusterTrack.Vis')
 ```

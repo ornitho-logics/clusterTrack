@@ -13,24 +13,27 @@ links to the maps.
 ### Use site()
 
 ``` r
+
 require(clusterTrack )
 require(clusterTrack.Vis)
 
-out_path = "path/to/empty/dir"
+out_path = "path/to/your/future_dir"
 ```
 
 Export many maps (use whatever loop/apply/parallel approach you prefer)
 
 ``` r
-map(x1, path = out_path)
-map(x2, path = out_path)
+
+map(x1) |> save_map(path=out_path)
+map(x2) |> save_map(path=out_path)
 ...
-map(xn, path = out_path)
+map(xn) |> save_map(path=out_path)
 ```
 
 Copy the Quarto index template into `out_path`
 
 ``` r
+
 site(out_path)
 ```
 
