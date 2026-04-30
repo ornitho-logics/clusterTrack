@@ -149,7 +149,7 @@
 #' internal gaps as described above. Default is `TRUE`.
 #'
 #' @return The input `ctdf`, invisibly, with `.putative_cluster` updated in-place.
-#'
+#' @export
 
 spatial_repair <- function(ctdf, time_contiguity = TRUE) {
   .check_ctdf(ctdf)
