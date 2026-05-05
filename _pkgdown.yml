@@ -6,14 +6,19 @@ template:
 navbar:
   structure:
     left:
-    - intro
+    - basics
     - reference
     - articles
     - news
     right:
     - search
     - github
+
   components:
+    basics:
+      text: How clustering works
+      href: articles/basic-examples.html
+
     articles:
       text: Use cases
       menu:
@@ -69,6 +74,7 @@ reference:
   contents:
   - ctdf_lof
   - ctdf_elongation
+  - putative_cluster_trace
 
 - title: Datasets
   desc: Example datasets shipped with the package.

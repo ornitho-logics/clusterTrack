@@ -46,32 +46,141 @@ as_ctdf.default <- function(x, ...) {
   stop("No method for objects of class ", class(x))
 }
 
+
 #' @export
-plot.ctdf <- function(x, y = NULL, ..., pch = 16) {
+plot.ctdf = function(
+  x,
+  y = NULL,
+  ...,
+  pch = 16,
+  track_col = "#8f8989",
+  point_col = "#696767",
+  polygon_alpha = 0.35,
+  polygon_palette = "viridis",
+  cluster_labels = TRUE,
+  cluster_label_col = "#f80505",
+  cluster_label_cex = 0.9,
+  cluster_label_font = 2
+) {
+  .check_ctdf(x)
+
+  dots = list(...)
+
+  drop_args = function(z, nams) {
+    nm = names(z)
+    if (is.null(nm)) {
+      return(z)
+    }
+
+    z[!nzchar(nm) | !(nm %in% nams)]
+  }
+
+  common_args = drop_args(
+    dots,
+    c("x", "y", "add", "col", "border", "pch")
+  )
+
+  xs = sf::st_as_sf(x)
   tr = as_ctdf_track(x)
-  xs = st_as_sf(x)
 
-  plot(st_geometry(tr), col = "#706b6b", ...)
+  if (nrow(tr) > 0) {
+    do.call(
+      plot,
+      c(
+        list(
+          x = sf::st_geometry(tr),
+          col = track_col
+        ),
+        common_args
+      )
+    )
 
-  plot(xs |> st_geometry(), pch = pch, add = TRUE, ...)
+    add_points = TRUE
+  } else {
+    add_points = FALSE
+  }
 
-  plot(
-    x[1, .(location)] |> st_as_sf(),
-    col = "#1900ff",
-    cex = 3,
-    pch = 16,
-    add = TRUE,
-    ...
+  do.call(
+    plot,
+    c(
+      list(
+        x = sf::st_geometry(xs),
+        pch = pch,
+        col = point_col,
+        add = add_points
+      ),
+      common_args
+    )
   )
 
-  plot(
-    x[nrow(x), .(location)] |> st_as_sf(),
-    col = "#ff0000",
-    cex = 3,
-    pch = 16,
-    add = TRUE,
-    ...
-  )
+  cl = x[
+    !is.na(cluster) &
+      cluster != 0
+  ]
+
+  if (nrow(cl) > 0) {
+    clusters = sort(unique(cl$cluster))
+
+    hulls = lapply(
+      clusters,
+      function(z) {
+        g = sf::st_geometry(sf::st_as_sf(cl[cluster == z]))
+        sf::st_convex_hull(sf::st_union(g))[[1]]
+      }
+    )
+
+    polys = sf::st_sf(
+      cluster = clusters,
+      location = sf::st_sfc(hulls, crs = sf::st_crs(xs))
+    )
+
+    is_poly = sf::st_geometry_type(polys) %in% c("POLYGON", "MULTIPOLYGON")
+    polys = polys[is_poly, ]
+
+    if (nrow(polys) > 0) {
+      poly_border = hcl.colors(
+        nrow(polys),
+        palette = polygon_palette
+      )
+
+      poly_col = hcl.colors(
+        nrow(polys),
+        palette = polygon_palette,
+        alpha = polygon_alpha
+      )
+
+      do.call(
+        plot,
+        c(
+          list(
+            x = sf::st_geometry(polys),
+            col = poly_col,
+            border = poly_border,
+            add = TRUE
+          ),
+          common_args
+        )
+      )
+
+      if (isTRUE(cluster_labels)) {
+        label_xy = polys |>
+          sf::st_geometry() |>
+          sf::st_centroid() |>
+          sf::st_coordinates()
+
+        text(
+          x = label_xy[, "X"],
+          y = label_xy[, "Y"],
+          labels = polys$cluster,
+          col = cluster_label_col,
+          cex = cluster_label_cex,
+          font = cluster_label_font
+        )
+      }
+    }
+  }
+
+  invisible(x)
 }
 
 #' Coerce an object to clusterTrack data format

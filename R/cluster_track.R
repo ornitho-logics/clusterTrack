@@ -53,6 +53,8 @@ plot.clusterTrack <- function(x, y = NULL, ...) {
 #'   tail when estimating each cluster's time domain.
 #' @param aggregate_dist Optional numeric; if supplied, passed to [aggregate_ctdf()] as `dist`
 #'   (numeric treated as km).
+#' @param trace Logical; if TRUE, store intermediate .putative_cluster labels
+#'   from the cluster_track() pipeline in attr(ctdf, "putative_cluster_trace")
 #'
 #' @return Invisibly returns `ctdf`, with `cluster` updated in-place and
 #'   `attr(ctdf, "cluster_params")` set.

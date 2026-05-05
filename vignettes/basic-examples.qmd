@@ -1,0 +1,176 @@
+---
+title: "Clustering track data: basic examples"
+vignette: >
+  %\VignetteIndexEntry{Clustering track data: basic examples}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+execute:
+  collapse: true
+  echo: false
+  message: false
+  warning: false
+  comment: "#>"
+---
+
+```{r}
+#| label: setup
+#| include: false
+sapply(
+  c("clusterTrack", "sf", "data.table"),
+  require,
+  character.only = TRUE, quietly = TRUE
+)
+
+sim_cluster <- function(
+  lat0,
+  lon0,
+  n = 20,
+  sd_lat = 0.1,
+  sd_lon = 0.1
+) {
+  data.table(
+    latitude = rnorm(n, mean = lat0, sd = sd_lat),
+    longitude = rnorm(n, mean = lon0, sd = sd_lon)
+  )
+}
+
+time_along <- function(
+  x,
+  span = as.difftime(10, units = "days"),
+  start = Sys.time(),
+  col = "time"
+) {
+  x[
+    ,
+    (col) := seq(as.POSIXct(start), as.POSIXct(start) + span, length.out = .N)
+  ]
+}
+
+track_btw <- function(a, b, n = 5, noise = 0.02) {
+  p0 <- a[sample.int(.N, 1)]
+  p1 <- b[sample.int(.N, 1)]
+
+  z <- seq(0, 1, length.out = n)
+
+  data.table(
+    latitude = p0$latitude +
+      z * (p1$latitude - p0$latitude) +
+      rnorm(n, 0, noise),
+    longitude = p0$longitude +
+      z * (p1$longitude - p0$longitude) +
+      rnorm(n, 0, noise)
+  )
+}
+```
+
+This vignette uses small synthetic tracks to illustrate the core behaviour of `clusterTrack`. 
+The examples are kept simple: they are not intended as realistic movement simulations, but as simple cases
+that isolate how the algorithm responds to spatial separation, temporal ordering, revisitation, and variation in local point density.
+
+The objects inferred by clusterTrack are clusters that are distinct in both space and time.
+
+
+## Space and time separation
+
+The simplest case is a track that moves from one concentrated region to another, with the two regions separated both spatially and temporally. Here, spatial discontinuity and temporal ordering provide consistent evidence for two distinct clusters.
+
+```{r}
+#| label: Space and time separation
+set.seed(1)
+a <- sim_cluster(0, 0)
+b <- sim_cluster(0, 1.2)
+ab <- track_btw(a, b)
+
+x <- list(a, ab, b) |>
+  rbindlist() |>
+  time_along() |>
+  as_ctdf() |>
+  cluster_track()
+
+plot(x)
+```
+
+## Space separation, time mixing
+
+Spatial separation alone is not sufficient to define independent clusters. 
+In this example, two spatially distinct point clouds have overlapping time domains, so they do not represent two temporally ordered parts of the track.
+
+
+```{r}
+#| label: Space separation, time mixing
+set.seed(2)
+a <- sim_cluster(0, 0)
+b <- sim_cluster(0, 1)
+
+time_along(a)
+time_along(b)
+
+x <- list(a, b) |>
+  rbindlist() |>
+  as_ctdf() |>
+  cluster_track()
+
+plot(x)
+```
+
+## Space recurrence, time separation
+
+A track can return to the same spatial region after visiting another region in between. 
+These revisits are retained as separate clusters when they are separated in time, even if their spatial footprints overlap.
+
+```{r}
+#| label: Space recurrence, time separation
+set.seed(3)
+a1 <- sim_cluster(0, 0)
+b1 <- sim_cluster(0, 1)
+a2 <- sim_cluster(0, 0)
+b2 <- sim_cluster(0, 1)
+
+a1b1 <- track_btw(a1, b1)
+b1a2 <- track_btw(b1, a2)
+a2b2 <- track_btw(a2, b2)
+
+
+x <- rbindlist(
+  list(
+    a1,
+    a1b1,
+    b1,
+    b1a2,
+    a2,
+    a2b2,
+    b2
+  )
+)
+time_along(x)
+
+
+x <- as_ctdf(x)
+cluster_track(x)
+
+plot(x)
+```
+
+
+## Clusters with different densities
+
+Because segmentation turns clustering into a local problem, thresholds are estimated locally rather than set globally.
+This allows `clusterTrack` to accommodate clusters with different sampling densities.
+
+
+
+```{r}
+#| label: Clusters with different densities
+set.seed(4)
+a <- sim_cluster(0, 0)
+b <- sim_cluster(0, 2, sd_lat = 0.2, sd_lon = 0.3)
+ab <- track_btw(a, b)
+
+x <- list(a, ab, b) |>
+  rbindlist() |>
+  time_along() |>
+  as_ctdf() |>
+  cluster_track()
+
+plot(x)
+```

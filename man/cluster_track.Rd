@@ -37,6 +37,9 @@ tail when estimating each cluster's time domain.}
 
 \item{aggregate_dist}{Optional numeric; if supplied, passed to \code{\link[=aggregate_ctdf]{aggregate_ctdf()}} as \code{dist}
 (numeric treated as km).}
+
+\item{trace}{Logical; if TRUE, store intermediate .putative_cluster labels
+from the cluster_track() pipeline in attr(ctdf, "putative_cluster_trace")}
 }
 \value{
 Invisibly returns \code{ctdf}, with \code{cluster} updated in-place and
