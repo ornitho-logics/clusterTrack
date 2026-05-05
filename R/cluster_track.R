@@ -93,9 +93,12 @@ cluster_track <- function(
   trim = 0.05,
   minCluster = 3,
   deltaT,
-  aggregate_dist
+  aggregate_dist,
+  trace = FALSE
 ) {
   options(datatable.showProgress = FALSE)
+
+  tr = .new_putative_cluster_trace(trace)
 
   # slice
 
@@ -105,10 +108,12 @@ cluster_track <- function(
     deltaT = NA
   }
   slice_ctdf(ctdf, deltaT = deltaT)
+  tr$capture(ctdf, "slice")
 
   cli_alert_warning("Repairing[1]...")
 
   spatial_repair(ctdf, time_contiguity = FALSE)
+  tr$capture(ctdf, "spatial_repair_1")
 
   cli_alert("Local clustering.")
 
@@ -118,16 +123,22 @@ cluster_track <- function(
     area_z_min = z_min * -1,
     length_z_min = z_min * -1
   )
+  tr$capture(ctdf, "dtscan")
 
   cli_alert_warning("Repairing[2]...")
 
   spatial_repair(ctdf, time_contiguity = FALSE)
+  tr$capture(ctdf, "spatial_repair_2")
 
   temporal_repair(ctdf, trim = trim)
+  tr$capture(ctdf, "temporal_repair")
 
   # clean up
   .subset_by_minCluster(ctdf, minCluster = minCluster)
+  tr$capture(ctdf, "subset_by_minCluster")
+
   .drop_false_cluster(ctdf, minCluster = minCluster)
+  tr$capture(ctdf, "drop_false_cluster")
 
   # assign to cluster
   ctdf[, cluster := .putative_cluster]
@@ -155,5 +166,11 @@ cluster_track <- function(
     }
   )
 
+  if (isTRUE(trace)) {
+    setattr(ctdf, "putative_cluster_trace", tr$finalize())
+  }
+
   setattr(ctdf, "cluster_params", cluster_params)
+
+  invisible(ctdf)
 }

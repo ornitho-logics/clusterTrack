@@ -28,5 +28,5 @@ LazyData: true
 URL: https://ornitho-logics.github.io/clusterTrack/
 BugReports: https://github.com/ornitho-logics/clusterTrack/issues
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Config/Needs/website: quarto
+Config/roxygen2/version: 8.0.0

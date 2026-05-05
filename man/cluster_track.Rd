@@ -11,7 +11,8 @@ cluster_track(
   trim = 0.05,
   minCluster = 3,
   deltaT,
-  aggregate_dist
+  aggregate_dist,
+  trace = FALSE
 )
 }
 \arguments{

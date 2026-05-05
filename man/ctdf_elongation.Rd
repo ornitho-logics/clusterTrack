@@ -45,5 +45,5 @@ A new standard for estimating drainage basin shape.
 \emph{American Journal of Science}, 255, 138--141.
 }
 \seealso{
-\code{\link[=summary.ctdf]{summary.ctdf()}}, \code{\link[=cluster_track]{cluster_track()}}, \code{\link[sf:geos_unary]{sf::st_minimum_rotated_rectangle()}}
+\code{\link[=summary.ctdf]{summary.ctdf()}}, \code{\link[=cluster_track]{cluster_track()}}, \code{\link[sf:st_minimum_rotated_rectangle]{sf::st_minimum_rotated_rectangle()}}
 }
