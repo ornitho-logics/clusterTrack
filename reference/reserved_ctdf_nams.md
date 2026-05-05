@@ -7,7 +7,3 @@ Reserved ctdf column names
 ``` r
 reserved_ctdf_nams
 ```
-
-## Format
-
-An object of class `character` of length 6.

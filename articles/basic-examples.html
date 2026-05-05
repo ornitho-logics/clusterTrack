@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Map gallery • clusterTrack</title>
+<title>Clustering track data: basic examples • clusterTrack</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -14,9 +14,9 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="site_files/libs/quarto-html/popper.min.js"></script><script src="site_files/libs/quarto-html/tippy.umd.min.js"></script><link href="site_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Map gallery">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="basic-examples_files/libs/quarto-html/popper.min.js"></script><script src="basic-examples_files/libs/quarto-html/tippy.umd.min.js"></script><link href="basic-examples_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="basic-examples_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Clustering track data: basic examples">
 <meta property="og:image" content="https://ornitho-logics.github.io/clusterTrack/logo.png">
 </head>
 <body>
@@ -36,9 +36,9 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/basic-examples.html">How clustering works</a></li>
+<li class="active nav-item"><a class="nav-link" href="../articles/basic-examples.html">How clustering works</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-use-cases" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Use cases</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-use-cases">
 <li><a class="dropdown-item" href="../articles/pesa.html">Pectoral Sandpiper (Argos doppler)</a></li>
@@ -63,12 +63,12 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Map gallery</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Clustering track data: basic examples</h1>
 
 
 
 
-      <small class="dont-index">Source: <a href="https://github.com/ornitho-logics/clusterTrack/blob/HEAD/vignettes/articles/site.qmd" class="external-link"><code>vignettes/articles/site.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ornitho-logics/clusterTrack/blob/HEAD/vignettes/basic-examples.qmd" class="external-link"><code>vignettes/basic-examples.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -77,25 +77,52 @@
 
 
 
-    <p>Once you have exported a bunch of interactive map HTML files with <code>map(ctdf, path = ...)</code>, you can call <code><a href="https://rdrr.io/pkg/clusterTrack.Vis/man/site.html" class="external-link">site()</a></code> to create a simple browsable index for that folder.</p>
-<p><code><a href="https://rdrr.io/pkg/clusterTrack.Vis/man/site.html" class="external-link">site()</a></code> copies a Quarto <code>index.qmd</code> template into the same directory as your saved map <code>.html</code> files. Render that <code>index.qmd</code> to produce an <code>index.html</code> that links to the maps.</p>
-<section class="level3"><h3 id="use-site">Use site()<a class="anchor" aria-label="anchor" href="#use-site"></a>
-</h3>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://ornitho-logics.github.io/clusterTrack/">clusterTrack</a></span> <span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">clusterTrack.Vis</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">out_path</span> <span class="op">=</span> <span class="st">"path/to/your/future_dir"</span></span></code></pre></div>
-<p>Export many maps (use whatever loop/apply/parallel approach you prefer)</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/clusterTrack.Vis/man/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">x1</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/pkg/clusterTrack.Vis/man/map.html" class="external-link">save_map</a></span><span class="op">(</span>path<span class="op">=</span><span class="va">out_path</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/clusterTrack.Vis/man/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">x2</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/pkg/clusterTrack.Vis/man/map.html" class="external-link">save_map</a></span><span class="op">(</span>path<span class="op">=</span><span class="va">out_path</span><span class="op">)</span></span>
-<span><span class="va">...</span></span>
-<span><span class="fu"><a href="https://rdrr.io/pkg/clusterTrack.Vis/man/map.html" class="external-link">map</a></span><span class="op">(</span><span class="va">xn</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/pkg/clusterTrack.Vis/man/map.html" class="external-link">save_map</a></span><span class="op">(</span>path<span class="op">=</span><span class="va">out_path</span><span class="op">)</span></span></code></pre></div>
-<p>Copy the Quarto index template into <code>out_path</code></p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/clusterTrack.Vis/man/site.html" class="external-link">site</a></span><span class="op">(</span><span class="va">out_path</span><span class="op">)</span></span></code></pre></div>
-<p>Then render <code>out_path/index.qmd</code> to get <code>out_path/index.html</code></p>
+    <p>This vignette uses small synthetic tracks to illustrate the core behaviour of <code>clusterTrack</code>. The examples are kept simple: they are not intended as realistic movement simulations, but as simple cases that isolate how the algorithm responds to spatial separation, temporal ordering, revisitation, and variation in local point density.</p>
+<p>The objects inferred by clusterTrack are clusters that are distinct in both space and time.</p>
+<section class="level2"><h2 id="space-and-time-separation">Space and time separation<a class="anchor" aria-label="anchor" href="#space-and-time-separation"></a>
+</h2>
+<p>The simplest case is a track that moves from one concentrated region to another, with the two regions separated both spatially and temporally. Here, spatial discontinuity and temporal ordering provide consistent evidence for two distinct clusters.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure><p><img src="basic-examples_files/figure-html/Space%20and%20time%20separation-1.png" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section class="level2"><h2 id="space-separation-time-mixing">Space separation, time mixing<a class="anchor" aria-label="anchor" href="#space-separation-time-mixing"></a>
+</h2>
+<p>Spatial separation alone is not sufficient to define independent clusters. In this example, two spatially distinct point clouds have overlapping time domains, so they do not represent two temporally ordered parts of the track.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure><p><img src="basic-examples_files/figure-html/Space%20separation,%20time%20mixing-1.png" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section class="level2"><h2 id="space-recurrence-time-separation">Space recurrence, time separation<a class="anchor" aria-label="anchor" href="#space-recurrence-time-separation"></a>
+</h2>
+<p>A track can return to the same spatial region after visiting another region in between. These revisits are retained as separate clusters when they are separated in time, even if their spatial footprints overlap.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure><p><img src="basic-examples_files/figure-html/Space%20recurrence,%20time%20separation-1.png" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section><section class="level2"><h2 id="clusters-with-different-densities">Clusters with different densities<a class="anchor" aria-label="anchor" href="#clusters-with-different-densities"></a>
+</h2>
+<p>Because segmentation turns clustering into a local problem, thresholds are estimated locally rather than set globally. This allows <code>clusterTrack</code> to accommodate clusters with different sampling densities.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure><p><img src="basic-examples_files/figure-html/Clusters%20with%20different%20densities-1.png" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
@@ -179,7 +206,8 @@
       }
     }
   });
-  </script></main>
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside>
 </div>
 
 

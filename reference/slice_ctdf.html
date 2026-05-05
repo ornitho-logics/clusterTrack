@@ -19,7 +19,8 @@ until a region is spatially homogeneous (no evidence for multiple clusters) ."><
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/basic-examples.html">How clustering works</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-use-cases" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Use cases</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-use-cases"><li><a class="dropdown-item" href="../articles/pesa.html">Pectoral Sandpiper (Argos doppler)</a></li>
@@ -95,15 +96,17 @@ to  consider them continuous.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">pesa56511</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ctdf</span> <span class="op">=</span> <span class="fu"><a href="as_ctdf.html">as_ctdf</a></span><span class="op">(</span><span class="va">pesa56511</span>, time <span class="op">=</span> <span class="st">"locationDate"</span>, s_srs <span class="op">=</span> <span class="fl">4326</span>, t_srs <span class="op">=</span> <span class="st">"+proj=eqearth"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ctdf</span> <span class="op">=</span> <span class="fu">slice_ctdf</span><span class="op">(</span><span class="va">ctdf</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠙ 17 segments processed [2.1s]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠹ 18 segments processed [2.2s]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠸ 23 segments processed [2.4s]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠼ 29 segments processed [2.6s]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠴ 34 segments processed [2.9s]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠦ 36 segments processed [3s]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠧ 41 segments processed [3.3s]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠇ 45 segments processed [3.5s]</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠇ 46 segments processed [3.5s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠙ 13 segments processed [2.1s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠹ 15 segments processed [2.2s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠸ 17 segments processed [2.3s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠼ 23 segments processed [2.7s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠴ 28 segments processed [2.8s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠦ 32 segments processed [3s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠧ 34 segments processed [3.2s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠇ 36 segments processed [3.3s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠏ 37 segments processed [3.6s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠋ 43 segments processed [3.8s]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>  ⠙ 46 segments processed [3.9s]</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

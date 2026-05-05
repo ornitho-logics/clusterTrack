@@ -62,6 +62,9 @@ Within- and between-cluster outlier scoring.
 - [`ctdf_elongation()`](https://ornitho-logics.github.io/clusterTrack/reference/ctdf_elongation.md)
   : Summarise geometric elongation of clusters
 
+- [`putative_cluster_trace()`](https://ornitho-logics.github.io/clusterTrack/reference/putative_cluster_trace.md)
+  : Extract putative-cluster trace
+
 ## Datasets
 
 Example datasets shipped with the package.

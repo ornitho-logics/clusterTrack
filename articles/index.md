@@ -2,6 +2,8 @@
 
 ### All vignettes
 
+- [Clustering track data: basic
+  examples](https://ornitho-logics.github.io/clusterTrack/articles/basic-examples.md):
 - [Long-billed
   Dowitcher](https://ornitho-logics.github.io/clusterTrack/articles/lbdo.md):
 - [Northern

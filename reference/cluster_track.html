@@ -35,7 +35,8 @@ optionally merge adjacent clusters within aggregate_dist via aggregate_ctdf().
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/basic-examples.html">How clustering works</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-use-cases" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Use cases</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-use-cases"><li><a class="dropdown-item" href="../articles/pesa.html">Pectoral Sandpiper (Argos doppler)</a></li>
@@ -80,7 +81,8 @@ overlapping time domains via <code><a href="temporal_repair.html">temporal_repai
 <span>  trim <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  minCluster <span class="op">=</span> <span class="fl">3</span>,</span>
 <span>  <span class="va">deltaT</span>,</span>
-<span>  <span class="va">aggregate_dist</span></span>
+<span>  <span class="va">aggregate_dist</span>,</span>
+<span>  trace <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -122,6 +124,11 @@ tail when estimating each cluster's time domain.</p></dd>
 <dt id="arg-aggregate-dist">aggregate_dist<a class="anchor" aria-label="anchor" href="#arg-aggregate-dist"></a></dt>
 <dd><p>Optional numeric; if supplied, passed to <code><a href="aggregate_ctdf.html">aggregate_ctdf()</a></code> as <code>dist</code>
 (numeric treated as km).</p></dd>
+
+
+<dt id="arg-trace">trace<a class="anchor" aria-label="anchor" href="#arg-trace"></a></dt>
+<dd><p>Logical; if TRUE, store intermediate .putative_cluster labels
+from the cluster_track() pipeline in attr(ctdf, "putative_cluster_trace")</p></dd>
 
 </dl></div>
     <div class="section level2">

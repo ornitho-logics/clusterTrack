@@ -32,7 +32,8 @@ cluster_track(
   trim = 0.05,
   minCluster = 3,
   deltaT,
-  aggregate_dist
+  aggregate_dist,
+  trace = FALSE
 )
 ```
 
@@ -84,6 +85,11 @@ cluster_track(
   Optional numeric; if supplied, passed to
   [`aggregate_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/aggregate_ctdf.md)
   as `dist` (numeric treated as km).
+
+- trace:
+
+  Logical; if TRUE, store intermediate .putative_cluster labels from the
+  cluster_track() pipeline in attr(ctdf, "putative_cluster_trace")
 
 ## Value
 
