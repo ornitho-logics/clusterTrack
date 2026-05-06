@@ -21,4 +21,12 @@ unlink(
 #region: deploy
 pkgdown::deploy_to_branch()
 
+pkgdown::clean_site()
+
+unlink(
+  list.files("vignettes/articles", pattern = "_files$", full.names = TRUE),
+  recursive = TRUE,
+  force = TRUE
+)
+
 #endregion

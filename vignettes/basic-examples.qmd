@@ -12,8 +12,7 @@ execute:
   comment: "#>"
 ---
 
-```{r}
-#| label: setup
+```{r, setup}
 #| include: false
 sapply(
   c("clusterTrack", "sf", "data.table"),
@@ -173,4 +172,29 @@ x <- list(a, ab, b) |>
   cluster_track()
 
 plot(x)
+```
+
+
+## Spatial clustering with `sf_dtscan()`
+
+`clusterTrack` uses Delaunay-based spatial clustering internally, but the spatial clustering step can also be run directly with `sf_dtscan()`. This is useful when the goal is to cluster some data without using temporal information, or when inspecting how the spatial component behaves before applying the full track-level workflow.
+
+The example below uses the `moons` dataset from `dbscan`. The dataset was artificially created as two crescent moons and 
+two compact blobs.  With the default settings, `sf_dtscan()` recovers four clusters in this case. 
+
+
+```{r}
+#| label: sf_dtscan
+data("moons", package = "dbscan")
+
+x <- sf::st_as_sf(moons, coords = c("X", "Y"))
+
+x$cluster <- sf_dtscan(
+  x,
+  min_pts = 5,
+  area_z_min = -1,
+  length_z_min = -1
+)
+
+dbscan::hullplot(moons, x$cluster, main = "clusterTrack::sf_dtscan()")
 ```
