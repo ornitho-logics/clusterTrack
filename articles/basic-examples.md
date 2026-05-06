@@ -43,3 +43,20 @@ are estimated locally rather than set globally. This allows
 densities.
 
 ![](basic-examples_files/figure-html/Clusters%20with%20different%20densities-1.png)
+
+## Spatial clustering with `sf_dtscan()`
+
+`clusterTrack` uses Delaunay-based spatial clustering internally, but
+the spatial clustering step can also be run directly with
+[`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md).
+This is useful when the goal is to cluster some data without using
+temporal information, or when inspecting how the spatial component
+behaves before applying the full track-level workflow.
+
+The example below uses the `moons` dataset from `dbscan`. The dataset
+was artificially created as two crescent moons and two compact blobs.
+With the default settings,
+[`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md)
+recovers four clusters in this case.
+
+![](basic-examples_files/figure-html/sf_dtscan-1.png)

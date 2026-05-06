@@ -123,6 +123,19 @@
 </div>
 </div>
 </div>
+</section><section class="level2"><h2 id="spatial-clustering-with-sf_dtscan">Spatial clustering with <code>sf_dtscan()</code>
+<a class="anchor" aria-label="anchor" href="#spatial-clustering-with-sf_dtscan"></a>
+</h2>
+<p><code>clusterTrack</code> uses Delaunay-based spatial clustering internally, but the spatial clustering step can also be run directly with <code><a href="../reference/sf_dtscan.html">sf_dtscan()</a></code>. This is useful when the goal is to cluster some data without using temporal information, or when inspecting how the spatial component behaves before applying the full track-level workflow.</p>
+<p>The example below uses the <code>moons</code> dataset from <code>dbscan</code>. The dataset was artificially created as two crescent moons and two compact blobs. With the default settings, <code><a href="../reference/sf_dtscan.html">sf_dtscan()</a></code> recovers four clusters in this case.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure><p><img src="basic-examples_files/figure-html/sf_dtscan-1.png" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
