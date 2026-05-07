@@ -1,4 +1,4 @@
-# Clustering track data: basic examples
+# Clustering tracks: basic examples
 
 This vignette uses small synthetic tracks to illustrate the core
 behaviour of `clusterTrack`. The examples are kept simple: they are not

@@ -9,7 +9,8 @@ articles:
   articles/ruff: ruff.html
   articles/ruff2: ruff2.html
   articles/site: site.html
-last_built: 2026-05-06T16:18Z
+  validation-pectoral-sandpiper: validation-pectoral-sandpiper.html
+last_built: 2026-05-07T15:05Z
 urls:
   reference: https://ornitho-logics.github.io/clusterTrack/reference
   article: https://ornitho-logics.github.io/clusterTrack/articles

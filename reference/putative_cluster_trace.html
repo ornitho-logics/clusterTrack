@@ -16,12 +16,13 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/basic-examples.html">How clustering works</a></li>
+<li class="nav-item"><a class="nav-link" href="../articles/validation-pectoral-sandpiper.html">Validation</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-use-cases" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Use cases</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-use-cases"><li><a class="dropdown-item" href="../articles/pesa.html">Pectoral Sandpiper (Argos doppler)</a></li>
-    <li><a class="dropdown-item" href="../articles/ruff.html">Ruff (Argos doppler)</a></li>
-    <li><a class="dropdown-item" href="../articles/lbdo.html">Long billed dowitcher (Argos doppler)</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-use-cases"><li><a class="dropdown-item" href="../articles/pesa.html">Pectoral Sandpiper (Argos Doppler)</a></li>
+    <li><a class="dropdown-item" href="../articles/ruff.html">Ruff (Argos Doppler)</a></li>
+    <li><a class="dropdown-item" href="../articles/lbdo.html">Long billed dowitcher (Argos Doppler)</a></li>
     <li><a class="dropdown-item" href="../articles/ruff2.html">Ruff (GNSS)</a></li>
     <li><a class="dropdown-item" href="../articles/nola.html">Northern Lapwing (GNSS)</a></li>
     <li><a class="dropdown-item" href="../articles/site.html">Map gallery</a></li>
@@ -77,32 +78,32 @@
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tr</span> <span class="op">=</span> <span class="fu">putative_cluster_trace</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tr</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        .id slice spatial_repair_1 dtscan spatial_repair_2 temporal_repair</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt; &lt;int&gt;            &lt;int&gt;  &lt;int&gt;            &lt;int&gt;           &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1:     1    NA               NA     NA               NA              NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   2:     2    NA               NA     NA               NA              NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3:     3     1                1     NA               NA              NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   4:     4     1                1     NA               NA              NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   5:     5     1                1      1                1               1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ---                                                                     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 272:   272     7                4      4                4               4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 273:   273     7                4      4                4               4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 274:   274     7                4      4                4               4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 275:   275     7                4      4                4               4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 276:   276     7                4      4                4               4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      subset_by_minCluster drop_false_cluster</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                     &lt;int&gt;              &lt;int&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   1:                   NA                 NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   2:                   NA                 NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   3:                   NA                 NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   4:                   NA                 NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   5:                    1                  1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ---                                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 272:                    4                  4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 273:                    4                  4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 274:                    4                  4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 275:                    4                  4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 276:                    4                  4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        .id slice spatial_repair_1 dtscan spatial_repair_2 subset_by_minCluster</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      &lt;int&gt; &lt;int&gt;            &lt;int&gt;  &lt;int&gt;            &lt;int&gt;                &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1:     1    NA               NA     NA               NA                   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2:     2    NA               NA     NA               NA                   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3:     3     1                1     NA               NA                   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   4:     4     1                1     NA               NA                   NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   5:     5     1                1      1                1                    1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  ---                                                                          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 272:   272     7                4      4                4                    4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 273:   273     7                4      4                4                    4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 274:   274     7                4      4                4                    4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 275:   275     7                4      4                4                    4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 276:   276     7                4      4                4                    4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      drop_false_cluster temporal_repair</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   &lt;int&gt;           &lt;int&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1:                 NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2:                 NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3:                 NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   4:                 NA              NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   5:                  1               1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  ---                                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 272:                  4               4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 273:                  4               4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 274:                  4               4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 275:                  4               4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 276:                  4               4</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

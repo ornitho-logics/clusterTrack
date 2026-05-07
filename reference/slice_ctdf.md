@@ -55,7 +55,7 @@ ctdf = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eq
 ctdf = slice_ctdf(ctdf)
 #>  ⠙ 15 segments processed [2s]
 #>  ⠹ 17 segments processed [2.2s]
-#>  ⠸ 23 segments processed [2.5s]
+#>  ⠸ 20 segments processed [2.4s]
 #>  ⠼ 28 segments processed [2.6s]
 #>  ⠴ 32 segments processed [2.8s]
 #>  ⠦ 34 segments processed [3s]
