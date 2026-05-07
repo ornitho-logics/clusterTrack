@@ -1,9 +1,11 @@
 ---
-title: "Clustering track data: basic examples"
+title: "Clustering tracks: basic examples"
+
 vignette: >
-  %\VignetteIndexEntry{Clustering track data: basic examples}
+  %\VignetteIndexEntry{Clustering track: basic examples}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
+
 execute:
   collapse: true
   echo: false

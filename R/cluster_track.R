@@ -132,15 +132,15 @@ cluster_track <- function(
   spatial_repair(ctdf, time_contiguity = FALSE)
   tr$capture(ctdf, "spatial_repair_2")
 
-  temporal_repair(ctdf, trim = trim)
-  tr$capture(ctdf, "temporal_repair")
-
   # clean up
   .subset_by_minCluster(ctdf, minCluster = minCluster)
   tr$capture(ctdf, "subset_by_minCluster")
 
   .drop_false_cluster(ctdf, minCluster = minCluster)
   tr$capture(ctdf, "drop_false_cluster")
+
+  temporal_repair(ctdf, trim = trim)
+  tr$capture(ctdf, "temporal_repair")
 
   # assign to cluster
   ctdf[, cluster := .putative_cluster]
