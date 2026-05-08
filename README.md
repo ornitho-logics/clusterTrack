@@ -1,6 +1,5 @@
 
 
-
 `clusterTrack` identifies spatiotemporally distinct use sites from animal telemetry tracks.
 
 The package is designed for relocation data where animals alternate between local site use and movement, often with irregular sampling, location error, and repeated returns to the same places. It combines temporal track segmentation, local spatial clustering, and iterative repair procedures to identify and label use sites.
@@ -10,11 +9,11 @@ The package is designed for relocation data where animals alternate between loca
 
 ## Installation
 
-You can download for `clusterTrack` from  https://anonymous.4open.science/r/clusterTrack-MEE   
+You can download `clusterTrack` from  https://anonymous.4open.science/r/clusterTrack-MEE   
 
 and optionally `clusterTrack.Vis`   from https://anonymous.4open.science/r/clusterTrackVis-MEE
 
-Once downloaded install pakages with: 
+Once downloaded, install packages with: 
 
 
 ``` r
