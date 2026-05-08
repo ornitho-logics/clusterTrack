@@ -165,7 +165,7 @@ o <- foreach(i = ids$id) %dopar% {
   x <- as_ctdf(X[id == i]) |>
     cluster_track()
 
-  m <- clusterTrack.Vis::map(
+  m <- map(
     x,
     fix_dateline = TRUE
   )
