@@ -2,8 +2,12 @@ Package: clusterTrack
 Title: Spatiotemporal Clustering of Animal Telemetry Tracks
 Version: 0.1.1
 Authors@R: 
-    person("Mihai", "Valcu", , "mvalcu@gwdg.de", role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0002-6907-7802"))
+    person(
+        "Anonymous",
+        "Author",
+        email = "anonymous@example.org",
+        role = c("aut", "cre")
+    )
 Description: Detects spatiotemporally distinct use sites from animal telemetry tracks. The workflow combines recursive temporal segmentation of movement tracks, local spatial clustering based on Delaunay triangulation, and iterative spatial and temporal repair steps to reduce fragmentation and separate revisits in time. The package is designed for irregularly sampled relocation data, including noisy tracking data such as ARGOS as well as high-resolution GNSS tracks. Results are returned in a lightweight 'ctdf' object built on 'data.table' and 'sf', allowing direct downstream summarization and visualization.
 Depends:
     R (>= 4.1.0)

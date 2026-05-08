@@ -12,9 +12,18 @@ The package is designed for relocation data where animals alternate between loca
 
 ## Installation
 
-You can install the development version from GitHub with:
+You can download for `clusterTrack` from  https://anonymous.4open.science/r/clusterTrack-MEE   
+
+and optionally `clusterTrack.Vis`   from https://anonymous.4open.science/r/clusterTrackVis-MEE
+
+Once downloaded install pakages with: 
+
 
 ``` r
-remotes::install_github('ornitho-logics/clusterTrack')
-remotes::install_github('ornitho-logics/clusterTrack.Vis')
+
+setwd('your/download/dir')
+remotes::install_local("clusterTrack-MEE.zip")
+remotes::install_local("clusterTrackVis-MEE.zip")
+
+
 ```
