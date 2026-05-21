@@ -6,6 +6,13 @@ vignette: >
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 
+bibliography: references.bib
+
+format:
+  html:
+    syntax-highlighting: github
+
+
 execute:
   eval: false
   echo: true
@@ -16,12 +23,12 @@ execute:
 ---
 
 
-Here we use a real ARGOS telemetry dataset for male Pectoral Sandpipers (_Calidris melanotos_) to illustrate how `clusterTrack` works on a larger set of individual tracks. The same dataset also provides a useful validation case because it contains curated use-site assignments from [Kempenaers and Valcu (2017)](https://www.nature.com/articles/nature20813).
+Here we use an ARGOS Doppler telemetry dataset for male Pectoral Sandpipers (_Calidris melanotos_) to illustrate how `clusterTrack` works on a larger set of individual tracks. This dataset provides a useful validation case because it contains curated use-site assignments from [@kempenaers2017breeding].
 
 `clusterTrack` is run independently on each individual track, and the extracted clusters are compared with the curated labels.
 The companion package `clusterTrack.Vis` is used to save one interactive map per individual track and also to create a local `site` for easy navigation throughout the maps. 
 
-For validation, the number of curated use sites is compared with the number of clusters inferred by `clusterTrack` and a  point-level agreement is quantified using the adjusted Rand index. 
+For validation, the number of curated use sites is compared with the number of clusters inferred by `clusterTrack` and a  point-level agreement is quantified using several indices. 
 
 ```{r}
 pckgs <- c(
@@ -54,10 +61,10 @@ if (dir_exists(interactive_map_dir)) {
 
 The validation data are available in the `R` package `nomads`.
 The next block runs `clusterTrack` independently for each individual. The resulting maps are saved with the companion `clusterTrack.Vis` package.
-`site` creates a thumbnails for each map and an `index.qml` file which can then be edited and compiled to create a navigation page. 
+`site()` creates a thumbnails for each map and an `index.qmd` file which can then be edited and compiled to create a navigation page. 
 The cluster truck output is then gathered in `out`.
 
-```{r}
+```{r, clusterTrack}
 data(pesa)
 
 ids <- pesa[, .N, id]
@@ -85,9 +92,9 @@ out <- rbindlist(o)
 out[cluster == 0, cluster := NA]
 ```
 
-## Compare the number of curated and inferred clusters
+## Compare the number of known and inferred clusters
 
-For each individual, the number of curated clusters is compared with the number of clusters inferred by `clusterTrack`. 
+For each individual, the number of known clusters is compared with the number of clusters inferred by `clusterTrack`. 
 
 ```{r}
 x <- merge(
@@ -102,30 +109,61 @@ x[, cor(N_old, N_new)]
 
 ## Modified Adjusted Rand index
 
-The adjusted Rand index quantifies point-level agreement between the curated labels and the labels inferred by `clusterTrack`, after correcting for agreement expected by chance. 
+The adjusted Rand index quantifies point-level agreement between the curated labels and the labels inferred by `clusterTrack`, after correcting for agreement expected by chance [@sundqvist2023mari] . 
 
-Sundqvist, Martina, Julien Chiquet, and Guillem Rigaill. "Adjusting the adjusted Rand Index: A multinomial story." Computational Statistics 38.1 (2023): 327-347.
+
 
 ```{r}
 x <- out[!is.na(cluster) & !is.na(site_id)]
 
-mari <- x[, .(mari = MARI(cluster, site_id)), by = id]
+mari <- x[, .(v = MARI(cluster, site_id)), by = id]
 
 mari[
   ,
   .(
-    q05 = quantile(mari, 0.05),
-    median = median(mari),
-    mean = mean(mari),
-    q95 = quantile(mari, 0.95)
+    q05 = quantile(v, 0.05),
+    median = median(v),
+    mean = mean(v),
+    q95 = quantile(v, 0.95)
   )
 ]
 ```
 
+## Recall and precision
+
+Recall and precision provide complementary summaries of point-level agreement between the curated labels and the inferred clusters.
 
 
+```{r}
+x <- out[!is.na(cluster) & !is.na(site_id)]
 
+z <- x[,
+  .(v = extCriteria(cluster, site_id, "Recall")[[1]]),
+  by = id
+]
+ok
+recall <- z[
+  ,
+  .(
+    q05 = quantile(v, 0.05),
+    median = median(v),
+    mean = mean(v),
+    q95 = quantile(v, 0.95)
+  )
+]
 
+z <- x[, .(v = extCriteria(cluster, site_id, "Precision")[[1]]), by = id]
+
+precision <- z[
+  ,
+  .(
+    q05 = quantile(v, 0.05),
+    median = median(v),
+    mean = mean(v),
+    q95 = quantile(v, 0.95)
+  )
+]
+```
 
 
 
