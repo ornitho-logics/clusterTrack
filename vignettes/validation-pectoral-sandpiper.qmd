@@ -23,12 +23,16 @@ execute:
 ---
 
 
-Here we use an ARGOS Doppler telemetry dataset for male Pectoral Sandpipers (_Calidris melanotos_) to illustrate how `clusterTrack` works on a larger set of individual tracks. This dataset provides a useful validation case because it contains curated use-site assignments from [@kempenaers2017breeding].
 
-`clusterTrack` is run independently on each individual track, and the extracted clusters are compared with the curated labels.
-The companion package `clusterTrack.Vis` is used to save one interactive map per individual track and also to create a local `site` for easy navigation throughout the maps. 
 
-For validation, the number of curated use sites is compared with the number of clusters inferred by `clusterTrack` and a  point-level agreement is quantified using several indices. 
+## Validation with Pectoral Sandpiper ARGOS tracks
+
+We validate `clusterTrack` using ARGOS Doppler telemetry tracks from male Pectoral Sandpipers (_Calidris melanotos_). These data are available in the `nomads` package as `pesa` and include curated use-site assignments from [@kempenaers2017breeding].  For more information, see `help(pesa)`. 
+The dataset includes 103 individuals. Across tracks, there are 841 individual-level use sites in total. The median number of sites per individual is 6, with a range from 2 to 24 sites.
+
+`clusterTrack` can be run on each individual track, and the inferred clusters can then be compared with an independent set of curated labels.
+
+We use `clusterTrack.Vis` to save the interactive maps. Its `site()` function creates a thumbnail for each map and writes an `index.qmd` file, which can be edited and rendered into a local navigation page.
 
 ```{r}
 pckgs <- c(
@@ -41,7 +45,6 @@ pckgs <- c(
   "clusterTrack.Vis",
   "foreach",
   "futurize",
-  "progressify",
   "aricode", # Efficient Computations of Standard Clustering Comparison Measures
   "clusterCrit" # clustering validation
 )
@@ -59,12 +62,10 @@ if (dir_exists(interactive_map_dir)) {
 
 ## Run `clusterTrack` and save interactive maps
 
-The validation data are available in the `R` package `nomads`.
-The next block runs `clusterTrack` independently for each individual. The resulting maps are saved with the companion `clusterTrack.Vis` package.
-`site()` creates a thumbnails for each map and an `index.qmd` file which can then be edited and compiled to create a navigation page. 
-The cluster truck output is then gathered in `out`.
+The code below runs the full per-individual clustering workflow and collects the resulting `clusterTrack` output in `out`. These results are then used for validation by comparing the number of inferred clusters with the number of curated use sites, and by quantifying point-level agreement between inferred and curated labels.
 
-```{r, clusterTrack}
+
+```{r}
 data(pesa)
 
 ids <- pesa[, .N, id]
@@ -83,7 +84,6 @@ o <- foreach(i = ids$id) %do%
 
     x
   } |>
-  progressify() |>
   futurize()
 
 site(interactive_map_dir)
