@@ -110,7 +110,7 @@ cltrk <- smry[, .N, id]
 x <- merge(bench, cltrk, by = "id", suffixes = c("_old", "_new"))
 x[, cor(N_old, N_new)]
 ```
-## False positives clusters. 
+## New clusters. 
 
 ```{r}
 out[, fp := all(!is.na(cluster)) & all(is.na(site_id)), by = .(cluster, id)]
@@ -122,9 +122,15 @@ N_fp / N_sites
 
 x <- out[!is.na(cluster), .N, .(fp, id, cluster)]
 
-x[(fp)]
+ss <- merge(smry, x[, .(id, cluster, fp)], by = c("id", "cluster"))
 
-boxplot(N ~ fp, x)
+
+ggplot(ss[(fp)], aes(x = tenure)) +
+  geom_boxplot()
+
+
+ggplot(ss[(fp)], aes(x = N)) +
+  geom_boxplot()
 ```
 
 
