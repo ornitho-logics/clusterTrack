@@ -110,32 +110,6 @@ cltrk <- smry[, .N, id]
 x <- merge(bench, cltrk, by = "id", suffixes = c("_old", "_new"))
 x[, cor(N_old, N_new)]
 ```
-## New clusters. 
-
-```{r}
-out[, fp := all(!is.na(cluster)) & all(is.na(site_id)), by = .(cluster, id)]
-
-N_fp <- out[(fp)][, .N, .(id, cluster)] |> nrow()
-N_sites <- out[!is.na(site_id), .N, .(id, site_id)] |> nrow()
-
-N_fp / N_sites
-
-x <- out[!is.na(cluster), .N, .(fp, id, cluster)]
-
-ss <- merge(smry, x[, .(id, cluster, fp)], by = c("id", "cluster"))
-
-
-ggplot(ss[(fp)], aes(x = tenure)) +
-  geom_boxplot()
-
-
-ggplot(ss[(fp)], aes(x = N)) +
-  geom_boxplot()
-```
-
-
-
-
 
 ## Modified Adjusted Rand index
 
@@ -171,7 +145,7 @@ recall <- x[,
   .(v = extCriteria(cluster, site_id, "Recall")[[1]]),
   by = id
 ]
-ok
+
 recall[
   ,
   .(
