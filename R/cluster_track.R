@@ -104,7 +104,7 @@ cluster_track <- function(
 
   # slice
 
-  cli_alert("Find putative cluster regions.")
+  .alert("Find putative cluster regions.")
 
   if (missing(deltaT)) {
     deltaT = NA
@@ -112,12 +112,12 @@ cluster_track <- function(
   slice_ctdf(ctdf, deltaT = deltaT)
   tr$capture(ctdf, "slice")
 
-  cli_alert_warning("Repairing[1]...")
+  .warning("Repairing[1]...")
 
   spatial_repair(ctdf, time_contiguity = FALSE)
   tr$capture(ctdf, "spatial_repair_1")
 
-  cli_alert("Local clustering.")
+  .alert("Local clustering.")
 
   local_cluster_ctdf(
     ctdf,
@@ -127,7 +127,7 @@ cluster_track <- function(
   )
   tr$capture(ctdf, "dtscan")
 
-  cli_alert_warning("Repairing[2]...")
+  .warning("Repairing[2]...")
 
   spatial_repair(ctdf, time_contiguity = FALSE)
   tr$capture(ctdf, "spatial_repair_2")
@@ -147,7 +147,7 @@ cluster_track <- function(
   ctdf[is.na(cluster), cluster := 0]
 
   # compute lof
-  cli_alert_warning("Compute lof scores...")
+  .warning("Compute lof scores...")
   ctdf_lof(ctdf)
 
   if (!missing(aggregate_dist)) {

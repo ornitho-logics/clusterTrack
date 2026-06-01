@@ -138,7 +138,6 @@ NULL
     as.integer()
 }
 
-
 .hdbscan2dt <- function(h) {
   scores = data.table(
     cluster = names(h$cluster_scores) |> as.numeric(),
@@ -152,4 +151,17 @@ NULL
   )
 
   merge(x, scores, by = "cluster", all.x = TRUE, sort = FALSE)
+}
+
+
+.alert <- function(...) {
+  if (getOption("clusterTrack.verbose", TRUE) |> isTRUE()) {
+    cli::cli_alert(...)
+  }
+}
+
+.warning <- function(...) {
+  if (getOption("clusterTrack.verbose", TRUE) |> isTRUE()) {
+    cli::cli_alert_warning(...)
+  }
 }
