@@ -53,4 +53,12 @@ ctdf = slice_ctdf(ctdf)
 data(pesa56511)
 ctdf = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
 ctdf = slice_ctdf(ctdf)
+#>  ⠙ 17 segments processed [2.1s]
+#>  ⠹ 23 segments processed [2.4s]
+#>  ⠸ 29 segments processed [2.6s]
+#>  ⠼ 32 segments processed [2.7s]
+#>  ⠴ 35 segments processed [2.9s]
+#>  ⠦ 37 segments processed [3.1s]
+#>  ⠧ 43 segments processed [3.3s]
+#>  ⠧ 46 segments processed [3.5s]
 ```
