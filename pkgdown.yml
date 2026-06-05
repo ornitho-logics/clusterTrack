@@ -3,14 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   basic-examples: basic-examples.html
-  articles/lbdo: lbdo.html
-  articles/nola: nola.html
-  articles/pesa: pesa.html
-  articles/ruff: ruff.html
-  articles/ruff2: ruff2.html
-  articles/site: site.html
-  validation-pectoral-sandpiper: validation-pectoral-sandpiper.html
-last_built: 2026-05-07T15:05Z
+last_built: 2026-06-05T15:46Z
 urls:
   reference: https://ornitho-logics.github.io/clusterTrack/reference
   article: https://ornitho-logics.github.io/clusterTrack/articles

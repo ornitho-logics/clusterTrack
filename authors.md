@@ -8,7 +8,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/ornitho-logics/clusterTrack/blob/HEAD/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/ornitho-logics/clusterTrack/blob/main/DESCRIPTION)
 
 Valcu M (2026). *clusterTrack: Spatiotemporal Clustering of Animal
 Telemetry Tracks*. R package version 0.1.1,
