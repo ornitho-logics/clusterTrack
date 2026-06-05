@@ -13,9 +13,13 @@ repair procedures to identify and label use sites.
 `clusterTrack` works with both lower-precision telemetry data such as
 ARGOS and high-resolution GNSS tracks.
 
+See
+[`clusterTrack.Vis`](https://github.com/ornitho-logics/clusterTrack.Vis),
+the extension package for `clusterTrack`.
+
 ## Installation
 
-You can install the development version from GitHub with:
+You can install the development versions from GitHub with:
 
 ``` r
 
