@@ -10,9 +10,11 @@ The package is designed for relocation data where animals alternate between loca
 `clusterTrack` works with both lower-precision telemetry data such as ARGOS and high-resolution GNSS tracks.
 
 
+See [`clusterTrack.Vis`](https://github.com/ornitho-logics/clusterTrack.Vis), the extension package for `clusterTrack`.
+
 ## Installation
 
-You can install the development version from GitHub with:
+You can install the development versions from GitHub with:
 
 ``` r
 remotes::install_github('ornitho-logics/clusterTrack')
