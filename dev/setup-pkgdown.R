@@ -1,11 +1,9 @@
-#region: one-time repo setup
+# one-time repo setup
 usethis::use_build_ignore("dev")
 usethis::use_pkgdown_github_pages()
-usethis::use_article("pesa.qmd")
 
-#endregion
 
-#region: local preview & cleanup
+# local preview & cleanup
 pkgdown::build_site(new_process = TRUE, quiet = FALSE)
 
 pkgdown::clean_site()
@@ -16,9 +14,8 @@ unlink(
   force = TRUE
 )
 
-#endregion
 
-#region: deploy
+# deploy
 pkgdown::deploy_to_branch()
 
 pkgdown::clean_site()
@@ -28,5 +25,3 @@ unlink(
   recursive = TRUE,
   force = TRUE
 )
-
-#endregion
