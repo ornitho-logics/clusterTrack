@@ -4,19 +4,20 @@
 by running a multi-step pipeline:
 
 1.  identify temporally continuous putative regions via
-    [`slice_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/slice_ctdf.md).
+    [`slice_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/slice_ctdf.md)
 
-2.  merge temporally adjacent putative regions via
-    [`spatial_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/spatial_repair.md).
+2.  merge spatially overlapping adjacent putative regions via
+    [`spatial_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/spatial_repair.md)
 
 3.  locally cluster each putative region using DTSCAN via
-    [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md).
+    [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md)
 
 4.  enforce non-overlap in time by merging any clusters with overlapping
     time domains via
-    [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md).
+    [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md)
 
-5.  drop small clusters and run additional spatial repairs via
+5.  drop small or false putative clusters and run additional spatial
+    repairs via
     [`spatial_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/spatial_repair.md)
 
 6.  optionally merge adjacent clusters within `aggregate_dist` via
@@ -46,10 +47,12 @@ cluster_track(
 
 - nmin:
 
-  Integer; passed to
+  Integer; local DTSCAN support threshold. Passed to
   [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md)
-  (`nmin`). (clusters with `N <= minCluster` are dropped before final
-  repairs).
+  as `nmin`, then to
+  [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md)
+  as `min_pts`, where it defines the minimum effective
+  Delaunay-neighbour count for a core site.
 
 - z_min:
 
@@ -70,15 +73,14 @@ cluster_track(
 
 - minCluster:
 
-  Integer; minimum number of points required to keep a putative cluster
-  used when splitting candidate regions into movement segments. tail
-  when estimating each cluster's time domain.
+  Integer; post-clustering pruning threshold. Putative clusters with
+  `N <= minCluster` are dropped.
 
 - deltaT:
 
   Optional numeric; passed to
   [`slice_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/slice_ctdf.md).
-  Maximum allowable time gap (in days)
+  Maximum allowable time gap (in days).
 
 - aggregate_dist:
 
@@ -89,7 +91,7 @@ cluster_track(
 - trace:
 
   Logical; if TRUE, store intermediate .putative_cluster labels from the
-  cluster_track() pipeline in attr(ctdf, "putative_cluster_trace")
+  cluster_track() pipeline in attr(ctdf, "putative_cluster_trace").
 
 ## Value
 
