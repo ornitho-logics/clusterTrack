@@ -2,6 +2,9 @@
 clusterTrack <a href="https://ornitho-logics.github.io/clusterTrack/"><img src="man/figures/logo.png" align="right" height="139" alt="clusterTrack website" /></a>
 
 [![pkgdown](https://github.com/ornitho-logics/clusterTrack/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/ornitho-logics/clusterTrack/actions/workflows/pkgdown.yaml)
+[![GitHub version](https://img.shields.io/github/r-package/v/ornitho-logics/clusterTrack?label=version)](https://github.com/ornitho-logics/clusterTrack)
+[![License: GPL >= 2](https://img.shields.io/badge/license-GPL%20%3E%3D%202-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0)
+[![GitHub last commit](https://img.shields.io/github/last-commit/ornitho-logics/clusterTrack)](https://github.com/ornitho-logics/clusterTrack/commits/main)
 
 
 `clusterTrack` identifies spatiotemporally distinct use sites from animal telemetry tracks.
