@@ -18,8 +18,10 @@ cluster_track(
 \arguments{
 \item{ctdf}{A \code{ctdf} object (see \code{\link[=as_ctdf]{as_ctdf()}}).}
 
-\item{nmin}{Integer; passed to \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} (\code{nmin}).
-(clusters with \code{N <= minCluster} are dropped before final repairs).}
+\item{nmin}{Integer; local DTSCAN support threshold. Passed to
+\code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} as \code{nmin}, then to \code{\link[=sf_dtscan]{sf_dtscan()}} as \code{min_pts},
+where it defines the minimum effective Delaunay-neighbour count for a
+core site.}
 
 \item{z_min}{Numeric; pruning strictness in SD units.
 Smaller values produce more compact clusters and often more unassigned points.
@@ -29,17 +31,16 @@ so the sign is flipped internally; see \code{\link[=sf_dtscan]{sf_dtscan()}}  an
 \item{trim}{Numeric; passed to \code{\link[=temporal_repair]{temporal_repair()}}. Maximum fraction
 trimmed from each tail estimating each cluster's time domain.}
 
-\item{minCluster}{Integer; minimum number of points required to keep a putative cluster
-used when splitting candidate regions into movement segments.
-tail when estimating each cluster's time domain.}
+\item{minCluster}{Integer; post-clustering pruning threshold. Putative
+clusters with \code{N <= minCluster} are dropped.}
 
-\item{deltaT}{Optional numeric; passed to \code{\link[=slice_ctdf]{slice_ctdf()}}. Maximum allowable time gap (in days)}
+\item{deltaT}{Optional numeric; passed to \code{\link[=slice_ctdf]{slice_ctdf()}}. Maximum allowable time gap (in days).}
 
 \item{aggregate_dist}{Optional numeric; if supplied, passed to \code{\link[=aggregate_ctdf]{aggregate_ctdf()}} as \code{dist}
 (numeric treated as km).}
 
 \item{trace}{Logical; if TRUE, store intermediate .putative_cluster labels
-from the cluster_track() pipeline in attr(ctdf, "putative_cluster_trace")}
+from the cluster_track() pipeline in attr(ctdf, "putative_cluster_trace").}
 }
 \value{
 Invisibly returns \code{ctdf}, with \code{cluster} updated in-place and
@@ -49,12 +50,12 @@ Invisibly returns \code{ctdf}, with \code{cluster} updated in-place and
 \code{cluster_track} that assigns a \code{cluster} id to each location in a \code{ctdf} by running a
 multi-step pipeline:
 \enumerate{
-\item identify temporally continuous putative regions via \code{\link[=slice_ctdf]{slice_ctdf()}}.
-\item merge temporally adjacent putative regions  via \code{\link[=spatial_repair]{spatial_repair()}}.
-\item locally cluster each putative region using DTSCAN via  \code{\link[=sf_dtscan]{sf_dtscan()}}.
+\item identify temporally continuous putative regions via \code{\link[=slice_ctdf]{slice_ctdf()}}
+\item merge spatially overlapping adjacent putative regions via \code{\link[=spatial_repair]{spatial_repair()}}
+\item locally cluster each putative region using DTSCAN via \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}}
 \item enforce non-overlap in time by merging any clusters with
-overlapping time domains via \code{\link[=temporal_repair]{temporal_repair()}}.
-\item drop small clusters and run additional spatial repairs via \code{\link[=spatial_repair]{spatial_repair()}}
+overlapping time domains via \code{\link[=temporal_repair]{temporal_repair()}}
+\item drop small or false putative clusters and run additional spatial repairs via \code{\link[=spatial_repair]{spatial_repair()}}
 \item optionally merge adjacent clusters within \code{aggregate_dist} via \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}.
 }
 }

@@ -27,34 +27,42 @@ plot.clusterTrack <- function(x, y = NULL, ...) {
 #'
 #' `cluster_track` that assigns a `cluster` id to each location in a `ctdf` by running a
 #' multi-step pipeline:
-#' 1) identify temporally continuous putative regions via [slice_ctdf()].
-#' 2) merge temporally adjacent putative regions  via [spatial_repair()].
-#' 3) locally cluster each putative region using DTSCAN via  [sf_dtscan()].
+#' 1) identify temporally continuous putative regions via [slice_ctdf()]
+#' 2) merge spatially overlapping adjacent putative regions via [spatial_repair()]
+#' 3) locally cluster each putative region using DTSCAN via [local_cluster_ctdf()]
 #' 4) enforce non-overlap in time by merging any clusters with
-#'    overlapping time domains via [temporal_repair()].
-#' 5) drop small clusters and run additional spatial repairs via [spatial_repair()]
+#'    overlapping time domains via [temporal_repair()]
+#' 5) drop small or false putative clusters and run additional spatial repairs via [spatial_repair()]
 #' 6) optionally merge adjacent clusters within `aggregate_dist` via [aggregate_ctdf()].
 #'
 #' The function updates `ctdf` by reference and stores its parameters in
 #' `attr(ctdf, "cluster_params")`.
 #'
 #' @param ctdf A `ctdf` object (see [as_ctdf()]).
-#' @param nmin Integer; passed to [local_cluster_ctdf()] (`nmin`).
-#'   (clusters with `N <= minCluster` are dropped before final repairs).
+#'
+#' @param nmin Integer; local DTSCAN support threshold. Passed to
+#'   [local_cluster_ctdf()] as `nmin`, then to [sf_dtscan()] as `min_pts`,
+#'   where it defines the minimum effective Delaunay-neighbour count for a
+#'   core site.
+#'
 #' @param z_min Numeric; pruning strictness in SD units.
 #'   Smaller values produce more compact clusters and often more unassigned points.
 #'   Implementation detail: the underlying thresholds use an inverse z-score convention,
 #'   so the sign is flipped internally; see [sf_dtscan()]  and [local_cluster_ctdf()].
+#'
 #' @param trim Numeric; passed to [temporal_repair()]. Maximum fraction
 #'             trimmed from each tail estimating each cluster's time domain.
-#' @param deltaT Optional numeric; passed to [slice_ctdf()]. Maximum allowable time gap (in days)
-#' @param minCluster Integer; minimum number of points required to keep a putative cluster
-#'   used when splitting candidate regions into movement segments.
-#'   tail when estimating each cluster's time domain.
+#'
+#' @param deltaT Optional numeric; passed to [slice_ctdf()]. Maximum allowable time gap (in days).
+#'
+#' @param minCluster Integer; post-clustering pruning threshold. Putative
+#'   clusters with `N <= minCluster` are dropped.
+#'
 #' @param aggregate_dist Optional numeric; if supplied, passed to [aggregate_ctdf()] as `dist`
 #'   (numeric treated as km).
+#'
 #' @param trace Logical; if TRUE, store intermediate .putative_cluster labels
-#'   from the cluster_track() pipeline in attr(ctdf, "putative_cluster_trace")
+#'   from the cluster_track() pipeline in attr(ctdf, "putative_cluster_trace").
 #'
 #' @return Invisibly returns `ctdf`, with `cluster` updated in-place and
 #'   `attr(ctdf, "cluster_params")` set.

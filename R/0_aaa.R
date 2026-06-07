@@ -1,6 +1,7 @@
 #' @import data.table
 #'
-#' @importFrom  grDevices topo.colors dev.off png
+#' @importFrom  grDevices topo.colors hcl.colors dev.off png
+#' @importFrom  graphics text
 #' @importFrom  stats median quantile setNames start
 #' @importFrom  utils tail timestamp getFromNamespace
 #'
