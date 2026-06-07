@@ -1,6 +1,8 @@
 clusterTrack [![clusterTrack
 website](reference/figures/logo.png)](https://ornitho-logics.github.io/clusterTrack/)
 
+[![pkgdown](https://github.com/ornitho-logics/clusterTrack/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/ornitho-logics/clusterTrack/actions/workflows/pkgdown.yaml)
+
 `clusterTrack` identifies spatiotemporally distinct use sites from
 animal telemetry tracks.
 
