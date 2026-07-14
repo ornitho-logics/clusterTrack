@@ -106,7 +106,8 @@ cluster_track <- function(
   aggregate_dist,
   trace = FALSE
 ) {
-  options(datatable.showProgress = FALSE)
+  old_options = options(datatable.showProgress = FALSE)
+  on.exit(options(old_options), add = TRUE)
 
   tr = .new_putative_cluster_trace(trace)
 

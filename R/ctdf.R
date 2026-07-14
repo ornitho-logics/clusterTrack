@@ -1,6 +1,6 @@
 #' Reserved ctdf column names
 #' @keywords internal
-reserved_ctdf_nams = c(
+reserved_ctdf_nams <- c(
   "cluster",
   "lof",
   ".id",
@@ -14,6 +14,21 @@ reserved_ctdf_nams = c(
     stop("Not a 'ctdf' object!", call. = FALSE)
   }
 
+  nams <- c(".id", ".putative_cluster", "cluster", "location", "timestamp")
+  nams_ok <- nams %in% names(x)
+
+  if (!all(nams_ok)) {
+    stop("Some build in columns are missing", call. = FALSE)
+  }
+
+  if (!inherits(x$timestamp, "POSIXt")) {
+    stop("'timestamp' must inherit from 'POSIXt'.", call. = FALSE)
+  }
+
+  if (anyNA(x$timestamp)) {
+    stop("'timestamp' contains missing values.", call. = FALSE)
+  }
+
   if (is.unsorted(x$timestamp)) {
     stop(
       "It seems this ctdf is not sorted anymore along timestamp!",
@@ -21,12 +36,32 @@ reserved_ctdf_nams = c(
     )
   }
 
-  nams = c(".id", ".putative_cluster", "cluster", "location", "timestamp")
-  nams_ok = nams %in% names(x)
-
-  if (!all(nams_ok)) {
-    stop("Some build in columns are missing", call. = FALSE)
+  max_gap_h <- getOption("clusterTrack.max_gap", 24)
+  if (!is.numeric(max_gap_h) || length(max_gap_h) != 1L ||
+      is.na(max_gap_h) || max_gap_h <= 0) {
+    max_gap_h <- Inf
   }
+
+  gaps_h <- as.numeric(diff(x$timestamp), units = "hours")
+  long_gaps_h <- gaps_h[gaps_h > max_gap_h]
+
+  if (length(long_gaps_h)) {
+    warning(
+      sprintf(
+        paste0(
+          "Found %d temporal gaps greater than %s h ",
+          "(smallest: %s h; largest: %s h). ",
+          "Split the file manually at these gaps before running the clustering."
+        ),
+        length(long_gaps_h),
+        format(max_gap_h, trim = TRUE),
+        format(round(min(long_gaps_h), 2), trim = TRUE),
+        format(round(max(long_gaps_h), 2), trim = TRUE)
+      ),
+      call. = FALSE
+    )
+  }
+
 }
 
 #' Coerce an object to clusterTrack data format
@@ -48,7 +83,7 @@ as_ctdf.default <- function(x, ...) {
 
 
 #' @export
-plot.ctdf = function(
+plot.ctdf <- function(
   x,
   y = NULL,
   ...,
@@ -64,10 +99,10 @@ plot.ctdf = function(
 ) {
   .check_ctdf(x)
 
-  dots = list(...)
+  dots <- list(...)
 
-  drop_args = function(z, nams) {
-    nm = names(z)
+  drop_args <- function(z, nams) {
+    nm <- names(z)
     if (is.null(nm)) {
       return(z)
     }
@@ -75,13 +110,13 @@ plot.ctdf = function(
     z[!nzchar(nm) | !(nm %in% nams)]
   }
 
-  common_args = drop_args(
+  common_args <- drop_args(
     dots,
     c("x", "y", "add", "col", "border", "pch")
   )
 
-  xs = sf::st_as_sf(x)
-  tr = as_ctdf_track(x)
+  xs <- sf::st_as_sf(x)
+  tr <- as_ctdf_track(x)
 
   if (nrow(tr) > 0) {
     do.call(
@@ -95,9 +130,9 @@ plot.ctdf = function(
       )
     )
 
-    add_points = TRUE
+    add_points <- TRUE
   } else {
-    add_points = FALSE
+    add_points <- FALSE
   }
 
   do.call(
@@ -113,37 +148,37 @@ plot.ctdf = function(
     )
   )
 
-  cl = x[
+  cl <- x[
     !is.na(cluster) &
       cluster != 0
   ]
 
   if (nrow(cl) > 0) {
-    clusters = sort(unique(cl$cluster))
+    clusters <- sort(unique(cl$cluster))
 
-    hulls = lapply(
+    hulls <- lapply(
       clusters,
       function(z) {
-        g = sf::st_geometry(sf::st_as_sf(cl[cluster == z]))
+        g <- sf::st_geometry(sf::st_as_sf(cl[cluster == z]))
         sf::st_convex_hull(sf::st_union(g))[[1]]
       }
     )
 
-    polys = sf::st_sf(
+    polys <- sf::st_sf(
       cluster = clusters,
       location = sf::st_sfc(hulls, crs = sf::st_crs(xs))
     )
 
-    is_poly = sf::st_geometry_type(polys) %in% c("POLYGON", "MULTIPOLYGON")
-    polys = polys[is_poly, ]
+    is_poly <- sf::st_geometry_type(polys) %in% c("POLYGON", "MULTIPOLYGON")
+    polys <- polys[is_poly, ]
 
     if (nrow(polys) > 0) {
-      poly_border = hcl.colors(
+      poly_border <- hcl.colors(
         nrow(polys),
         palette = polygon_palette
       )
 
-      poly_col = hcl.colors(
+      poly_col <- hcl.colors(
         nrow(polys),
         palette = polygon_palette,
         alpha = polygon_alpha
@@ -163,7 +198,7 @@ plot.ctdf = function(
       )
 
       if (isTRUE(cluster_labels)) {
-        label_xy = polys |>
+        label_xy <- polys |>
           sf::st_geometry() |>
           sf::st_centroid() |>
           sf::st_coordinates()
@@ -218,7 +253,7 @@ as_ctdf.data.frame <- function(
   t_srs = "+proj=eqearth",
   ...
 ) {
-  reserved = intersect(names(x), reserved_ctdf_nams)
+  reserved <- intersect(names(x), reserved_ctdf_nams)
 
   if (length(reserved) > 0) {
     warning(
@@ -230,10 +265,10 @@ as_ctdf.data.frame <- function(
     )
   }
 
-  o = as.data.table(x)
+  o <- as.data.table(x)
   setnames(o, c(coords, time), c("X", "Y", "timestamp"))
 
-  dups = which(duplicated(o[, .(Y, X, timestamp)]))
+  dups <- which(duplicated(o[, .(Y, X, timestamp)]))
   if (length(dups) > 0) {
     warning(
       sprintf(
@@ -257,11 +292,11 @@ as_ctdf.data.frame <- function(
   o[, cluster := NA_integer_]
   o[, lof := NA_real_]
 
-  o = st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
+  o <- st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
 
-  o = st_transform(o, crs = t_srs)
+  o <- st_transform(o, crs = t_srs)
 
-  st_geometry(o) = "location"
+  st_geometry(o) <- "location"
 
   setDT(o)
   setkey(o, .id)
@@ -294,19 +329,19 @@ as_ctdf.data.frame <- function(
 #'
 #' @export
 as_ctdf_track <- function(ctdf) {
-  o = ctdf |>
+  o <- ctdf |>
     st_as_sf() |>
     mutate(
       location_prev = lag(location),
       start = lag(timestamp),
       stop = timestamp
     )
-  this_crs = st_crs(o)
+  this_crs <- st_crs(o)
 
-  o = o |>
+  o <- o |>
     dplyr::filter(!st_is_empty(location_prev))
 
-  o =
+  o <-
     o |>
     rowwise() |>
     mutate(

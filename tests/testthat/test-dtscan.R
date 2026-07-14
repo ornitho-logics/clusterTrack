@@ -12,7 +12,7 @@ test_that("dtscan returns the right clustering on a simple dataset", {
 
   testthat::expect_equal(nrow(x), length(cl))
 
-  testthat::expect_contains(cl, 0L)
+  testthat::expect_contains(cl, 0)
 
   testthat::expect_length(unique(cl), 3)
 })

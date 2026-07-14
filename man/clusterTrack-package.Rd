@@ -11,12 +11,19 @@ telemetry tracks.
 }
 \section{Package options}{
 
-\code{clusterTrack} uses the following option:
+\code{clusterTrack} uses the following options:
 
 \code{clusterTrack.verbose}: Logical. Default \code{TRUE}. Set to \code{FALSE} to
 suppress \code{cli} alerts emitted during package workflows.
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{options(clusterTrack.verbose = FALSE)
+\code{clusterTrack.max_gap}: Numeric, in hours. Default \code{24}. A warning reports
+adjacent timestamps separated by more than this threshold. Set to \code{Inf} to
+disable the warning. Invalid values are silently treated as \code{Inf}.
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{options(
+  clusterTrack.verbose = FALSE,
+  clusterTrack.max_gap = 24
+)
 }\if{html}{\out{</div>}}
 }
 

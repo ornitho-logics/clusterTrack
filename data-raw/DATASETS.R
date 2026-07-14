@@ -80,7 +80,7 @@ d = dbq(
                   ;"
 )
 ruff07b5 = d[,
-  .SD[1L],
+  .SD[1],
   by = .(timestamp = lubridate::floor_date(timestamp, "30 mins"))
 ]
 
@@ -102,7 +102,7 @@ d = dbq(
 )
 
 nola125a = d[,
-  .SD[1L],
+  .SD[1],
   by = .(timestamp = lubridate::floor_date(timestamp, "60 mins"))
 ]
 

@@ -16,21 +16,21 @@
   dom[, next_cluster := shift(cluster, type = "lead")]
 
   dom[, lead_i := shift(.I, type = "lead")]
-  dom[
-    !is.na(lead_i),
-    next_cluster_is_nb := {
-      m = sf::st_is_within_distance(
-        geometry,
-        dom$geometry[lead_i],
-        dist = dist_u,
-        sparse = FALSE
-      )
-      as.logical(m[1, 1])
-    },
-    by = .I
-  ]
+  i = which(!is.na(dom$lead_i))
 
-  dom[is.na(lead_i), next_cluster_is_nb := FALSE]
+  dom[, next_cluster_is_nb := FALSE]
+
+  if (length(i)) {
+    m = sf::st_is_within_distance(
+      dom$geometry[i],
+      dom$geometry[dom$lead_i[i]],
+      dist = dist_u,
+      sparse = FALSE
+    )
+
+    dom[i, next_cluster_is_nb := diag(m)]
+  }
+
   dom[, lead_i := NULL]
 
   edges = dom[next_cluster_is_nb == TRUE, .(cluster, next_cluster)]
@@ -97,4 +97,6 @@ aggregate_ctdf <- function(ctdf, dist) {
 
     if (max(ctdf$cluster, na.rm = TRUE) == n_prev) break
   }
+
+  invisible(ctdf)
 }

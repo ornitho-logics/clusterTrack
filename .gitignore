@@ -22,3 +22,4 @@ docs/
 vignettes/*.html
 vignettes/*.pdf
 .positai
+tests/testthat/Rplots.pdf
