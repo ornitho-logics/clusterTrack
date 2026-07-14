@@ -16,11 +16,9 @@ execute:
 
 ```{r, setup}
 #| include: false
-sapply(
-  c("clusterTrack", "sf", "data.table"),
-  require,
-  character.only = TRUE, quietly = TRUE
-)
+library(clusterTrack)
+library(sf)
+library(data.table)
 
 sim_cluster <- function(
   lat0,
