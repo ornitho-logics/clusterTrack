@@ -16,6 +16,11 @@ execute:
 
 ```{r, setup}
 #| include: false
+build_library <- Sys.getenv("R_BUILD_TEMPLIB")
+if (nzchar(build_library)) {
+  .libPaths(c(build_library, .libPaths()))
+}
+
 library(clusterTrack)
 library(sf)
 library(data.table)
