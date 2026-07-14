@@ -44,8 +44,10 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          "QUARTO_R=$env:R_HOME\bin" |
+          $rBin = & Rscript -e "cat(normalizePath(R.home('bin'), winslash = '/'))"
+          "QUARTO_R=$rBin" |
             Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "QUARTO_R=$rBin"
 
       - uses: quarto-dev/quarto-actions/setup@v2
 
