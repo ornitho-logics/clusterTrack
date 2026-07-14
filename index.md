@@ -2,6 +2,7 @@ clusterTrack [![clusterTrack
 website](reference/figures/logo.png)](https://ornitho-logics.github.io/clusterTrack/)
 
 [![pkgdown](https://github.com/ornitho-logics/clusterTrack/actions/workflows/pkgdown.yaml/badge.svg?branch=main)](https://github.com/ornitho-logics/clusterTrack/actions/workflows/pkgdown.yaml)
+[![R-CMD-check](https://github.com/ornitho-logics/clusterTrack/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ornitho-logics/clusterTrack/actions/workflows/R-CMD-check.yaml)
 [![GitHub
 version](https://img.shields.io/github/r-package/v/ornitho-logics/clusterTrack?label=version)](https://github.com/ornitho-logics/clusterTrack)
 [![License: GPL \>=

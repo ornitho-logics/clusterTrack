@@ -47,10 +47,16 @@ telemetry tracks.</p>
     <h2 id="package-options">Package options<a class="anchor" aria-label="anchor" href="#package-options"></a></h2>
 
 
-<p><code>clusterTrack</code> uses the following option:</p>
+<p><code>clusterTrack</code> uses the following options:</p>
 <p><code>clusterTrack.verbose</code>: Logical. Default <code>TRUE</code>. Set to <code>FALSE</code> to
 suppress <code>cli</code> alerts emitted during package workflows.</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>clusterTrack.verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre><p></p></div>
+<p><code>clusterTrack.max_gap</code>: Numeric, in hours. Default <code>24</code>. A warning reports
+adjacent timestamps separated by more than this threshold. Set to <code>Inf</code> to
+disable the warning. Invalid values are silently treated as <code>Inf</code>.</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span></span>
+<span>  clusterTrack.verbose <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  clusterTrack.max_gap <span class="op">=</span> <span class="fl">24</span></span>
+<span><span class="op">)</span></span></code></pre><p></p></div>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -73,7 +79,7 @@ suppress <code>cli</code> alerts emitted during package workflows.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>
