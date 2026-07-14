@@ -12,8 +12,7 @@
 #' suppress `cli` alerts emitted during package workflows.
 #'
 #' `clusterTrack.max_gap`: Numeric, in hours. Default `24`. A warning reports
-#' adjacent timestamps separated by more than this threshold. Set to `Inf` to
-#' disable the warning. Invalid values are silently treated as `Inf`.
+#' adjacent timestamps separated by more than this threshold.
 #'
 #' ```r
 #' options(

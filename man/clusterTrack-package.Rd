@@ -17,8 +17,7 @@ telemetry tracks.
 suppress \code{cli} alerts emitted during package workflows.
 
 \code{clusterTrack.max_gap}: Numeric, in hours. Default \code{24}. A warning reports
-adjacent timestamps separated by more than this threshold. Set to \code{Inf} to
-disable the warning. Invalid values are silently treated as \code{Inf}.
+adjacent timestamps separated by more than this threshold.
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{options(
   clusterTrack.verbose = FALSE,

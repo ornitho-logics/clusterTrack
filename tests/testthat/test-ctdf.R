@@ -1,5 +1,3 @@
-# Test .check_ctdf
-
 test_that(".check_ctdf errors on non-ctdf input", {
   expect_error(.check_ctdf(mini_ruff))
 })
@@ -80,15 +78,11 @@ test_that(".check_ctdf silently disables gap checks for invalid options", {
 })
 
 
-# Test as_ctdf
-
 test_that("as_ctdf warns on reserved columns", {
   mini_ruff <- copy(mini_ruff)
   mini_ruff[, .id := 1]
   expect_warning(as_ctdf(mini_ruff))
 })
-
-# Test as_ctdf_track
 
 test_that("as_ctdf_track creates LINESTRING segments", {
   ctdf <- as_ctdf(mini_ruff)
@@ -98,8 +92,6 @@ test_that("as_ctdf_track creates LINESTRING segments", {
   expect_true(all(geom_types == "LINESTRING"))
 })
 
-
-# Test plot.ctdf
 
 test_that("plot.ctdf runs without error", {
   ctdf <- as_ctdf(mini_ruff)
