@@ -88,13 +88,63 @@ reserved_ctdf_nams <- c(
 #'
 #' @param x An object to convert.
 #' @param ... Passed to methods.
-#' @return A `ctdf`.
 #'
-#' @seealso [as_ctdf.data.frame()], [as_ctdf.sf()]
+#' @return
+#' A `ctdf`: a timestamp-ordered `data.table` with an `sfc_POINT`
+#' geometry column named `location`.
+#'
+#' @section ctdf columns:
+#'
+#' A `ctdf` contains the following standardized columns:
+#'
+#' - `timestamp`: Observation time. Rows are ordered by this column when the
+#'   `ctdf` is created.
+#'
+#' - `location`: Point geometry in the target coordinate reference system.
+#'
+#' - `cluster`: Final cluster assignment. It is initialized to `NA`.
+#'   [cluster_track()] copies the final `.putative_cluster` assignments here,
+#'   with unassigned locations encoded as `0`. Positive integers identify
+#'   clusters. [aggregate_ctdf()] may subsequently merge and renumber these
+#'   clusters.
+#'
+#' - `lof`: Local Outlier Factor score for each location. It is initialized
+#'   to `NA` and populated by [ctdf_lof()] for locations with `cluster > 0`.
+#'   Unassigned locations retain `NA`.
+#'
+#' - `.id`: Internal row identifier assigned after ordering by
+#'   `timestamp`. It does not refer to the row number in the original input.
+#'
+#' - `.move_seg`: Internal working column used by [slice_ctdf()] while
+#'   identifying movement segments during recursive track segmentation.
+#'   It is initialized to `NA` and may be overwritten during clustering.
+#'   Its value should not be treated as a persistent clustering result.
+#'
+#' - `.seg_id`: Internal working identifier for consecutive segmentation
+#'   regions created together with `.move_seg` by [slice_ctdf()]. It is
+#'   initialized to `NA` and may be overwritten during recursive segmentation.
+#'
+#' - `.putative_cluster`: Internal working cluster label. It is initialized
+#'   to `NA`, assigned by [slice_ctdf()], and subsequently modified by the
+#'   spatial, local-clustering, pruning, and temporal-repair steps of
+#'   [cluster_track()]. `NA` are locations not currently assigned to a
+#'   putative cluster. This column represents intermediate clustering state
+#'   and should not be interpreted as the final cluster assignment.
+#'
+#'
+#' The columns `.id`, `.move_seg`, `.seg_id`, `.putative_cluster`,
+#' are internal working columns and are overwritten when constructing
+#' a `ctdf`. They are exposed primarily to make the state of the clustering
+#' workflow inspectable and are mainly relevant when running or examining the
+#' pipeline step by step. Users calling [cluster_track()] normally do not need
+#' to modify these columns directly.
+#'
+#' @seealso [as_ctdf.data.frame()], [as_ctdf.sf()], [cluster_track()]
 #' @export
 as_ctdf <- function(x, ...) {
   UseMethod("as_ctdf")
 }
+
 
 #' @export
 as_ctdf.default <- function(x, ...) {
@@ -266,6 +316,8 @@ plot.ctdf <- function(
 #'
 #' @seealso [as_ctdf()], [as_ctdf.sf()]
 #'
+#' @inheritSection as_ctdf ctdf columns
+#'
 #' @examples
 #' data(mini_ruff)
 #' x = as_ctdf(mini_ruff)
@@ -296,6 +348,7 @@ as_ctdf.data.frame <- function(
 #' @param x An `sf` object with POINT geometries and a source CRS.
 #' @inheritParams as_ctdf.data.frame
 #' @inherit as_ctdf.data.frame return details
+#' @inheritSection as_ctdf ctdf columns
 #'
 #' @seealso [as_ctdf()], [as_ctdf.data.frame()]
 #' @examples
@@ -350,6 +403,7 @@ as_ctdf.sf <- function(
   st_geometry(o) <- "location"
 
   setDT(o)
+
   setorder(o, timestamp)
   o[, let(
     .id = .I,

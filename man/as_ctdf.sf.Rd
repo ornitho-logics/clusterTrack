@@ -32,6 +32,47 @@ The converted object is checked for duplicate locations with the same timestamp
 and temporal gaps exceeding \code{getOption("clusterTrack.max_gap", 24)} hours.
 Duplicate warnings identify row positions in the returned, timestamp-sorted \code{ctdf}.
 }
+\section{ctdf columns}{
+
+
+A \code{ctdf} contains the following standardized columns:
+\itemize{
+\item \code{timestamp}: Observation time. Rows are ordered by this column when the
+\code{ctdf} is created.
+\item \code{location}: Point geometry in the target coordinate reference system.
+\item \code{cluster}: Final cluster assignment. It is initialized to \code{NA}.
+\code{\link[=cluster_track]{cluster_track()}} copies the final \code{.putative_cluster} assignments here,
+with unassigned locations encoded as \code{0}. Positive integers identify
+clusters. \code{\link[=aggregate_ctdf]{aggregate_ctdf()}} may subsequently merge and renumber these
+clusters.
+\item \code{lof}: Local Outlier Factor score for each location. It is initialized
+to \code{NA} and populated by \code{\link[=ctdf_lof]{ctdf_lof()}} for locations with \code{cluster > 0}.
+Unassigned locations retain \code{NA}.
+\item \code{.id}: Internal row identifier assigned after ordering by
+\code{timestamp}. It does not refer to the row number in the original input.
+\item \code{.move_seg}: Internal working column used by \code{\link[=slice_ctdf]{slice_ctdf()}} while
+identifying movement segments during recursive track segmentation.
+It is initialized to \code{NA} and may be overwritten during clustering.
+Its value should not be treated as a persistent clustering result.
+\item \code{.seg_id}: Internal working identifier for consecutive segmentation
+regions created together with \code{.move_seg} by \code{\link[=slice_ctdf]{slice_ctdf()}}. It is
+initialized to \code{NA} and may be overwritten during recursive segmentation.
+\item \code{.putative_cluster}: Internal working cluster label. It is initialized
+to \code{NA}, assigned by \code{\link[=slice_ctdf]{slice_ctdf()}}, and subsequently modified by the
+spatial, local-clustering, pruning, and temporal-repair steps of
+\code{\link[=cluster_track]{cluster_track()}}. \code{NA} are locations not currently assigned to a
+putative cluster. This column represents intermediate clustering state
+and should not be interpreted as the final cluster assignment.
+}
+
+The columns \code{.id}, \code{.move_seg}, \code{.seg_id}, \code{.putative_cluster},
+are internal working columns and are overwritten when constructing
+a \code{ctdf}. They are exposed primarily to make the state of the clustering
+workflow inspectable and are mainly relevant when running or examining the
+pipeline step by step. Users calling \code{\link[=cluster_track]{cluster_track()}} normally do not need
+to modify these columns directly.
+}
+
 \examples{
 data(mini_ruff)
 points <- sf::st_as_sf(

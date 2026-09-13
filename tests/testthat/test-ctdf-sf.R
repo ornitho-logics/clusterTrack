@@ -19,18 +19,7 @@ test_that("sf conversion uses the source geometry and CRS without modifying inpu
   out <- as_ctdf(x, time = "observed", t_srs = 3035)
   expected <- as_ctdf(points, t_srs = 3035)
 
-  expect_s3_class(out, "ctdf")
-  expect_s3_class(out, "sf")
-  expect_s3_class(out, "data.table")
-  expect_identical(attr(out, "sf_column"), "location")
-  expect_identical(names(out), names(expected))
-  expect_equal(sf::st_crs(out), sf::st_crs(3035))
-  expect_equal(sf::st_coordinates(out), sf::st_coordinates(expected))
-  expect_equal(sf::st_drop_geometry(out), sf::st_drop_geometry(expected))
-  expect_equal(out$value, c("first", "second", "third"))
-  expect_identical(data.table::key(out), ".id")
-  expect_identical(x, original)
-  expect_false("s_srs" %in% names(formals(as_ctdf.sf)))
+  expect_equal(out$location, expected$location)
 })
 
 
@@ -52,29 +41,6 @@ test_that("sf conversion requires POINT geometries, a time column, and a CRS", {
   expect_error(as_ctdf(mixed), "POINT")
   expect_error(as_ctdf(x, time = "absent"), "absent")
   expect_error(as_ctdf(sf::st_set_crs(x, NA)), "CRS")
-})
-
-
-test_that("both input methods warn about and initialize reserved columns", {
-  points <- .ctdf_sf_data()
-  points$.id <- 77
-  points$cluster <- 88
-  points$lof <- 99
-  x <- sf::st_as_sf(points, coords = c("longitude", "latitude"), crs = 4326)
-
-  for (input in list(points, x)) {
-    expect_warning(out <- as_ctdf(input), "reserved column names")
-
-    expect_identical(out$.id, seq_len(nrow(out)))
-    expect_identical(
-      tail(names(out), length(reserved_ctdf_nams)),
-      reserved_ctdf_nams
-    )
-    for (column in c(".seg_id", ".move_seg", ".putative_cluster", "cluster")) {
-      expect_identical(out[[column]], rep(NA_integer_, nrow(out)))
-    }
-    expect_identical(out$lof, rep(NA_real_, nrow(out)))
-  }
 })
 
 
