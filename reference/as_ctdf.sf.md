@@ -1,42 +1,25 @@
-# Coerce an object to clusterTrack data format
+# Coerce an sf object to clusterTrack data format
 
-Converts an object with spatial coordinates and a timestamp column to
-the `data.table` format with an `sf` geometry column used by
-clusterTrack.
+Converts an `sf` object with POINT geometries and a timestamp column to
+a `ctdf`. The source CRS is taken from `x`; a missing CRS is an error.
 
 ## Usage
 
 ``` r
-# S3 method for class 'data.frame'
-as_ctdf(
-  x,
-  coords = c("longitude", "latitude"),
-  time = "time",
-  s_srs = 4326,
-  t_srs = "+proj=eqearth",
-  ...
-)
+# S3 method for class 'sf'
+as_ctdf(x, time = "time", t_srs = "+proj=eqearth", ...)
 ```
 
 ## Arguments
 
 - x:
 
-  A `data.frame` object.
-
-- coords:
-
-  Character vector of length 2 specifying the coordinate column names.
-  Defaults to `c("longitude", "latitude")`.
+  An `sf` object with POINT geometries and a source CRS.
 
 - time:
 
   Name of the POSIXt time column. Will be renamed to `"timestamp"`
   internally.
-
-- s_srs:
-
-  Source spatial reference. Default is EPSG:4326
 
 - t_srs:
 
@@ -94,13 +77,16 @@ following standardized columns:
 ## See also
 
 [`as_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf.md),
-[`as_ctdf.sf()`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf.sf.md)
+[`as_ctdf.data.frame()`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf.data.frame.md)
 
 ## Examples
 
 ``` r
 data(mini_ruff)
-x = as_ctdf(mini_ruff)
-plot(x)
-
+points <- sf::st_as_sf(
+  mini_ruff,
+  coords = c("longitude", "latitude"),
+  crs = 4326
+)
+x <- as_ctdf(points)
 ```

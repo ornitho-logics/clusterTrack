@@ -58,7 +58,41 @@
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>ctdf</code>.</p>
+    <p>A <code>ctdf</code>: a timestamp-ordered <code>data.table</code> with an <code>sfc_POINT</code>
+geometry column named <code>location</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>See <code><a href="as_ctdf.data.frame.html">as_ctdf.data.frame()</a></code> for coordinate columns and <code><a href="as_ctdf.sf.html">as_ctdf.sf()</a></code> for
+existing POINT geometries with a source CRS.</p>
+<p>Internal working columns used by the clustering pipeline are preallocated
+when a <code>ctdf</code> is created and reset after <code><a href="cluster_track.html">cluster_track()</a></code> completes.
+Intermediate clustering states can be inspected with
+<code><a href="putative_cluster_trace.html">putative_cluster_trace()</a></code> when <code>trace = TRUE</code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="ctdf-columns">ctdf columns<a class="anchor" aria-label="anchor" href="#ctdf-columns"></a></h2>
+
+
+
+<p>In addition to columns retained from the input, a <code>ctdf</code> contains the
+following standardized columns:</p><ul><li><p><code>timestamp</code>: Observation time. Rows are ordered by this column when the
+<code>ctdf</code> is created.</p></li>
+<li><p><code>location</code>: Point geometry in the target coordinate reference system.</p></li>
+<li><p><code>.id</code>: Sequential row identifier assigned after ordering by <code>timestamp</code>.
+It is used internally to track locations through the clustering workflow
+and does not refer to the row number in the original input.</p></li>
+<li><p><code>cluster</code>: Final cluster assignment. It is initialized to <code>NA</code>.
+<code><a href="cluster_track.html">cluster_track()</a></code> assigns positive integers to clustered locations and
+<code>0</code> to unassigned locations. <code><a href="aggregate_ctdf.html">aggregate_ctdf()</a></code> may subsequently merge
+and renumber clusters.</p></li>
+<li><p><code>lof</code>: Local Outlier Factor score for each location. It is initialized
+to <code>NA</code> and populated by <code><a href="ctdf_lof.html">ctdf_lof()</a></code> for locations with <code>cluster &gt; 0</code>.
+Unassigned locations retain <code>NA</code>.</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="as_ctdf.data.frame.html">as_ctdf.data.frame()</a></code>, <code><a href="as_ctdf.sf.html">as_ctdf.sf()</a></code>, <code><a href="cluster_track.html">cluster_track()</a></code></p></div>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -59,6 +59,9 @@ Coercion and helpers around the ctdf format.
 - [`as_ctdf(`*`<data.frame>`*`)`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf.data.frame.md)
   : Coerce an object to clusterTrack data format
 
+- [`as_ctdf(`*`<sf>`*`)`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf.sf.md)
+  : Coerce an sf object to clusterTrack data format
+
 - [`as_ctdf_track()`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf_track.md)
   :
 

@@ -55,6 +55,8 @@ cluster_track(ctdf)
 #> ! Repairing[2]...
 #> ! Compute lof scores...
 summary(ctdf)
+#> <ctdf: 4 locations, 4 clusters, 0 unassigned>
+#> 
 #>    cluster               start                stop                geometry
 #>      <int>              <POSc>              <POSc>             <sfc_POINT>
 #> 1:       1 2015-05-31 17:43:18 2015-06-01 04:05:21 POINT (2736090 7441518)

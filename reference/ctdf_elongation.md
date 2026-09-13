@@ -71,6 +71,8 @@ cluster_track(x)
 #> ! Compute lof scores...
 o = ctdf_elongation(x)
 head(o)
+#> <ctdf: 4 locations, 4 clusters, 0 unassigned>
+#> 
 #>    cluster axis_length convex_hull_area log_axis_length         log_shape_ratio
 #>      <int>       <num>          <units>           <num>                 <units>
 #> 1:       1    17706.40   54669211 [m^2]        9.781682 1.746552 [ln(re 1 m-2)]

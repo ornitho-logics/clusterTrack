@@ -43,7 +43,8 @@ cluster_track(x)
 #> ! Compute lof scores...
 x = ctdf_lof(x)
 head(x[, .(.id, cluster, lof)])
-#> Key: <.id>
+#> <ctdf: 6 locations, 1 cluster, 4 unassigned>
+#> 
 #>      .id cluster      lof
 #>    <int>   <int>    <num>
 #> 1:     1       0       NA
