@@ -385,7 +385,7 @@ print.ctdf <- function(x, ...) {
   dt_print <- getFromNamespace("print.data.table", "data.table")
 
   dt_print(
-    x[, ..cols],
+    x[, .SD, .SDcols = cols],
     topn = 3,
     nrows = 10,
     print.keys = FALSE,
