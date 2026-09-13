@@ -1,25 +1,53 @@
 test_that("cluster_track does not store trace by default", {
   data(mini_ruff)
 
-  x = as_ctdf(mini_ruff)
+  x <- as_ctdf(mini_ruff)
   cluster_track(x)
 
   expect_null(putative_cluster_trace(x))
-  expect_false("putative_cluster_trace" %in% names(x))
+  expect_null(attr(x, "putative_cluster_trace", exact = TRUE))
+
+  for (column in ctdf_internal_cols) {
+    expect_true(all(is.na(x[[column]])))
+  }
 })
+
 
 test_that("cluster_track stores wide putative cluster trace", {
   data(mini_ruff)
 
-  x = as_ctdf(mini_ruff)
+  x <- as_ctdf(mini_ruff)
   cluster_track(x, trace = TRUE)
 
-  tr = putative_cluster_trace(x)
+  tr <- putative_cluster_trace(x)
 
   expect_s3_class(tr, "data.table")
   expect_equal(nrow(tr), nrow(x))
-  expect_equal(ncol(tr), 8)
-  expect_equal(tr[[1]], x$.id)
-  expect_equal(tr[[ncol(tr)]], x$.putative_cluster)
+
+  expect_named(
+    tr,
+    c(
+      ".id",
+      "slice",
+      "spatial_repair_1",
+      "dtscan",
+      "spatial_repair_2",
+      "subset_by_minCluster",
+      "drop_false_cluster",
+      "temporal_repair"
+    )
+  )
+
+  expect_identical(tr$.id, x$.id)
+
+  expect_identical(
+    tr$temporal_repair,
+    fifelse(x$cluster == 0L, NA_integer_, x$cluster)
+  )
+
+  for (column in ctdf_internal_cols) {
+    expect_true(all(is.na(x[[column]])))
+  }
+
   expect_false("putative_cluster_trace" %in% names(x))
 })

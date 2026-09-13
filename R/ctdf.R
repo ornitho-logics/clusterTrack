@@ -14,49 +14,32 @@
 #'
 #' @section ctdf columns:
 #'
-#' A `ctdf` contains the following standardized columns:
+#' In addition to columns retained from the input, a `ctdf` contains the
+#' following standardized columns:
 #'
 #' - `timestamp`: Observation time. Rows are ordered by this column when the
 #'   `ctdf` is created.
 #'
 #' - `location`: Point geometry in the target coordinate reference system.
 #'
+#' - `.id`: Sequential row identifier assigned after ordering by `timestamp`.
+#'   It is used internally to track locations through the clustering workflow
+#'   and does not refer to the row number in the original input.
+#'
 #' - `cluster`: Final cluster assignment. It is initialized to `NA`.
-#'   [cluster_track()] copies the final `.putative_cluster` assignments here,
-#'   with unassigned locations encoded as `0`. Positive integers identify
-#'   clusters. [aggregate_ctdf()] may subsequently merge and renumber these
-#'   clusters.
+#'   [cluster_track()] assigns positive integers to clustered locations and
+#'   `0` to unassigned locations. [aggregate_ctdf()] may subsequently merge
+#'   and renumber clusters.
 #'
 #' - `lof`: Local Outlier Factor score for each location. It is initialized
 #'   to `NA` and populated by [ctdf_lof()] for locations with `cluster > 0`.
 #'   Unassigned locations retain `NA`.
 #'
-#' - `.id`: Internal row identifier assigned after ordering by
-#'   `timestamp`. It does not refer to the row number in the original input.
-#'
-#' - `.move_seg`: Internal working column used by [slice_ctdf()] while
-#'   identifying movement segments during recursive track segmentation.
-#'   It is initialized to `NA` and may be overwritten during clustering.
-#'   Its value should not be treated as a persistent clustering result.
-#'
-#' - `.seg_id`: Internal working identifier for consecutive segmentation
-#'   regions created together with `.move_seg` by [slice_ctdf()]. It is
-#'   initialized to `NA` and may be overwritten during recursive segmentation.
-#'
-#' - `.putative_cluster`: Internal working cluster label. It is initialized
-#'   to `NA`, assigned by [slice_ctdf()], and subsequently modified by the
-#'   spatial, local-clustering, pruning, and temporal-repair steps of
-#'   [cluster_track()]. `NA` are locations not currently assigned to a
-#'   putative cluster. This column represents intermediate clustering state
-#'   and should not be interpreted as the final cluster assignment.
-#'
-#'
-#' The columns `.id`, `.move_seg`, `.seg_id`, `.putative_cluster`,
-#' are internal working columns and are overwritten when constructing
-#' a `ctdf`. They are exposed primarily to make the state of the clustering
-#' workflow inspectable and are mainly relevant when running or examining the
-#' pipeline step by step. Users calling [cluster_track()] normally do not need
-#' to modify these columns directly.
+#' @details
+#' Internal working columns used by the clustering pipeline are preallocated
+#' when a `ctdf` is created and reset after [cluster_track()] completes.
+#' Intermediate clustering states can be inspected with
+#' [putative_cluster_trace()] when `trace = TRUE`.
 #'
 #' @seealso [as_ctdf.data.frame()], [as_ctdf.sf()], [cluster_track()]
 #' @export
