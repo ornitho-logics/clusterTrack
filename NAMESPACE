@@ -2,6 +2,7 @@
 
 S3method(as_ctdf,data.frame)
 S3method(as_ctdf,default)
+S3method(as_ctdf,sf)
 S3method(plot,clusterTrack)
 S3method(plot,ctdf)
 S3method(print,clusterTrack)

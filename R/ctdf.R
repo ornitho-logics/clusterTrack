@@ -36,9 +36,29 @@ reserved_ctdf_nams <- c(
     )
   }
 
+  dups <- which(duplicated(data.table(
+    st_coordinates(x$location),
+    timestamp = x$timestamp
+  )))
+  if (length(dups) > 0) {
+    suffix <- if (length(dups) > 1) "s" else ""
+    warning(
+      glue::glue(
+        "Found {length(dups)} duplicated point{suffix} (location, timestamp) ",
+        "at ctdf row{suffix}: {glue::glue_collapse(dups, ', ')}. ",
+        "Input may contain multiple individuals."
+      ),
+      call. = FALSE
+    )
+  }
+
   max_gap_h <- getOption("clusterTrack.max_gap", 24)
-  if (!is.numeric(max_gap_h) || length(max_gap_h) != 1L ||
-      is.na(max_gap_h) || max_gap_h <= 0) {
+  if (
+    !is.numeric(max_gap_h) ||
+      length(max_gap_h) != 1 ||
+      is.na(max_gap_h) ||
+      max_gap_h <= 0
+  ) {
     max_gap_h <- Inf
   }
 
@@ -47,30 +67,30 @@ reserved_ctdf_nams <- c(
 
   if (length(long_gaps_h)) {
     warning(
-      sprintf(
-        paste0(
-          "Found %d temporal gaps greater than %s h ",
-          "(smallest: %s h; largest: %s h). ",
-          "Split the file manually at these gaps before running the clustering."
-        ),
-        length(long_gaps_h),
-        format(max_gap_h, trim = TRUE),
-        format(round(min(long_gaps_h), 2), trim = TRUE),
-        format(round(max(long_gaps_h), 2), trim = TRUE)
+      glue::glue(
+        "Found {length(long_gaps_h)} temporal gaps greater than ",
+        "{format(max_gap_h, trim = TRUE)} h ",
+        "(smallest: {format(round(min(long_gaps_h), 2), trim = TRUE)} h; ",
+        "largest: {format(round(max(long_gaps_h), 2), trim = TRUE)} h). ",
+        "Split the file manually at these gaps before running the clustering."
       ),
       call. = FALSE
     )
   }
-
 }
 
 #' Coerce an object to clusterTrack data format
 #'
 #' S3 generic for converting objects into a `ctdf`.
 #'
+#' See [as_ctdf.data.frame()] for coordinate columns and [as_ctdf.sf()] for
+#' existing POINT geometries with a source CRS.
+#'
 #' @param x An object to convert.
 #' @param ... Passed to methods.
 #' @return A `ctdf`.
+#'
+#' @seealso [as_ctdf.data.frame()], [as_ctdf.sf()]
 #' @export
 as_ctdf <- function(x, ...) {
   UseMethod("as_ctdf")
@@ -221,23 +241,30 @@ plot.ctdf <- function(
 #' Coerce an object to clusterTrack data format
 #'
 #' Converts an object with spatial coordinates and a timestamp column
-#' to a standardized `sf/data.table`-based format used by the clusterTrack package.
+#' to the `data.table` format with an `sf` geometry column used by clusterTrack.
 #'
 #' @param x       A `data.frame` object.
 #' @param coords  Character vector of length 2 specifying the coordinate column names.
 #'                Defaults to `c("longitude", "latitude")`.
-#' @param time    Name of the time column. Will be renamed to `"timestamp"` internally.
+#' @param time    Name of the POSIXt time column. Will be renamed to `"timestamp"` internally.
 #' @param s_srs   Source spatial reference. Default is EPSG:4326
-#' @param t_srs  target spatial reference passed to `st_transform()`. Default is "+proj=eqearth".
+#' @param t_srs   Target spatial reference passed to [sf::st_transform()]. Default is "+proj=eqearth".
 #' @param ...     Currently unused
 #'
 
-#' @return An object of class `ctdf` (inherits from `sf`, `data.table`).
+#' @return An object of class `ctdf` (inherits from `data.table` and `data.frame`),
+#' with an `sfc_POINT` geometry column named `location`.
 #'
-#' @note
-#' This is currently a thin wrapper around `st_as_sf()`, but standardizes timestamp naming, ordering,
-#' and geometry column name (`"location"`). Several dot columns,updated by upstream methods, are added as well.
-
+#' @details
+#' Rows are sorted by timestamp, geometry is transformed to `t_srs`, and
+#' clusterTrack columns are initialized. Existing reserved columns are overwritten
+#' with a warning.
+#'
+#' The converted object is checked for duplicate locations with the same timestamp
+#' and temporal gaps exceeding `getOption("clusterTrack.max_gap", 24)` hours.
+#' Duplicate warnings identify row positions in the returned, timestamp-sorted `ctdf`.
+#'
+#' @seealso [as_ctdf()], [as_ctdf.sf()]
 #'
 #' @examples
 #' data(mini_ruff)
@@ -253,56 +280,91 @@ as_ctdf.data.frame <- function(
   t_srs = "+proj=eqearth",
   ...
 ) {
-  reserved <- intersect(names(x), reserved_ctdf_nams)
+  o <- as.data.table(x)
+  setnames(o, c(coords, time), c("X", "Y", "timestamp"))
+  o <- st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
+
+  .finalize_ctdf(o, t_srs)
+}
+
+
+#' Coerce an sf object to clusterTrack data format
+#'
+#' Converts an `sf` object with POINT geometries and a timestamp column to a `ctdf`.
+#' The source CRS is taken from `x`; a missing CRS is an error.
+#'
+#' @param x An `sf` object with POINT geometries and a source CRS.
+#' @inheritParams as_ctdf.data.frame
+#' @inherit as_ctdf.data.frame return details
+#'
+#' @seealso [as_ctdf()], [as_ctdf.data.frame()]
+#' @examples
+#' data(mini_ruff)
+#' points <- sf::st_as_sf(
+#'   mini_ruff,
+#'   coords = c("longitude", "latitude"),
+#'   crs = 4326
+#' )
+#' x <- as_ctdf(points)
+#'
+#' @export
+as_ctdf.sf <- function(
+  x,
+  time = "time",
+  t_srs = "+proj=eqearth",
+  ...
+) {
+  if (!all(sf::st_geometry_type(x) == "POINT")) {
+    stop("`x` must contain only POINT geometries.", call. = FALSE)
+  }
+
+  if (!time %in% names(x)) {
+    stop(glue::glue("Time column `{time}` not found."), call. = FALSE)
+  }
+
+  if (is.na(st_crs(x))) {
+    stop("`x` must have a source CRS.", call. = FALSE)
+  }
+
+  o <- copy(x)
+  setnames(o, time, "timestamp")
+
+  .finalize_ctdf(o, t_srs)
+}
+
+
+.finalize_ctdf <- function(o, t_srs) {
+  reserved <- intersect(names(o), reserved_ctdf_nams)
 
   if (length(reserved) > 0) {
     warning(
-      sprintf(
-        "as_ctdf(): input contains reserved column name%s: %s which may be overwritten here or by upstream methods.",
-        if (length(reserved) > 1) "s" else "",
-        paste(reserved, collapse = ", ")
-      )
-    )
-  }
-
-  o <- as.data.table(x)
-  setnames(o, c(coords, time), c("X", "Y", "timestamp"))
-
-  dups <- which(duplicated(o[, .(Y, X, timestamp)]))
-  if (length(dups) > 0) {
-    warning(
-      sprintf(
-        "as_ctdf(): found %d duplicated point%s (latitude, longitude, timestamp) at row%s: %s",
-        length(dups),
-        if (length(dups) > 1) "s" else "",
-        if (length(dups) > 1) "s" else "",
-        paste(dups, collapse = ", ")
+      glue::glue(
+        "as_ctdf(): input contains reserved columns: ",
+        "{glue::glue_collapse(reserved, ', ')}. These will be overwritten."
       ),
       call. = FALSE
     )
   }
 
-  setorder(o, timestamp)
-
-  o[, .id := .I]
-
-  o[, .seg_id := NA_integer_]
-  o[, .move_seg := NA_integer_]
-  o[, .putative_cluster := NA_integer_]
-  o[, cluster := NA_integer_]
-  o[, lof := NA_real_]
-
-  o <- st_as_sf(o, coords = c("X", "Y"), crs = s_srs)
-
   o <- st_transform(o, crs = t_srs)
-
   st_geometry(o) <- "location"
 
   setDT(o)
+  setorder(o, timestamp)
+  o[, let(
+    .id = .I,
+    .seg_id = NA_integer_,
+    .move_seg = NA_integer_,
+    .putative_cluster = NA_integer_,
+    cluster = NA_integer_,
+    lof = NA_real_
+  )]
+
   setkey(o, .id)
   setcolorder(o, reserved_ctdf_nams, after = ncol(o))
 
   class(o) <- c("ctdf", class(o))
+  .check_ctdf(o)
   o
 }
 

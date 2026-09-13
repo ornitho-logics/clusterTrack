@@ -17,3 +17,10 @@ A \code{ctdf}.
 \description{
 S3 generic for converting objects into a \code{ctdf}.
 }
+\details{
+See \code{\link[=as_ctdf.data.frame]{as_ctdf.data.frame()}} for coordinate columns and \code{\link[=as_ctdf.sf]{as_ctdf.sf()}} for
+existing POINT geometries with a source CRS.
+}
+\seealso{
+\code{\link[=as_ctdf.data.frame]{as_ctdf.data.frame()}}, \code{\link[=as_ctdf.sf]{as_ctdf.sf()}}
+}
