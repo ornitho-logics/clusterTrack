@@ -1,31 +1,31 @@
 .has_clusters <- function(x, minPts = 5) {
-  n = nrow(x)
+  n <- nrow(x)
   if (n <= minPts) {
     return(FALSE)
   }
 
-  tfun = \(x) {
-    a = x[, .N, cluster]
+  tfun <- \(x) {
+    a <- x[, .N, cluster]
     if (nrow(a) < 2) {
       return(FALSE)
     }
   }
 
-  xy = x[, st_coordinates(location)]
+  xy <- x[, st_coordinates(location)]
 
-  o = hdbscan(xy, minPts = minPts) |>
+  o <- hdbscan(xy, minPts = minPts) |>
     .hdbscan2dt()
-  o = o[cluster > 0]
+  o <- o[cluster > 0]
   tfun(o)
 
   # keep reliable points
   o[, q_outlier_scores := quantile(outlier_scores, probs = 0.95)]
-  o = o[membership_prob >= 0.6 & outlier_scores <= q_outlier_scores]
+  o <- o[membership_prob >= 0.6 & outlier_scores <= q_outlier_scores]
   tfun(o)
 
   # keep reliable clusters
   o[, n := .N, cluster]
-  o = o[n > minPts]
+  o <- o[n > minPts]
   tfun(o)
 
   nrow(o) > 1
@@ -34,24 +34,24 @@
 .prepare_segs <- function(ctdf, deltaT = NA) {
   ctdf[, let(.move_seg = NA, .seg_id = NA)]
 
-  segs =
+  segs <-
     ctdf |>
     as_ctdf_track() |>
     mutate(len = st_length(track) |> set_units("km") |> as.numeric())
 
-  crosses = st_crosses(segs)
+  crosses <- st_crosses(segs)
 
   setDT(segs)
 
-  if (is.na(deltaT)) {
-    prepared_crosses = lapply(seq_along(crosses), function(i) {
-      j = crosses[[i]]
+  if (!is.na(deltaT)) {
+    prepared_crosses <- lapply(seq_along(crosses), function(i) {
+      j <- crosses[[i]]
 
-      dfs = difftime(segs$start[j], segs$stop[i], units = "days") |> abs()
+      dfs <- difftime(segs$start[j], segs$stop[i], units = "days") |> abs()
       j[dfs <= deltaT] # keep only valid intersections within DT
     })
   } else {
-    prepared_crosses = crosses
+    prepared_crosses <- crosses
   }
 
   segs[, n_crosses := lengths(prepared_crosses)]
@@ -69,7 +69,7 @@
       return(logical(length = length(x)))
     }
 
-    o = max(x, na.rm = TRUE) == x
+    o <- max(x, na.rm = TRUE) == x
 
     o[is.na(o)] <- FALSE
     o
@@ -123,20 +123,20 @@
 #' ctdf = slice_ctdf(ctdf)
 
 slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
-  .check_ctdf(ctdf)
+  .validate_ctdf(ctdf)
   ctdf[, .putative_cluster := NA]
 
   if (missing(deltaT)) {
-    deltaT = NA
+    deltaT <- NA
   }
 
-  queue = list(ctdf)
-  res = list()
+  queue <- list(ctdf)
+  res <- list()
 
-  head = 1
+  head <- 1
 
   if (interactive()) {
-    pb = cli::cli_progress_bar(
+    pb <- cli::cli_progress_bar(
       total = NA,
       format = " {cli::pb_spin} {cli::pb_current} segments processed [{cli::pb_elapsed}]",
       .envir = environment()
@@ -145,8 +145,8 @@ slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
   }
 
   while (head <= length(queue)) {
-    current = queue[[head]]
-    head = head + 1
+    current <- queue[[head]]
+    head <- head + 1
 
     if (interactive()) {
       cli::cli_progress_update(id = pb, set = head - 1)
@@ -157,16 +157,16 @@ slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
     }
 
     if (current |> .has_clusters()) {
-      new_chunks = .split_by_longest_movement(ctdf = current, deltaT = deltaT)
+      new_chunks <- .split_by_longest_movement(ctdf = current, deltaT = deltaT)
       if (length(new_chunks) > 0) {
-        n0 = length(queue)
-        n1 = length(new_chunks)
+        n0 <- length(queue)
+        n1 <- length(new_chunks)
         # add empty slots at the end of queue:
-        length(queue) = n0 + n1
-        queue[(n0 + 1):(n0 + n1)] = new_chunks
+        length(queue) <- n0 + n1
+        queue[(n0 + 1):(n0 + n1)] <- new_chunks
       }
     } else {
-      res[[length(res) + 1]] = current
+      res[[length(res) + 1]] <- current
     }
   }
 
@@ -180,13 +180,13 @@ slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
     res[[k]][, .putative_cluster := k]
   }
 
-  out = rbindlist(res, use.names = TRUE)
+  out <- rbindlist(res, use.names = TRUE)
 
   setorder(out, .id)
 
   out[, new_putative_cluster := .as_inorder_int(.putative_cluster)]
 
-  out = out[, .(.id, new_putative_cluster)]
+  out <- out[, .(.id, new_putative_cluster)]
   setkey(out, .id)
 
   ctdf[out, .putative_cluster := i.new_putative_cluster]

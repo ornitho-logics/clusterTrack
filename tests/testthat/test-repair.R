@@ -14,7 +14,7 @@ test_that("temporal_repair merges clusters with overlapping time domains", {
 test_that("spatial_repair fills internal gaps when requested", {
   data(mini_ruff)
   x = as_ctdf(mini_ruff[1:12])
-  x[, .putative_cluster := c(rep(1, 5), NA, rep(1, 6))]
+  x[, .putative_cluster := as.integer(c(rep(1, 5), NA, rep(1, 6)))]
 
   spatial_repair(x, time_contiguity = TRUE)
 

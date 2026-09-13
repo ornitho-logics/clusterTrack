@@ -29,7 +29,7 @@
 #'
 #'
 summary.ctdf <- function(object, ...) {
-  .check_ctdf(object)
+  .validate_ctdf(object)
 
   if (is.na(object$cluster) |> all()) {
     out = object[, .(

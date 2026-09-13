@@ -19,24 +19,52 @@ reserved_ctdf_nams <- c(
 )
 
 
-.check_ctdf <- function(x) {
-  if (!inherits(x, "ctdf")) {
-    stop("Not a 'ctdf' object!", call. = FALSE)
+ctdf_required_cols <- c(
+  "timestamp",
+  "location",
+  reserved_ctdf_nams
+)
+
+
+ctdf_storage_types <- c(
+  .id = "integer",
+  cluster = "integer",
+  lof = "double",
+  .move_seg = "integer",
+  .seg_id = "integer",
+  .putative_cluster = "integer"
+)
+
+
+.validate_ctdf <- function(x) {
+  if (!inherits(x, "ctdf") || !data.table::is.data.table(x)) {
+    stop("`x` must be a ctdf data.table.", call. = FALSE)
   }
 
-  nams <- c(
-    "timestamp",
-    "location",
-    reserved_ctdf_nams
-  )
-
-  nams_ok <- nams %in% names(x)
+  nams_ok <- ctdf_required_cols %in% names(x)
 
   if (!all(nams_ok)) {
     stop(
       glue::glue(
         "Missing required ctdf column(s): ",
-        "{glue::glue_collapse(nams[!nams_ok], ', ')}."
+        "{glue::glue_collapse(ctdf_required_cols[!nams_ok], ', ')}."
+      ),
+      call. = FALSE
+    )
+  }
+
+  column_lengths <- vapply(
+    ctdf_required_cols,
+    function(nam) length(x[[nam]]),
+    integer(1)
+  )
+  bad_lengths <- names(column_lengths)[column_lengths != nrow(x)]
+
+  if (length(bad_lengths) > 0) {
+    stop(
+      glue::glue(
+        "ctdf column length must equal the number of rows: ",
+        "{glue::glue_collapse(bad_lengths, ', ')}."
       ),
       call. = FALSE
     )
@@ -57,6 +85,43 @@ reserved_ctdf_nams <- c(
     )
   }
 
+  if (!inherits(x$location, "sfc_POINT")) {
+    stop("'location' must be an sfc_POINT column.", call. = FALSE)
+  }
+
+  if (anyNA(x$.id)) {
+    stop("'.id' contains missing values.", call. = FALSE)
+  }
+
+  if (anyDuplicated(x$.id)) {
+    stop("'.id' must contain unique values.", call. = FALSE)
+  }
+
+  actual_types <- vapply(
+    names(ctdf_storage_types),
+    function(nam) typeof(x[[nam]]),
+    character(1)
+  )
+  bad_types <- names(ctdf_storage_types)[actual_types != ctdf_storage_types]
+
+  if (length(bad_types) > 0) {
+    expected <- glue::glue(
+      "{bad_types} ({ctdf_storage_types[bad_types]})"
+    )
+    stop(
+      glue::glue(
+        "Invalid ctdf column storage type(s); expected ",
+        "{glue::glue_collapse(expected, ', ')}."
+      ),
+      call. = FALSE
+    )
+  }
+
+  invisible(x)
+}
+
+
+.diagnose_ctdf <- function(x) {
   dups <- which(duplicated(data.table(
     st_coordinates(x$location),
     timestamp = x$timestamp
@@ -98,6 +163,8 @@ reserved_ctdf_nams <- c(
       call. = FALSE
     )
   }
+
+  invisible(x)
 }
 
 
@@ -133,7 +200,8 @@ reserved_ctdf_nams <- c(
   setcolorder(o, reserved_ctdf_nams, after = ncol(o))
 
   class(o) <- c("ctdf", class(o))
-  .check_ctdf(o)
+  .validate_ctdf(o)
+  .diagnose_ctdf(o)
   o
 }
 
@@ -154,7 +222,7 @@ plot.ctdf <- function(
   cluster_label_cex = 0.9,
   cluster_label_font = 2
 ) {
-  .check_ctdf(x)
+  .validate_ctdf(x)
 
   dots <- list(...)
 
