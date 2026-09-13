@@ -1,28 +1,3 @@
-#' @export
-print.clusterTrack <- function(x, ...) {
-  cat("<clusters:", data.table::uniqueN(x$cluster) - 1, ">\n\n")
-
-  dt_print = getFromNamespace("print.data.table", "data.table")
-  dt_print(
-    x,
-    topn = 3,
-    nrows = 10,
-    print.keys = FALSE,
-    ...
-  )
-
-  invisible(x)
-}
-
-#' @export
-plot.clusterTrack <- function(x, y = NULL, ...) {
-  pal = topo.colors(n = uniqueN(x$cluster))
-  cols = pal[match(x$cluster, sort(unique(x$cluster)))]
-
-  plot(st_geometry(x$location), col = cols, ...)
-}
-
-
 #' Cluster a movement track into spatiotemporal clusters
 #'
 #' `cluster_track` that assigns a `cluster` id to each location in a `ctdf` by running a
@@ -106,17 +81,17 @@ cluster_track <- function(
   aggregate_dist,
   trace = FALSE
 ) {
-  old_options = options(datatable.showProgress = FALSE)
+  old_options <- options(datatable.showProgress = FALSE)
   on.exit(options(old_options), add = TRUE)
 
-  tr = .new_putative_cluster_trace(trace)
+  tr <- .new_putative_cluster_trace(trace)
 
   # slice
 
   .alert("Find putative cluster regions.")
 
   if (missing(deltaT)) {
-    deltaT = NA
+    deltaT <- NA
   }
   slice_ctdf(ctdf, deltaT = deltaT)
   tr$capture(ctdf, "slice")
@@ -164,14 +139,14 @@ cluster_track <- function(
   }
 
   #collect parameters
-  cluster_params = list(
+  cluster_params <- list(
     nmin = nmin,
     minCluster = minCluster,
     z_min = z_min,
     trim = trim,
     deltaT = deltaT,
     aggregate_dist = if (missing(aggregate_dist)) {
-      aggregate_dist = NA
+      aggregate_dist <- NA
     } else {
       aggregate_dist
     }
@@ -182,6 +157,12 @@ cluster_track <- function(
   }
 
   setattr(ctdf, "cluster_params", cluster_params)
+
+  ctdf[, let(
+    .move_seg = NA_integer_,
+    .seg_id = NA_integer_,
+    .putative_cluster = NA_integer_
+  )]
 
   invisible(ctdf)
 }
