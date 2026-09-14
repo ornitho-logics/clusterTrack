@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/ornitho-logics/clusterTrack/blob/main/DESCRIPTION)
 
 Valcu M (2026). *clusterTrack: Spatiotemporal Clustering of Animal
-Telemetry Tracks*. R package version 0.1.1,
+Telemetry Tracks*. R package version 0.1.2,
 <https://ornitho-logics.github.io/clusterTrack/>.
 
     @Manual{,
       title = {clusterTrack: Spatiotemporal Clustering of Animal Telemetry Tracks},
       author = {Mihai Valcu},
       year = {2026},
-      note = {R package version 0.1.1},
+      note = {R package version 0.1.2},
       url = {https://ornitho-logics.github.io/clusterTrack/},
     }
