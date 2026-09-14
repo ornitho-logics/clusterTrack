@@ -123,7 +123,7 @@
 #' ctdf = slice_ctdf(ctdf)
 
 slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
-  .validate_ctdf(ctdf)
+  validate_ctdf(ctdf)
   ctdf[, .putative_cluster := NA]
 
   if (missing(deltaT)) {

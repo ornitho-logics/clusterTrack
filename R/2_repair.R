@@ -152,7 +152,7 @@
 #' @export
 
 spatial_repair <- function(ctdf, time_contiguity = TRUE) {
-  .validate_ctdf(ctdf)
+  validate_ctdf(ctdf)
 
   repeat {
     n_prev = max(ctdf$.putative_cluster, na.rm = TRUE)

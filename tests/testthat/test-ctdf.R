@@ -1,67 +1,67 @@
-test_that(".validate_ctdf errors on non-ctdf input", {
-  expect_error(.validate_ctdf(mini_ruff), "ctdf data.table")
+test_that("validate_ctdf errors on non-ctdf input", {
+  expect_error(validate_ctdf(mini_ruff), "ctdf data.table")
 })
 
 
-test_that(".validate_ctdf errors on unsorted timestamp", {
+test_that("validate_ctdf errors on unsorted timestamp", {
   ctdf <- as_ctdf(mini_ruff)
 
   x <- ctdf[sample(.N)]
 
-  expect_error(.validate_ctdf(x), "sorted")
+  expect_error(validate_ctdf(x), "sorted")
 })
 
 
-test_that(".validate_ctdf errors when required columns are missing", {
+test_that("validate_ctdf errors when required columns are missing", {
   ctdf <- as_ctdf(mini_ruff)
   x <- copy(ctdf)[, .id := NULL]
-  expect_error(.validate_ctdf(x), "Missing required ctdf column.*\\.id")
+  expect_error(validate_ctdf(x), "Missing required ctdf column.*\\.id")
 })
 
 
-test_that(".validate_ctdf errors on missing timestamps", {
+test_that("validate_ctdf errors on missing timestamps", {
   x <- as_ctdf(mini_ruff)
   x$timestamp[1] <- NA
 
-  expect_error(.validate_ctdf(x), "contains missing values")
+  expect_error(validate_ctdf(x), "contains missing values")
 })
 
 
-test_that(".validate_ctdf errors when timestamp is not POSIXt", {
+test_that("validate_ctdf errors when timestamp is not POSIXt", {
   x <- as_ctdf(mini_ruff)
   x$timestamp <- as.numeric(x$timestamp)
 
-  expect_error(.validate_ctdf(x), "must inherit from 'POSIXt'")
+  expect_error(validate_ctdf(x), "must inherit from 'POSIXt'")
 })
 
 
-test_that(".validate_ctdf checks location, column lengths, and storage types", {
+test_that("validate_ctdf checks location, column lengths, and storage types", {
   x <- as_ctdf(mini_ruff[1:3])
 
   bad_location <- copy(x)
   class(bad_location$location) <- c("sfc_GEOMETRY", "sfc")
-  expect_error(.validate_ctdf(bad_location), "sfc_POINT")
+  expect_error(validate_ctdf(bad_location), "sfc_POINT")
 
   bad_length <- as.list(x)
   bad_length$lof <- bad_length$lof[-1]
   class(bad_length) <- class(x)
   attr(bad_length, "row.names") <- attr(x, "row.names")
-  expect_error(.validate_ctdf(bad_length), "column length.*lof")
+  expect_error(validate_ctdf(bad_length), "column length.*lof")
 
   bad_type <- copy(x)
   bad_type$cluster <- as.double(bad_type$cluster)
-  expect_error(.validate_ctdf(bad_type), "cluster \\(integer\\)")
+  expect_error(validate_ctdf(bad_type), "cluster \\(integer\\)")
 })
 
 
-test_that(".validate_ctdf requires nonmissing unique ids", {
+test_that("validate_ctdf requires nonmissing unique ids", {
   x <- as_ctdf(mini_ruff[1:3])
   x$.id[1] <- NA_integer_
-  expect_error(.validate_ctdf(x), "'.id' contains missing values")
+  expect_error(validate_ctdf(x), "'.id' contains missing values")
 
   x <- as_ctdf(mini_ruff[1:3])
   x$.id[2] <- x$.id[1]
-  expect_error(.validate_ctdf(x), "'.id' must contain unique values")
+  expect_error(validate_ctdf(x), "'.id' must contain unique values")
 })
 
 
@@ -171,7 +171,7 @@ test_that("downstream operations do not repeat input diagnostics", {
     as_ctdf() |>
     suppressWarnings()
 
-  expect_silent(.validate_ctdf(x))
+  expect_silent(validate_ctdf(x))
   expect_silent(summary(x))
 })
 

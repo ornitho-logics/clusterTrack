@@ -36,7 +36,23 @@ ctdf_storage_types <- c(
 )
 
 
-.validate_ctdf <- function(x) {
+#' Validate the structure of a ctdf object
+#'
+#' Checks the class, required columns, column lengths, timestamp ordering,
+#' point geometry, identifiers, and storage types expected by clusterTrack.
+#'
+#' This is a low-level development utility intended primarily for packages
+#' that extend clusterTrack. Objects used through the normal
+#' clusterTrack workflow are validated internally, so most users do not need to
+#' call it directly.
+#'
+#' @param x An object to validate as a `ctdf`.
+#'
+#' @return The input `x`, invisibly, if validation succeeds.
+#'
+#' @keywords internal
+#' @export
+validate_ctdf <- function(x) {
   if (!inherits(x, "ctdf") || !data.table::is.data.table(x)) {
     stop("`x` must be a ctdf data.table.", call. = FALSE)
   }
@@ -58,6 +74,7 @@ ctdf_storage_types <- c(
     function(nam) length(x[[nam]]),
     integer(1)
   )
+
   bad_lengths <- names(column_lengths)[column_lengths != nrow(x)]
 
   if (length(bad_lengths) > 0) {
@@ -200,7 +217,7 @@ ctdf_storage_types <- c(
   setcolorder(o, reserved_ctdf_nams, after = ncol(o))
 
   class(o) <- c("ctdf", class(o))
-  .validate_ctdf(o)
+  validate_ctdf(o)
   .diagnose_ctdf(o)
   o
 }
@@ -222,7 +239,7 @@ plot.ctdf <- function(
   cluster_label_cex = 0.9,
   cluster_label_font = 2
 ) {
-  .validate_ctdf(x)
+  validate_ctdf(x)
 
   dots <- list(...)
 

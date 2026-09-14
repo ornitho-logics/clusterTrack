@@ -88,7 +88,7 @@
 #'
 #' @export
 aggregate_ctdf <- function(ctdf, dist) {
-  .validate_ctdf(ctdf)
+  validate_ctdf(ctdf)
 
   repeat {
     n_prev = max(ctdf$cluster, na.rm = TRUE)
