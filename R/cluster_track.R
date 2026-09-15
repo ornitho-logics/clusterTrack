@@ -44,7 +44,7 @@
 #'
 #' @seealso
 #' [as_ctdf()], [slice_ctdf()], [spatial_repair()], [local_cluster_ctdf()], [sf_dtscan()],
-#' [temporal_repair()],  [aggregate_ctdf()]
+#' [temporal_repair()],  [aggregate_ctdf()], [putative_cluster_trace()]
 #'
 
 #' @export

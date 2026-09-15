@@ -4,16 +4,27 @@
 \alias{putative_cluster_trace}
 \title{Extract putative-cluster trace}
 \usage{
-putative_cluster_trace(x)
+putative_cluster_trace(x, bind = FALSE)
 }
 \arguments{
 \item{x}{A \code{ctdf} object returned by \code{cluster_track(trace = TRUE)}.}
+
+\item{bind}{Logical. If \code{FALSE}, return the trace as a \code{data.table}.
+If \code{TRUE}, return a copy of \code{x} with the trace columns appended.}
 }
 \value{
-A \code{data.table}, or \code{NULL}.
+If \code{bind = FALSE}, a \code{data.table} containing \code{.id} and one column for each
+recorded clustering stage. If \code{bind = TRUE}, a \code{ctdf} with the trace
+columns appended. Returns \code{NULL} if no trace is stored.
 }
 \description{
-Extract putative-cluster trace
+Extracts the intermediate \code{.putative_cluster} assignments recorded during
+\code{\link[=cluster_track]{cluster_track()}} when called with \code{trace = TRUE}.
+}
+\details{
+The stored trace is aligned to the \code{ctdf} by \code{.id}. When \code{bind = TRUE},
+\code{.id} must be identical in the trace and \code{x}; otherwise an error is raised.
+The input \code{x} is not modified.
 }
 \examples{
 data(mini_ruff)
@@ -21,6 +32,7 @@ data(mini_ruff)
 x = as_ctdf(mini_ruff)
 cluster_track(x, trace = TRUE)
 
-tr = putative_cluster_trace(x)
-tr
+putative_cluster_trace(x)
+putative_cluster_trace(x, bind = TRUE)
+
 }
