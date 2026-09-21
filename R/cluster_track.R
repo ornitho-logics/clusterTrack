@@ -1,20 +1,21 @@
 #' Cluster a movement track into spatiotemporal clusters
-
-#' `cluster_track()` identifies use sites: areas where an individual concentrates
-#' its activity during distinct periods along a movement track.
 #'
-#' The method initially splits the track into provisional regions,
-#' allowing spatial clustering to adapt to local conditions. Neighbouring regions
-#' or clusters are combined when their spatial structure provides insufficient
-#' evidence for keeping them separate.
+#' `cluster_track()` identifies use sites: areas where an individual
+#' concentrates its activity during distinct periods along a
+#' movement track.
 #'
-#' The resulting use sites describe where and when the animal concentrated its
-#' activity, allowing separate visits to the same place to be distinguished.
-#' Optional distance-based aggregation combines nearby, temporally adjacent sites
-#' at a spatial scale chosen by the user.
+#' The track is first split into provisional regions, allowing
+#' spatial clustering to adapt to local conditions. Neighbouring
+#' regions or clusters are combined when their spatial structure
+#' provides insufficient evidence for keeping them separate.
 #'
-#' The function updates `ctdf` by reference and stores its parameters in
-#' `attr(ctdf, "cluster_params")`.
+#' Use sites describe where and when the animal concentrated its
+#' activity, distinguishing separate visits to the same place.
+#' Optional distance-based aggregation combines nearby, temporally
+#' adjacent sites at a spatial scale chosen by the user.
+#'
+#' The function updates `ctdf` by reference and stores its
+#' parameters in the `cluster_params` attribute.
 #'
 #' @param ctdf A `ctdf` object (see [as_ctdf()]).
 #'
@@ -24,9 +25,11 @@
 #'   core site.
 #'
 #' @param z_min Numeric; pruning strictness in SD units.
-#'   Smaller values produce more compact clusters and often more unassigned points.
-#'   Implementation detail: the underlying thresholds use an inverse z-score convention,
-#'   so the sign is flipped internally; see [sf_dtscan()]  and [local_cluster_ctdf()].
+#'   Smaller values produce more compact clusters and often
+#'   more unassigned points.
+#'   Implementation detail: the underlying thresholds use an inverse
+#'   z-score convention, so the sign is flipped internally;
+#'   see [sf_dtscan()]  and [local_cluster_ctdf()].
 #'
 #' @param trim Numeric; passed to [temporal_repair()]. Maximum fraction
 #'             trimmed from each tail estimating each cluster's time domain.

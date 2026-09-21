@@ -2,9 +2,7 @@
 % Please edit documentation in R/cluster_track.R
 \name{cluster_track}
 \alias{cluster_track}
-\title{Cluster a movement track into spatiotemporal clusters
-\code{cluster_track()} identifies use sites: areas where an individual concentrates
-its activity during distinct periods along a movement track.}
+\title{Cluster a movement track into spatiotemporal clusters}
 \usage{
 cluster_track(
   ctdf,
@@ -26,9 +24,11 @@ where it defines the minimum effective Delaunay-neighbour count for a
 core site.}
 
 \item{z_min}{Numeric; pruning strictness in SD units.
-Smaller values produce more compact clusters and often more unassigned points.
-Implementation detail: the underlying thresholds use an inverse z-score convention,
-so the sign is flipped internally; see \code{\link[=sf_dtscan]{sf_dtscan()}}  and \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}}.}
+Smaller values produce more compact clusters and often
+more unassigned points.
+Implementation detail: the underlying thresholds use an inverse
+z-score convention, so the sign is flipped internally;
+see \code{\link[=sf_dtscan]{sf_dtscan()}}  and \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}}.}
 
 \item{trim}{Numeric; passed to \code{\link[=temporal_repair]{temporal_repair()}}. Maximum fraction
 trimmed from each tail estimating each cluster's time domain.}
@@ -49,19 +49,23 @@ Invisibly returns \code{ctdf}, with \code{cluster} updated in-place and
 \code{attr(ctdf, "cluster_params")} set.
 }
 \description{
-The method initially splits the track into provisional regions,
-allowing spatial clustering to adapt to local conditions. Neighbouring regions
-or clusters are combined when their spatial structure provides insufficient
-evidence for keeping them separate.
+\code{cluster_track()} identifies use sites: areas where an individual
+concentrates its activity during distinct periods along a
+movement track.
 }
 \details{
-The resulting use sites describe where and when the animal concentrated its
-activity, allowing separate visits to the same place to be distinguished.
-Optional distance-based aggregation combines nearby, temporally adjacent sites
-at a spatial scale chosen by the user.
+The track is first split into provisional regions, allowing
+spatial clustering to adapt to local conditions. Neighbouring
+regions or clusters are combined when their spatial structure
+provides insufficient evidence for keeping them separate.
 
-The function updates \code{ctdf} by reference and stores its parameters in
-\code{attr(ctdf, "cluster_params")}.
+Use sites describe where and when the animal concentrated its
+activity, distinguishing separate visits to the same place.
+Optional distance-based aggregation combines nearby, temporally
+adjacent sites at a spatial scale chosen by the user.
+
+The function updates \code{ctdf} by reference and stores its
+parameters in the \code{cluster_params} attribute.
 }
 \examples{
 data(mini_ruff)
