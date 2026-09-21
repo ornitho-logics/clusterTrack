@@ -16,10 +16,19 @@ internal gaps as described above. Default is \code{TRUE}.}
 The input \code{ctdf}, invisibly, with \code{.putative_cluster} updated in-place.
 }
 \description{
-Iteratively merges temporally adjacent putative clusters whose convex hulls intersect.
+Iteratively merges temporally adjacent putative clusters that overlap spatially.
 This operates on the \code{.putative_cluster} column created by \code{\link[=slice_ctdf]{slice_ctdf()}} and updates it in-place.
 }
 \details{
+For each adjacent pair, the locations in each cluster are combined separately
+and their convex hulls are tested for intersection. If the convex hulls do not
+intersect, a k-nearest-neighbour (kNN) mixing test is used as a secondary
+criterion. The kNN test pools the two clusters' locations, uses
+\code{floor(sqrt(n))} neighbours and compares the observed fraction of neighbours
+assigned to the other cluster with the expected mixing fraction under random
+labels. The pair is considered overlapping when the observed mixing is at
+least 60\% of that expectation.
+
 If \code{time_contiguity = TRUE}, missing \code{.putative_cluster} values between identical
 forward- and backward-filled labels are filled, so each cluster becomes
 temporally contiguous (short spatial outliers inside a cluster are absorbed).
