@@ -1,6 +1,6 @@
 Package: clusterTrack
 Title: Spatiotemporal Clustering of Animal Telemetry Tracks
-Version: 0.1.2
+Version: 0.1.5
 Authors@R: 
     person("Mihai", "Valcu", , "mvalcu@gwdg.de", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0002-6907-7802"))

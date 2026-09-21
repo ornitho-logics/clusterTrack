@@ -2,7 +2,9 @@
 % Please edit documentation in R/cluster_track.R
 \name{cluster_track}
 \alias{cluster_track}
-\title{Cluster a movement track into spatiotemporal clusters}
+\title{Cluster a movement track into spatiotemporal clusters
+\code{cluster_track()} identifies use sites: areas where an individual concentrates
+its activity during distinct periods along a movement track.}
 \usage{
 cluster_track(
   ctdf,
@@ -47,19 +49,17 @@ Invisibly returns \code{ctdf}, with \code{cluster} updated in-place and
 \code{attr(ctdf, "cluster_params")} set.
 }
 \description{
-\code{cluster_track} that assigns a \code{cluster} id to each location in a \code{ctdf} by running a
-multi-step pipeline:
-\enumerate{
-\item identify temporally continuous putative regions via \code{\link[=slice_ctdf]{slice_ctdf()}}
-\item merge spatially overlapping adjacent putative regions via \code{\link[=spatial_repair]{spatial_repair()}}
-\item locally cluster each putative region using DTSCAN via \code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}}
-\item enforce non-overlap in time by merging any clusters with
-overlapping time domains via \code{\link[=temporal_repair]{temporal_repair()}}
-\item drop small or false putative clusters and run additional spatial repairs via \code{\link[=spatial_repair]{spatial_repair()}}
-\item optionally merge adjacent clusters within \code{aggregate_dist} via \code{\link[=aggregate_ctdf]{aggregate_ctdf()}}.
-}
+The method initially splits the track into provisional regions,
+allowing spatial clustering to adapt to local conditions. Neighbouring regions
+or clusters are combined when their spatial structure provides insufficient
+evidence for keeping them separate.
 }
 \details{
+The resulting use sites describe where and when the animal concentrated its
+activity, allowing separate visits to the same place to be distinguished.
+Optional distance-based aggregation combines nearby, temporally adjacent sites
+at a spatial scale chosen by the user.
+
 The function updates \code{ctdf} by reference and stores its parameters in
 \code{attr(ctdf, "cluster_params")}.
 }

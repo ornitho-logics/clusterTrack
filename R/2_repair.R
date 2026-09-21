@@ -1,47 +1,47 @@
 .is_intersection.geom <- function(ctdf, pc, next_pc) {
-  ac = ctdf[.putative_cluster == pc, location] |>
+  ac <- ctdf[.putative_cluster == pc, location] |>
     st_union() |>
     st_convex_hull()
 
-  bc = ctdf[.putative_cluster == next_pc, location] |>
+  bc <- ctdf[.putative_cluster == next_pc, location] |>
     st_union() |>
     st_convex_hull()
 
-  o = st_intersects(ac, bc)
+  o <- st_intersects(ac, bc)
 
   any(lengths(o) > 0)
 }
 
-.is_intersection.knn = function(ctdf, pc, next_pc) {
-  x = ctdf[.putative_cluster %chin% c(pc, next_pc)]
-  n = nrow(x)
+.is_intersection.knn <- function(ctdf, pc, next_pc) {
+  x <- ctdf[.putative_cluster %chin% c(pc, next_pc)]
+  n <- nrow(x)
   if (n < 4) {
     return(FALSE)
   }
 
-  xy = x[, st_coordinates(location)]
-  xy = as.matrix(xy)
+  xy <- x[, st_coordinates(location)]
+  xy <- as.matrix(xy)
 
-  y = as.integer(x$.putative_cluster == pc) + 1
-  n_min = min(tabulate(y))
+  y <- as.integer(x$.putative_cluster == pc) + 1
+  n_min <- min(tabulate(y))
   if (n_min < 3) {
     return(FALSE)
   }
 
-  k = sqrt(n) |> floor()
-  k = min(k, 15, n - 1, n_min - 1)
-  k = max(k, 2)
+  k <- sqrt(n) |> floor()
+  k <- min(k, 15, n - 1, n_min - 1)
+  k <- max(k, 2)
 
-  nn = dbscan::kNN(xy, k = k)$id
+  nn <- dbscan::kNN(xy, k = k)$id
 
-  neigh = matrix(y[nn], nrow = n, ncol = k)
-  self = matrix(y, nrow = n, ncol = k)
-  mix = mean(neigh != self)
+  neigh <- matrix(y[nn], nrow = n, ncol = k)
+  self <- matrix(y, nrow = n, ncol = k)
+  mix <- mean(neigh != self)
 
-  p = mean(y == 1)
-  mix_exp = 2 * p * (1 - p)
+  p <- mean(y == 1)
+  mix_exp <- 2 * p * (1 - p)
 
-  o = mix >= 0.6 * mix_exp
+  o <- mix >= 0.6 * mix_exp
 
   o
 }
@@ -55,7 +55,7 @@
 }
 
 .spatial_repair <- function(ctdf, time_contiguity) {
-  olap = ctdf[!is.na(.putative_cluster), .(pc = .putative_cluster)] |> unique()
+  olap <- ctdf[!is.na(.putative_cluster), .(pc = .putative_cluster)] |> unique()
 
   olap[, next_pc := shift(pc, type = "lead")]
 
@@ -79,8 +79,8 @@
   if (time_contiguity) {
     ctdf[,
       .putative_cluster := {
-        f = nafill(.putative_cluster, type = "locf")
-        b = nafill(.putative_cluster, type = "nocb")
+        f <- nafill(.putative_cluster, type = "locf")
+        b <- nafill(.putative_cluster, type = "nocb")
         fifelse(f == b, f, .putative_cluster)
       }
     ]
@@ -101,14 +101,14 @@
 .drop_false_cluster <- function(ctdf, minCluster) {
   # false clusters which are part of the movmeent track
 
-  o = split(
+  o <- split(
     ctdf[!is.na(.putative_cluster)],
     by = ".putative_cluster",
     keep.by = TRUE
   )
 
-  o = lapply(o, \(x) {
-    A =
+  o <- lapply(o, \(x) {
+    A <-
       as_ctdf_track(x) |>
       st_crosses() |>
       lengths()
@@ -121,7 +121,7 @@
     rbindlist()
 
   o[, n_without_cross := n_segs - nocross]
-  o = o[n_without_cross <= minCluster]
+  o <- o[n_without_cross <= minCluster]
 
   if (nrow(o) == 0) {
     return(NULL)
@@ -137,8 +137,17 @@
 
 #' Repair spatially overlapping adjacent putative clusters
 #'
-#' Iteratively merges temporally adjacent putative clusters whose convex hulls intersect.
+#' Iteratively merges temporally adjacent putative clusters that overlap spatially.
 #' This operates on the `.putative_cluster` column created by [slice_ctdf()] and updates it in-place.
+#'
+#' For each adjacent pair, the locations in each cluster are combined separately
+#' and their convex hulls are tested for intersection. If the convex hulls do not
+#' intersect, a k-nearest-neighbour (kNN) mixing test is used as a secondary
+#' criterion. The kNN test pools the two clusters' locations, uses
+#' `floor(sqrt(n))` neighbours and compares the observed fraction of neighbours
+#' assigned to the other cluster with the expected mixing fraction under random
+#' labels. The pair is considered overlapping when the observed mixing is at
+#' least 60% of that expectation.
 #'
 #' If `time_contiguity = TRUE`, missing `.putative_cluster` values between identical
 #' forward- and backward-filled labels are filled, so each cluster becomes
@@ -155,7 +164,7 @@ spatial_repair <- function(ctdf, time_contiguity = TRUE) {
   validate_ctdf(ctdf)
 
   repeat {
-    n_prev = max(ctdf$.putative_cluster, na.rm = TRUE)
+    n_prev <- max(ctdf$.putative_cluster, na.rm = TRUE)
 
     .spatial_repair(ctdf, time_contiguity = time_contiguity)
 
@@ -190,9 +199,9 @@ spatial_repair <- function(ctdf, time_contiguity = TRUE) {
 #'
 #' @export
 temporal_repair <- function(ctdf, trim = 0.01) {
-  x = ctdf[!is.na(.putative_cluster)]
+  x <- ctdf[!is.na(.putative_cluster)]
 
-  dom = x[,
+  dom <- x[,
     {
       .(
         lo = quantile(timestamp, probs = trim, type = 8),
@@ -204,13 +213,13 @@ temporal_repair <- function(ctdf, trim = 0.01) {
   ]
   dom[, width := pmax(hi - lo, 0)]
 
-  dom2 = copy(dom)
+  dom2 <- copy(dom)
   setnames(dom2, paste0(names(dom), '2'))
 
   setkey(dom, lo, hi)
   setkey(dom2, lo2, hi2)
 
-  pairs =
+  pairs <-
     foverlaps(
       x = dom,
       y = dom2,
@@ -223,7 +232,7 @@ temporal_repair <- function(ctdf, trim = 0.01) {
 
   pairs[, ov := pmax(0, pmin(hi, hi2) - pmax(lo, lo2))]
 
-  edges = pairs[
+  edges <- pairs[
     ov > 0,
     .(
       from = .putative_cluster,
@@ -231,15 +240,15 @@ temporal_repair <- function(ctdf, trim = 0.01) {
     )
   ]
 
-  g = igraph::graph_from_data_frame(
+  g <- igraph::graph_from_data_frame(
     edges,
     directed = FALSE,
     vertices = data.table(name = dom$.putative_cluster)
   )
 
-  cc = igraph::components(g)$membership
+  cc <- igraph::components(g)$membership
 
-  map = data.table(
+  map <- data.table(
     .putative_cluster = names(cc) |> as.integer(),
     merged = cc
   )[order(.putative_cluster)]
