@@ -1,9 +1,8 @@
-# Cluster a movement track into spatiotemporal clusters `cluster_track()` identifies use sites: areas where an individual concentrates its activity during distinct periods along a movement track.
+# Cluster a movement track into spatiotemporal clusters
 
-The method initially splits the track into provisional regions, allowing
-spatial clustering to adapt to local conditions. Neighbouring regions or
-clusters are combined when their spatial structure provides insufficient
-evidence for keeping them separate.
+`cluster_track()` identifies use sites: areas where an individual
+concentrates its activity during distinct periods along a movement
+track.
 
 ## Usage
 
@@ -82,13 +81,18 @@ Invisibly returns `ctdf`, with `cluster` updated in-place and
 
 ## Details
 
-The resulting use sites describe where and when the animal concentrated
-its activity, allowing separate visits to the same place to be
-distinguished. Optional distance-based aggregation combines nearby,
-temporally adjacent sites at a spatial scale chosen by the user.
+The track is first split into provisional regions, allowing spatial
+clustering to adapt to local conditions. Neighbouring regions or
+clusters are combined when their spatial structure provides insufficient
+evidence for keeping them separate.
+
+Use sites describe where and when the animal concentrated its activity,
+distinguishing separate visits to the same place. Optional
+distance-based aggregation combines nearby, temporally adjacent sites at
+a spatial scale chosen by the user.
 
 The function updates `ctdf` by reference and stores its parameters in
-`attr(ctdf, "cluster_params")`.
+the `cluster_params` attribute.
 
 ## See also
 
