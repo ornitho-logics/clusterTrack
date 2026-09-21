@@ -1,27 +1,9 @@
-# Cluster a movement track into spatiotemporal clusters
+# Cluster a movement track into spatiotemporal clusters `cluster_track()` identifies use sites: areas where an individual concentrates its activity during distinct periods along a movement track.
 
-`cluster_track` that assigns a `cluster` id to each location in a `ctdf`
-by running a multi-step pipeline:
-
-1.  identify temporally continuous putative regions via
-    [`slice_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/slice_ctdf.md)
-
-2.  merge spatially overlapping adjacent putative regions via
-    [`spatial_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/spatial_repair.md)
-
-3.  locally cluster each putative region using DTSCAN via
-    [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md)
-
-4.  enforce non-overlap in time by merging any clusters with overlapping
-    time domains via
-    [`temporal_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/temporal_repair.md)
-
-5.  drop small or false putative clusters and run additional spatial
-    repairs via
-    [`spatial_repair()`](https://ornitho-logics.github.io/clusterTrack/reference/spatial_repair.md)
-
-6.  optionally merge adjacent clusters within `aggregate_dist` via
-    [`aggregate_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/aggregate_ctdf.md).
+The method initially splits the track into provisional regions, allowing
+spatial clustering to adapt to local conditions. Neighbouring regions or
+clusters are combined when their spatial structure provides insufficient
+evidence for keeping them separate.
 
 ## Usage
 
@@ -99,6 +81,11 @@ Invisibly returns `ctdf`, with `cluster` updated in-place and
 `attr(ctdf, "cluster_params")` set.
 
 ## Details
+
+The resulting use sites describe where and when the animal concentrated
+its activity, allowing separate visits to the same place to be
+distinguished. Optional distance-based aggregation combines nearby,
+temporally adjacent sites at a spatial scale chosen by the user.
 
 The function updates `ctdf` by reference and stores its parameters in
 `attr(ctdf, "cluster_params")`.

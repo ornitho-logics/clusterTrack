@@ -43,9 +43,16 @@ remotes::install_github('ornitho-logics/clusterTrack.Vis')
 High-level track clustering and post-processing.
 
 - [`cluster_track()`](https://ornitho-logics.github.io/clusterTrack/reference/cluster_track.md)
-  : Cluster a movement track into spatiotemporal clusters
+  :
+
+  Cluster a movement track into spatiotemporal clusters
+  [`cluster_track()`](https://ornitho-logics.github.io/clusterTrack/reference/cluster_track.md)
+  identifies use sites: areas where an individual concentrates its
+  activity during distinct periods along a movement track.
+
 - [`aggregate_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/aggregate_ctdf.md)
   : Aggregate (merge) adjacent clusters by spatial proximity
+
 - [`summary(`*`<ctdf>`*`)`](https://ornitho-logics.github.io/clusterTrack/reference/summary.ctdf.md)
   : Summarise a ctdf by cluster
 
