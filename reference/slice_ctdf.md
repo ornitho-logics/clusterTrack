@@ -49,8 +49,4 @@ retained as a single putative cluster.
 data(mini_ruff)
 ctdf = as_ctdf(mini_ruff, s_srs = 4326, t_srs = "+proj=eqearth")
 ctdf = slice_ctdf(ctdf)
-
-data(pesa56511)
-ctdf = as_ctdf(pesa56511, time = "locationDate", s_srs = 4326, t_srs = "+proj=eqearth")
-ctdf = slice_ctdf(ctdf)
 ```
