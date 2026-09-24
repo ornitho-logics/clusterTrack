@@ -1,4 +1,9 @@
+
+
+
 # CRAN submission notes
+
+This is a new submission.
 
 ## Local check
 
