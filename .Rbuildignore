@@ -7,12 +7,10 @@
 ^docs$
 ^pkgdown$
 ^\.github$
+^cran-comments\.md$
 ^dev$
-
 ^vignettes/articles$
 ^vignettes/\.quarto$
 ^vignettes/articles/\.quarto$
 ^vignettes/.*\.html$
 ^vignettes/.*_files$
-^\.positai$
-^\.claude$
