@@ -41,7 +41,7 @@ result into the lof column."><meta property="og:image" content="https://ornitho-
     </div>
 
     <div class="ref-description section level2">
-    <p>Uses <code><a href="https://rdrr.io/pkg/dbscan/man/lof.html" class="external-link">dbscan::lof()</a></code> to compute Local Outlier Factor (LOF) scores
+    <p>Uses <code><a href="https://michael.hahsler.net/dbscan/reference/lof.html" class="external-link">dbscan::lof()</a></code> to compute Local Outlier Factor (LOF) scores
 separately within each <code>cluster</code> of a <code>ctdf</code>, and writes the
 result into the <code>lof</code> column.</p>
     </div>
@@ -60,14 +60,19 @@ result into the <code>lof</code> column.</p>
 
 
 <dt id="arg-minpts">minPts<a class="anchor" aria-label="anchor" href="#arg-minpts"></a></dt>
-<dd><p>Optional integer passed to <code><a href="https://rdrr.io/pkg/dbscan/man/lof.html" class="external-link">dbscan::lof()</a></code>. If <code>NULL</code>,
-<code><a href="https://rdrr.io/pkg/dbscan/man/lof.html" class="external-link">dbscan::lof()</a></code> is called with its defaults.</p>
-<p>The function updates <code>ctdf</code> by reference by updating the <code>lof</code> column.</p></dd>
+<dd><p>Optional integer passed to <code><a href="https://michael.hahsler.net/dbscan/reference/lof.html" class="external-link">dbscan::lof()</a></code>. If <code>NULL</code>,
+<code><a href="https://michael.hahsler.net/dbscan/reference/lof.html" class="external-link">dbscan::lof()</a></code> is called with its defaults.</p></dd>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>The input <code>ctdf</code> object, updated by reference with a numeric
+<code>lof</code> column containing Local Outlier Factor scores computed separately
+within each cluster. Locations with <code>cluster == 0</code> retain <code>NA</code> scores.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://rdrr.io/pkg/dbscan/man/lof.html" class="external-link">dbscan::lof()</a></code>, <code><a href="cluster_track.html">cluster_track()</a></code>.</p></div>
+    <div class="dont-index"><p><code><a href="https://michael.hahsler.net/dbscan/reference/lof.html" class="external-link">dbscan::lof()</a></code>, <code><a href="cluster_track.html">cluster_track()</a></code>.</p></div>
     </div>
 
     <div class="section level2">

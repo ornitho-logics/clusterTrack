@@ -87,8 +87,9 @@ DTSCAN and time-aware DBSCAN.
 
 - [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md)
   : DTSCAN: Delaunay Triangulation-Based Spatial Clustering.
-- [`tdbscan()`](https://ornitho-logics.github.io/clusterTrack/reference/tdbscan.md)
-  : tdbscan
+- [`as_tdbscan()`](https://ornitho-logics.github.io/clusterTrack/reference/clusterTrack-deprecated.md)
+  [`tdbscan()`](https://ornitho-logics.github.io/clusterTrack/reference/clusterTrack-deprecated.md)
+  : Deprecated clusterTrack functions
 
 ## Diagnostics and scoring
 
@@ -98,7 +99,7 @@ Within- and between-cluster outlier scoring.
   :
 
   Compute cluster-wise local outlier factor scores with
-  [`dbscan::lof()`](https://rdrr.io/pkg/dbscan/man/lof.html)
+  [`dbscan::lof()`](https://michael.hahsler.net/dbscan/reference/lof.html)
 
 - [`ctdf_elongation()`](https://ornitho-logics.github.io/clusterTrack/reference/ctdf_elongation.md)
   : Summarise geometric elongation of clusters

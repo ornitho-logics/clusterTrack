@@ -41,7 +41,7 @@ retained as a single putative cluster.
 
 ## See also
 
-[`hdbscan`](https://rdrr.io/pkg/dbscan/man/hdbscan.html)
+[`hdbscan`](https://michael.hahsler.net/dbscan/reference/hdbscan.html)
 
 ## Examples
 

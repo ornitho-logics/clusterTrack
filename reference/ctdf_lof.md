@@ -1,7 +1,8 @@
 # Compute cluster-wise local outlier factor scores with `dbscan::lof()`
 
-Uses [`dbscan::lof()`](https://rdrr.io/pkg/dbscan/man/lof.html) to
-compute Local Outlier Factor (LOF) scores separately within each
+Uses
+[`dbscan::lof()`](https://michael.hahsler.net/dbscan/reference/lof.html)
+to compute Local Outlier Factor (LOF) scores separately within each
 `cluster` of a `ctdf`, and writes the result into the `lof` column.
 
 ## Usage
@@ -19,15 +20,20 @@ ctdf_lof(ctdf, minPts = NULL)
 - minPts:
 
   Optional integer passed to
-  [`dbscan::lof()`](https://rdrr.io/pkg/dbscan/man/lof.html). If `NULL`,
-  [`dbscan::lof()`](https://rdrr.io/pkg/dbscan/man/lof.html) is called
-  with its defaults.
+  [`dbscan::lof()`](https://michael.hahsler.net/dbscan/reference/lof.html).
+  If `NULL`,
+  [`dbscan::lof()`](https://michael.hahsler.net/dbscan/reference/lof.html)
+  is called with its defaults.
 
-  The function updates `ctdf` by reference by updating the `lof` column.
+## Value
+
+The input `ctdf` object, updated by reference with a numeric `lof`
+column containing Local Outlier Factor scores computed separately within
+each cluster. Locations with `cluster == 0` retain `NA` scores.
 
 ## See also
 
-[`dbscan::lof()`](https://rdrr.io/pkg/dbscan/man/lof.html),
+[`dbscan::lof()`](https://michael.hahsler.net/dbscan/reference/lof.html),
 [`cluster_track()`](https://ornitho-logics.github.io/clusterTrack/reference/cluster_track.md).
 
 ## Examples
