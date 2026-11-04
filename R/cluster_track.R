@@ -58,7 +58,7 @@
 #' data(mini_ruff)
 #' x = as_ctdf(mini_ruff) |> cluster_track()
 #'
-#' \dontrun{
+#' \donttest{
 #' data(pesa56511)
 #' pesa = as_ctdf(pesa56511, time = "locationDate") |> cluster_track()
 #'

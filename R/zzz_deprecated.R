@@ -1,24 +1,43 @@
-# TODO: properly deprecate before new major release!
-
-#' Coerce a track-like table to an sf object for tdbscan
+#' Deprecated clusterTrack functions
 #'
-#' A small convenience helper that renames a time column to `timestamp`,
-#' orders by time, and converts coordinates to an `sf` point geometry.
+#' `as_tdbscan()` and `tdbscan()` are deprecated. Use [as_ctdf()] and
+#' [cluster_track()] instead.
 #'
 #' @param x A `data.frame` or `data.table` containing coordinates and a time column.
 #' @param coords Character vector of length 2 giving coordinate column names.
 #' @param time Name of the time column.
 #' @param crs Coordinate reference system passed to `sf::st_as_sf()`.
-#' @return An `sf` object with a `timestamp` column.
+#' @param track An `sf` object ordered by time.
+#' @param eps Size of the epsilon neighborhood; see [dbscan::dbscan()].
+#' @param minPts Minimum number of points in an epsilon neighborhood.
+#' @param borderPoints Logical; whether to include border points.
+#' @param maxLag Maximum separation in row indices between connected points.
+#' @param minTenure Optional minimum cluster duration, in hours.
+#' @return `as_tdbscan()` returns an `sf` object with a `timestamp` column.
+#'   `tdbscan()` returns `track` with an integer `clustID` column;
+#'   unassigned locations have `NA` cluster IDs.
+#' @note `tdbscan()` was used in Kempenaers, B., Valcu, M., Piersma, T.,
+#'   Santema, P. and Vervoort, R. (2025). Large-scale sampling of potential
+#'   breeding sites in male ruffs. *Proceedings of the Royal Society B:
+#'   Biological Sciences*, **292**(2038), 20242225.
+#' @name clusterTrack-deprecated
 #' @keywords internal
 #' @export
+#' @examples
+#' data(pesa56511)
+#' x = as_tdbscan(pesa56511, time = "locationDate")
+#' x = sf::st_transform(x, "+proj=eqearth")
+#' z = tdbscan(track = x, eps = 6600, minPts = 8, maxLag = 6)
+#' table(z$clustID)
 as_tdbscan <- function(
   x,
   coords = c("longitude", "latitude"),
   time = "time",
   crs = 4326
 ) {
-  o = copy(x)
+  .Deprecated("as_ctdf", package = "clusterTrack")
+
+  o <- copy(x)
 
   setnames(o, time, "timestamp")
   setorder(o, timestamp)
@@ -27,29 +46,8 @@ as_tdbscan <- function(
 }
 
 
-#' tdbscan
-#'
-#' @param track        A sf object (for now).
-#' @param eps          size of the epsilon neighborhood (see [dbscan::dbscan()]  ).
-#' @param minPts       number of minimum points in the eps region (for core points).
-#'                     Default is 5 points (see [dbscan::dbscan()]  ).
-#' @param borderPoints Logical; default to FALSE (see [dbscan::dbscan()]  ).
-#' @param maxLag       maximum relative temporal lag (see notes). Default to 6.
-#' @param minTenure    minimum time difference, in hours, between the last and the first entry a cluster.
-#'                     Clusters with  values smaller than minTenure are discarded.
-#' @note
-#' When maxLag is set to `maxLag>N` output is the same as for [dbscan][dbscan::dbscan()].
-#'
-#'
+#' @rdname clusterTrack-deprecated
 #' @export
-#'
-#' @examples
-#' data(pesa56511)
-#' x = as_tdbscan(pesa56511, time = "locationDate")
-#' x = sf::st_transform(x, "+proj=eqearth")
-#' z = tdbscan(track = x, eps = 6600, minPts = 8, maxLag = 6)
-#' table(z$clustID)
-
 tdbscan <- function(
   track,
   eps,
@@ -58,17 +56,19 @@ tdbscan <- function(
   maxLag = 6,
   minTenure
 ) {
+  .Deprecated("cluster_track", package = "clusterTrack")
+
   stopifnot(inherits(track, 'sf'))
 
-  x = st_coordinates(track) |> data.table()
+  x <- st_coordinates(track) |> data.table()
   setnames(x, c('x', 'y'))
 
   # Find the Fixed Radius Nearest Neighbors
-  k = dbscan::frNN(x, eps = eps, sort = FALSE)
+  k <- dbscan::frNN(x, eps = eps, sort = FALSE)
 
-  ids = sapply(k$dist, length)
-  ids = rep(1:nrow(x), times = ids)
-  z = data.table(id = ids, ngb = unlist(k$id), dist = unlist(k$dist))
+  ids <- sapply(k$dist, length)
+  ids <- rep(1:nrow(x), times = ids)
+  z <- data.table(id = ids, ngb = unlist(k$id), dist = unlist(k$dist))
 
   # Define eps neighborhoods
   z[, n := .N + 1, by = id] # +1 because a pt is always in its own eps neighborhood
@@ -80,35 +80,35 @@ tdbscan <- function(
     z[!(isCluster), isCluster := z[!(isCluster), ngb] %in% z[(isCluster), id]]
   }
 
-  z = z[(isCluster)][, isCluster := NULL]
+  z <- z[(isCluster)][, isCluster := NULL]
 
   z[, tc := abs(id - ngb)] # used latter for temporal contiguity
 
   # Identify clusters
   z[, c("i1", "i2") := list(pmin(id, ngb), pmax(id, ngb))] # id-s should be unique
-  z = unique(z, by = c('i1', 'i2'))[, ':='(i1 = NULL, i2 = NULL)]
+  z <- unique(z, by = c('i1', 'i2'))[, ':='(i1 = NULL, i2 = NULL)]
 
   z[, id := as.character(id)] # so it will be  interpreted as symbolic vertex name by graph_from_edgelist
   z[, ngb := as.character(ngb)]
 
-  g = graph_from_edgelist(z[, .(id, ngb)] |> as.matrix(), directed = FALSE)
+  g <- graph_from_edgelist(z[, .(id, ngb)] |> as.matrix(), directed = FALSE)
 
   # set graph attributes and subset
-  g = set_edge_attr(g, 'tc', value = z$tc)
+  g <- set_edge_attr(g, 'tc', value = z$tc)
 
-  g = subgraph_from_edges(g, E(g)[tc <= maxLag])
+  g <- subgraph_from_edges(g, E(g)[tc <= maxLag])
 
-  gr = components(g) |> groups()
+  gr <- components(g) |> groups()
 
-  ids = sapply(gr, length)
-  ids = rep(names(ids), times = ids) |> as.integer()
-  o = data.table(id = unlist(gr), clustID = ids)
+  ids <- sapply(gr, length)
+  ids <- rep(names(ids), times = ids) |> as.integer()
+  o <- data.table(id = unlist(gr), clustID = ids)
   o[, id := as.numeric(id)]
 
   # add o to the original data
   x[, id := 1:.N]
 
-  o = merge(x, o, by = 'id', sort = FALSE, all.x = TRUE)
+  o <- merge(x, o, by = 'id', sort = FALSE, all.x = TRUE)
 
   # run dbscan on each cluster to check if they still hold
   o[
@@ -140,6 +140,6 @@ tdbscan <- function(
   o[, clustID := factor(clustID) |> fct_inorder() |> as.integer()]
   o[, .(id, clustID)]
 
-  track$clustID = o$clustID
+  track$clustID <- o$clustID
   track
 }

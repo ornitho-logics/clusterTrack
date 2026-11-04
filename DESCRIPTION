@@ -4,7 +4,7 @@ Version: 0.1.5
 Authors@R: 
     person("Mihai", "Valcu", , "mvalcu@gwdg.de", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0002-6907-7802"))
-Description: Detects spatiotemporally distinct use sites from animal telemetry tracks. The workflow combines recursive temporal segmentation of movement tracks, local spatial clustering based on Delaunay triangulation, and iterative spatial and temporal repair steps to reduce fragmentation and separate revisits in time. The package is designed for irregularly sampled relocation data, including noisy tracking data such as ARGOS as well as high-resolution GNSS tracks. Results are returned in a lightweight 'ctdf' object built on 'data.table' and 'sf', allowing direct downstream summarization and visualization.
+Description: Detects spatiotemporally distinct use sites from animal telemetry tracks. The workflow combines recursive temporal segmentation of movement tracks, local spatial clustering based on Delaunay triangulation, and iterative spatial and temporal repair steps to reduce fragmentation and separate revisits in time. The package supports irregularly sampled relocation data, ranging from lower-accuracy satellite telemetry to high-resolution Global Navigation Satellite System (GNSS) tracks. Results are returned in a lightweight 'ctdf' object built on 'data.table' and 'sf', allowing direct downstream summarization and visualization.
 Depends:
     R (>= 4.1.0)
 Imports:

@@ -10,9 +10,12 @@ ctdf_lof(ctdf, minPts = NULL)
 \item{ctdf}{A \code{ctdf} object .}
 
 \item{minPts}{Optional integer passed to \code{\link[dbscan:lof]{dbscan::lof()}}. If \code{NULL},
-\code{\link[dbscan:lof]{dbscan::lof()}} is called with its defaults.
-
-The function updates \code{ctdf} by reference by updating the \code{lof} column.}
+\code{\link[dbscan:lof]{dbscan::lof()}} is called with its defaults.}
+}
+\value{
+The input \code{ctdf} object, updated by reference with a numeric
+\code{lof} column containing Local Outlier Factor scores computed separately
+within each cluster. Locations with \code{cluster == 0} retain \code{NA} scores.
 }
 \description{
 Uses \code{\link[dbscan:lof]{dbscan::lof()}} to compute Local Outlier Factor (LOF) scores

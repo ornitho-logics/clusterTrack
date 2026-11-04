@@ -8,7 +8,9 @@
 #' @param minPts Optional integer passed to [dbscan::lof()]. If `NULL`,
 #'   [dbscan::lof()] is called with its defaults.
 #'
-#' The function updates `ctdf` by reference by updating the `lof` column.
+#' @return The input `ctdf` object, updated by reference with a numeric
+#'   `lof` column containing Local Outlier Factor scores computed separately
+#'   within each cluster. Locations with `cluster == 0` retain `NA` scores.
 #'
 #' @seealso [dbscan::lof()], [cluster_track()].
 #'
@@ -21,10 +23,10 @@
 #' x = ctdf_lof(x)
 #' head(x[, .(.id, cluster, lof)])
 ctdf_lof <- function(ctdf, minPts = NULL) {
-  o = ctdf[
+  o <- ctdf[
     cluster > 0,
     {
-      xy = sf::st_coordinates(location)
+      xy <- sf::st_coordinates(location)
 
       .(
         .id = .id,
@@ -90,7 +92,7 @@ ctdf_lof <- function(ctdf, minPts = NULL) {
 #' head(o)
 
 ctdf_elongation <- function(ctdf) {
-  empty = data.table(
+  empty <- data.table(
     cluster = NA_integer_,
     convex_hull_area = NA_real_,
     axis_length = NA_real_,
@@ -102,25 +104,25 @@ ctdf_elongation <- function(ctdf) {
     return(empty)
   }
 
-  x = ctdf[cluster > 0]
+  x <- ctdf[cluster > 0]
 
   if (nrow(x) < 3) {
     return(empty)
   }
 
-  scores = x[,
+  scores <- x[,
     {
-      coh = sf::st_union(location) |>
+      coh <- sf::st_union(location) |>
         sf::st_convex_hull()
 
-      rect = sf::st_minimum_rotated_rectangle(coh)
-      xy = sf::st_coordinates(rect)
+      rect <- sf::st_minimum_rotated_rectangle(coh)
+      xy <- sf::st_coordinates(rect)
 
       if (nrow(xy) < 3) {
         return(empty[-1, ])
       }
 
-      edges = sqrt(diff(xy[, "X"])^2 + diff(xy[, "Y"])^2)
+      edges <- sqrt(diff(xy[, "X"])^2 + diff(xy[, "Y"])^2)
 
       .(
         axis_length = max(edges),

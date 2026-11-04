@@ -1,11 +1,9 @@
+## Resubmission
 
+This is a resubmission following CRAN review.
 
-
-# CRAN submission notes
-
-This is a new submission.
-
-## Local check
-
-- Environment: Manjaro Linux x86_64, R 4.6.1.
-- `R CMD check --as-cran --no-manual clusterTrack_0.1.5.tar.gz`: 0 errors, 0 warnings, 0 notes.
+- Expanded acronyms in the DESCRIPTION field.
+- Regarding references to the implemented methods:
+  The methods are described in a manuscript that is currently under
+  review. A DOI reference will be added once the article is published.
+- Replaced `\dontrun{}` with `\donttest{}` as suggested.
