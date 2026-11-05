@@ -4,12 +4,12 @@
 \alias{slice_ctdf}
 \title{Slice a CTDF into putative clusters using temporal continuity and spatial clustering}
 \usage{
-slice_ctdf(ctdf, nmin = 5, deltaT)
+slice_ctdf(ctdf, n_min = 5, deltaT)
 }
 \arguments{
 \item{ctdf}{A \emph{CTDF} object.}
 
-\item{nmin}{Integer;  smallest size of a putative cluster.}
+\item{n_min}{Integer;  smallest size of a putative cluster.}
 
 \item{deltaT}{Numeric; maximum allowable time gap (in days) between segment endpoints for intersections
 to  consider them continuous.}

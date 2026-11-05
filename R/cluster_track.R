@@ -19,8 +19,8 @@
 #'
 #' @param ctdf A `ctdf` object (see [as_ctdf()]).
 #'
-#' @param nmin Integer; local DTSCAN support threshold. Passed to
-#'   [local_cluster_ctdf()] as `nmin`, then to [sf_dtscan()] as `min_pts`,
+#' @param n_min Integer; local DTSCAN support threshold. Passed to
+#'   [local_cluster_ctdf()] as `n_min`, then to [sf_dtscan()] as `min_pts`,
 #'   where it defines the minimum effective Delaunay-neighbour count for a
 #'   core site.
 #'
@@ -79,7 +79,7 @@
 
 cluster_track <- function(
   ctdf,
-  nmin = 3,
+  n_min = 3,
   z_min = 1,
   trim = 0.05,
   minCluster = 3,
@@ -111,7 +111,7 @@ cluster_track <- function(
 
   local_cluster_ctdf(
     ctdf,
-    nmin = nmin,
+    n_min = n_min,
     area_z_min = z_min * -1,
     length_z_min = z_min * -1
   )
@@ -151,7 +151,7 @@ cluster_track <- function(
 
   #collect parameters
   cluster_params <- list(
-    nmin = nmin,
+    n_min = n_min,
     minCluster = minCluster,
     z_min = z_min,
     trim = trim,

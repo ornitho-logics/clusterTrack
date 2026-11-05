@@ -7,7 +7,7 @@
 #'
 #'
 #' @param ctdf A `ctdf` object.
-#' @param nmin Integer; passed as `min_pts` to [sf_dtscan()] when clustering within each
+#' @param n_min Integer; passed as `min_pts` to [sf_dtscan()] when clustering within each
 #'   `.putative_cluster` region.
 #' @param area_z_min Numeric; passed to [sf_dtscan()] as `area_z_min`.
 #' @param length_z_min Numeric; passed to [sf_dtscan()] as `length_z_min`.
@@ -29,20 +29,20 @@
 
 local_cluster_ctdf <- function(
   ctdf,
-  nmin = 3,
+  n_min = 3,
   area_z_min = 0,
   length_z_min = 0
 ) {
   x = ctdf[!is.na(.putative_cluster)]
   x[, n := .N, by = .putative_cluster]
-  x = x[n > nmin]
+  x = x[n > n_min]
 
   x = x[,
     putative_cluster_local := {
       sf_dtscan(
         st_as_sf(.SD),
         id_col = '.id',
-        min_pts = nmin,
+        min_pts = n_min,
         area_z_min = area_z_min,
         length_z_min = length_z_min
       )

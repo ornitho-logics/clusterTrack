@@ -4,12 +4,12 @@
 \alias{local_cluster_ctdf}
 \title{Local clustering using DTSCAN}
 \usage{
-local_cluster_ctdf(ctdf, nmin = 3, area_z_min = 0, length_z_min = 0)
+local_cluster_ctdf(ctdf, n_min = 3, area_z_min = 0, length_z_min = 0)
 }
 \arguments{
 \item{ctdf}{A \code{ctdf} object.}
 
-\item{nmin}{Integer; passed as \code{min_pts} to \code{\link[=sf_dtscan]{sf_dtscan()}} when clustering within each
+\item{n_min}{Integer; passed as \code{min_pts} to \code{\link[=sf_dtscan]{sf_dtscan()}} when clustering within each
 \code{.putative_cluster} region.}
 
 \item{area_z_min}{Numeric; passed to \code{\link[=sf_dtscan]{sf_dtscan()}} as \code{area_z_min}.}

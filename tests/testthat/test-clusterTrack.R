@@ -18,7 +18,7 @@ test_that("cluster_track stores the parameters used", {
 
   cluster_track(
     x,
-    nmin = 4,
+    n_min = 4,
     z_min = 0.5,
     trim = 0.1,
     minCluster = 4,
@@ -31,7 +31,7 @@ test_that("cluster_track stores the parameters used", {
   expect_equal(
     params,
     list(
-      nmin = 4,
+      n_min = 4,
       minCluster = 4,
       z_min = 0.5,
       trim = 0.1,

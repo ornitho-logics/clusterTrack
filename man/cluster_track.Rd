@@ -6,7 +6,7 @@
 \usage{
 cluster_track(
   ctdf,
-  nmin = 3,
+  n_min = 3,
   z_min = 1,
   trim = 0.05,
   minCluster = 3,
@@ -18,8 +18,8 @@ cluster_track(
 \arguments{
 \item{ctdf}{A \code{ctdf} object (see \code{\link[=as_ctdf]{as_ctdf()}}).}
 
-\item{nmin}{Integer; local DTSCAN support threshold. Passed to
-\code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} as \code{nmin}, then to \code{\link[=sf_dtscan]{sf_dtscan()}} as \code{min_pts},
+\item{n_min}{Integer; local DTSCAN support threshold. Passed to
+\code{\link[=local_cluster_ctdf]{local_cluster_ctdf()}} as \code{n_min}, then to \code{\link[=sf_dtscan]{sf_dtscan()}} as \code{min_pts},
 where it defines the minimum effective Delaunay-neighbour count for a
 core site.}
 

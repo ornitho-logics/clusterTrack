@@ -100,7 +100,7 @@
 #' This function updates a \code{ctdf} in-place.
 #'
 #' @param ctdf A \emph{CTDF} object.
-#' @param nmin Integer;  smallest size of a putative cluster.
+#' @param n_min Integer;  smallest size of a putative cluster.
 #' @param deltaT Numeric; maximum allowable time gap (in days) between segment endpoints for intersections
 #'   to  consider them continuous.
 #'
@@ -118,7 +118,7 @@
 #' ctdf = as_ctdf(mini_ruff, s_srs = 4326, t_srs = "+proj=eqearth")
 #' ctdf = slice_ctdf(ctdf)
 
-slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
+slice_ctdf <- function(ctdf, n_min = 5, deltaT) {
   validate_ctdf(ctdf)
   ctdf[, .putative_cluster := NA]
 
@@ -148,7 +148,7 @@ slice_ctdf <- function(ctdf, nmin = 5, deltaT) {
       cli::cli_progress_update(id = pb, set = head - 1)
     }
 
-    if (nrow(current) <= nmin) {
+    if (nrow(current) <= n_min) {
       next # back to head, no need to test for clusters
     }
 
