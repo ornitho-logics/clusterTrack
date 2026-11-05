@@ -11,7 +11,7 @@ subclusters. The resulting labels are combined with the parent
 ## Usage
 
 ``` r
-local_cluster_ctdf(ctdf, nmin = 3, area_z_min = 0, length_z_min = 0)
+local_cluster_ctdf(ctdf, n_min = 3, area_z_min = 0, length_z_min = 0)
 ```
 
 ## Arguments
@@ -20,7 +20,7 @@ local_cluster_ctdf(ctdf, nmin = 3, area_z_min = 0, length_z_min = 0)
 
   A `ctdf` object.
 
-- nmin:
+- n_min:
 
   Integer; passed as `min_pts` to
   [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md)

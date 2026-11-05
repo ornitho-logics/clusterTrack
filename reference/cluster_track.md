@@ -9,7 +9,7 @@ track.
 ``` r
 cluster_track(
   ctdf,
-  nmin = 3,
+  n_min = 3,
   z_min = 1,
   trim = 0.05,
   minCluster = 3,
@@ -26,11 +26,11 @@ cluster_track(
   A `ctdf` object (see
   [`as_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/as_ctdf.md)).
 
-- nmin:
+- n_min:
 
   Integer; local DTSCAN support threshold. Passed to
   [`local_cluster_ctdf()`](https://ornitho-logics.github.io/clusterTrack/reference/local_cluster_ctdf.md)
-  as `nmin`, then to
+  as `n_min`, then to
   [`sf_dtscan()`](https://ornitho-logics.github.io/clusterTrack/reference/sf_dtscan.md)
   as `min_pts`, where it defines the minimum effective
   Delaunay-neighbour count for a core site.

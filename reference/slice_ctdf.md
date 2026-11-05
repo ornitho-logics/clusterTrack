@@ -9,7 +9,7 @@ clusters) .
 ## Usage
 
 ``` r
-slice_ctdf(ctdf, nmin = 5, deltaT)
+slice_ctdf(ctdf, n_min = 5, deltaT)
 ```
 
 ## Arguments
@@ -18,7 +18,7 @@ slice_ctdf(ctdf, nmin = 5, deltaT)
 
   A *CTDF* object.
 
-- nmin:
+- n_min:
 
   Integer; smallest size of a putative cluster.
 
